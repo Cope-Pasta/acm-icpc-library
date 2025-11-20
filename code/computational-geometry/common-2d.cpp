@@ -81,7 +81,7 @@ point_t rotate(point_t p, double a) {
 bool insidePoly(point_t *p, int n, point_t t) {
 	p[0] = p[n];
 	for (int i = 0; i < n; ++i) if (onSeg(t, p[i], p[i + 1])) return true;
-	point_t r = point_t(2353456.663, 5326546.243); // random point
+	point_t r = point_t(-3863456.6633422, 5126546.243); // random point
 	int cnt = 0;
 	for (int i = 0; i < n; ++i) {
 		if (testSS(t, r, p[i], p[i + 1]) != 0) ++cnt;

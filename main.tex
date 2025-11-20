@@ -72,25 +72,19 @@
 \section{Data Structure}
 \subsection{Splay}
 \lstinputlisting{code/splay.cpp}
-\subsection{Dynamic Tree}
+\subsection{Link-Cut Tree}
 \lstinputlisting{code/link-cut-tree.cpp}
-\subsection{KD Tree}
-\lstinputlisting{code/k-d-tree.cpp}
 \subsection{Treap}
 \lstinputlisting{code/treap.cpp}
-\subsection{President Treap}
-\lstinputlisting{code/president-treap.cpp}
-\subsection{President Segment Tree}
-\lstinputlisting{code/president-segment-tree.cpp}
 \section{String Algorithms}
 \subsection{Common}
 \lstinputlisting{code/string-library.cpp}
-\subsection{Aho-Crosick Automaton}
+\subsection{Aho-Corasick Automaton}
 \lstinputlisting{code/aho-corasick-automaton.cpp}
 \subsection{Suffix Array}
 \lstinputlisting{code/suffix-array.cpp}
 \section{Math}
-\subsection{Matrix Multiplication}
+\subsection{Matrix Tricks}
 \lstinputlisting{code/matrix.cpp}
 \paragraph{$\blacksquare$ Optimization of recursion matrix}
 \noindent \\
@@ -173,25 +167,15 @@ Minkowski sums are used in motion planning of an object among obstacles. They ar
 \lstinputlisting{code/computational-geometry/circle-tangent.cpp}
 \lstinputlisting{code/computational-geometry/circle-intersection.cpp}
 \lstinputlisting{code/computational-geometry/triangle-circle-area-intersection.cpp}
-\subsection{Circle Area Union}
-\lstinputlisting{code/computational-geometry/circle-area-union.cpp}
+% \subsection{Circle Area Union}
+% \lstinputlisting{code/computational-geometry/circle-area-union.cpp}
 \subsection{Minimum Covering Circle}
 \lstinputlisting{code/computational-geometry/minimum-circle.cpp}
 \subsection{Convex Polygon Area Union}
 \lstinputlisting{code/computational-geometry/polygon-area-union.cpp}
 \subsection{3D Common}
 \lstinputlisting{code/computational-geometry/common-3d.cpp}
-\subsection{3D Convex Hull}
-\lstinputlisting{code/computational-geometry/convex-hull-3d.cpp}
-\subsection{Quaternion}
-\lstinputlisting{code/computational-geometry/quaternion.cpp}
 \section{Graph}
-\subsection{Tarjan}
-\lstinputlisting{code/tarjan.cpp}
-For bidirectional graph(cut vertex \& bridge): \\
-root: $u$ has $2$ or more children. \\
-others: exist a child $v$ satifsying $dfn[u] \le low[v]$. \\
-$(u, v)$ is bridge only if $dfn[u] < low[v]$ (trick: multiple edges).\\
 \subsection{Maximum Flow}
 \lstinputlisting{code/sap-maximum-flow.cpp}
 Notes on vertex covering and independent set on bipartite graph:\\
@@ -201,45 +185,17 @@ Construct a flow graph $G$, run DFS from $s$ on reduction graph, the vertices no
 Maximum vertex independent set vice versa.\\
 \subsection{Minimum Cost, Maximum Flow}
 \lstinputlisting{code/minimum-cost-maximum-flow.cpp}
-\subsection{Kuhn Munkras}
-\lstinputlisting{code/kuhn-munkras.cpp}
-\subsection{Hopcroft Karp}
-\lstinputlisting{code/hopcroft-karp.cpp}
-\subsection{Blossom Matching}
-\lstinputlisting{code/blossom-matching.cpp}
-\subsection{Stoer Wagner}
-\lstinputlisting{code/stoer-wagner.cpp}
-\subsection{Arborescence}
-\lstinputlisting{code/arborescence.cpp}
-\subsection{Manhattan MST}
-\lstinputlisting{code/manhattan-mst.cpp}
 \subsection{Minimum Mean Cycle}
 \lstinputlisting{code/minimum-mean-cycle.cpp}
-\subsection{Divide and Conquer on Tree}
-\lstinputlisting{code/divide-and-conquer-on-tree.cpp}
-\subsection{Dominator Tree}
-\noindent
-A dominator tree is a tree where each node's children are those nodes it immediately dominates. Because the immediate dominator is unique, it is a tree. The start node is the root of the tree.
-\lstinputlisting{code/dominator-tree.cpp}
 \section{Miscellaneous}
 % \subsection{High Precision Calculation}
 % \lstinputlisting{code/high-precision-calculation.cpp}
-\subsection{Expression Parsing}
-\lstinputlisting{code/expression-parse.cpp}
-\subsection{Steiner's Problem}
-\lstinputlisting{code/steiner-problem.cpp}
-\subsection{AlphaBeta}
-\lstinputlisting{code/alphabeta.cpp}
-\subsection{LCA}
-\lstinputlisting{code/lowest-common-ancestor.cpp}
-\subsection{Dancing Links X}
-\lstinputlisting{code/dancing-links-x.cpp}
-Find the minimum row set, satisfying each column has exactly one $1$. \\
-Let the row representing each choice, if some choices are mutually exclusive, add a column with these rows associated. \\
-Use the sudoku problem as an instance. There are $729$ choices($81$ squares can be filled in with $9$ numbers), $4$ constraints:\\
-(1). Each box has exactly one number; \\
-(2). Number $1$ to $9$ appears exactly once in each row, column, sub square. \\
-Thus we can construct a $729*324$ matrix, each $81$ columns representing each constraint.\\
+\subsection{Convex Hull Trick}
+\lstinputlisting{code/convex-hull-trick.cpp}
+\subsection{Li Chao Tree}
+\lstinputlisting{code/li-chao-tree.cpp}
+\subsection{Strongly Connected Component}
+\lstinputlisting{code/scc.cpp}
 \subsection{Linear Programming}
 \lstinputlisting{code/simplex-linear-programming.cpp}
 \subsection{Simpson Integration}
@@ -247,19 +203,11 @@ Thus we can construct a $729*324$ matrix, each $81$ columns representing each co
 \subsection{Fast Fourier Transform}
 \lstinputlisting{code/fast-fourier-transform.cpp}
 \subsection{Number Theoretic Transform}
+$mod = c \cdot 2^k + 1 \rightarrow root = (primitive)^c$
 \lstinputlisting{code/number-theoretic-transform.cpp}
-\subsection{Mo-Tao Algorithm}
-\lstinputlisting{code/motao-algorithm.cpp}
-\subsection{Cyclic LCS}
-\lstinputlisting{code/cyclic-longest-common-subsequence.cpp}
 \section{Tips}
 \subsection{Useful Codes}
 \begin{itemize}
-\item Accelerated C++ stream IO
-\begin{lstlisting}[frame=none]
-#include <iomanip>
-ios_base::sync_with_stdio(false);
-\end{lstlisting}
 \item Enumerate all non-empty subsets
 \begin{lstlisting}[frame=none]
 for (int sub = mask; sub > 0; sub = (sub - 1) & mask)
@@ -270,13 +218,6 @@ for (int comb = (1 << k) - 1; comb < 1 << n; ) {
 	// ...
 	int x = comb & -comb, y = comb + x;
 	comb = ((comb & ~y) / x >> 1) | y;
-}
-\end{lstlisting}
-\item Convert YY/MM/DD to date
-\begin{lstlisting}[frame=none]
-int days(int y, int m, int d) {
-	if (m < 3) y--, m += 12;
-	return 365 * y + y / 4 - y / 100 + y / 400 + (153 * m + 2) / 5 + d;
 }
 \end{lstlisting}
 \end{itemize}
@@ -305,8 +246,6 @@ $S$ is the area of lattice polygon, $I$ is the number of lattice interior points
 % \item Ellipsoid \\
 % For ellipsoid with the standard equation in a Cartesian coordinate system $\frac{(x-x_0)^2}{a^2}+\frac{(y-y_0)^2}{b^2}+\frac{(z-z_0)^2}{c^2}=1$, $V=\frac{4}{3} \pi abc$.
 \item Ellipsoid $V=\frac{4}{3} \pi abc$.
-\item Tetrahedron \\
-For tetrahedron $O-ABC$, let $a=AB,b=BC,c=CA,d=OC,e=OA,f=OB$, ${(12V)}^2=a^2d^2(b^2+c^2+e^2+f^2-a^2-d^2)+b^2e^2(c^2+a^2+f^2+d^2-b^2-e^2)+c^2f^2(a^2+b^2+d^2+e^2-c^2-f^2)-a^2b^2c^2-a^2e^2f^2-d^2b^2f^2-d^2e^2c^2$.
 \end{itemize}
 \paragraph{$\blacksquare$ Radius of Inscribedcircle \& Circumcircle}
 \begin{eqnarray*}
@@ -316,11 +255,6 @@ For tetrahedron $O-ABC$, let $a=AB,b=BC,c=CA,d=OC,e=OA,f=OB$, ${(12V)}^2=a^2d^2(
 \begin{eqnarray*}
 && V_2=\pi R^2,\, S_2=2\pi R \\
 && V_3=\frac{4}{3}\pi R^3,\, S_3=4\pi R^2 \\
-&& V_4=\frac{1}{2}\pi ^2 R^4,\, S_4=2\pi ^2 R^3 \\
-&& V_5=\frac{8}{15}\pi ^2 R^5,\, S_5=\frac{8}{3}\pi ^2 R^4 \\
-&& V_6=\frac{1}{6}\pi ^3 R^6,\, S_6=\pi ^3 R^5 \\
-&& \mathrm{Generally}, V_n=\frac{2\pi}{n}V_{n-2},\, S_{n-1}=\frac{2\pi}{n-2}S_{n-3} \\
-&& \mathrm{Where}, S_0=2,\, V_1=2,\, S_1=2\pi ,\, V_2=\pi
 \end{eqnarray*}
 % \paragraph{$\blacksquare$ Affine Transformation}
 % \begin{gather*}
@@ -377,8 +311,6 @@ c+(1-c)A_x^2 & (1-c)A_xA_y-sA_z & (1-c)A_xA_z+sA_y \\
 && \sum_{k=1}^{n}k(k+1)(k+2)=\frac{n(n+1)(n+2)(n+3)}{4} \\
 && \sum_{k=1}^{n}k(k+1)(k+2)(k+3)=\frac{n(n+1)(n+2)(n+3)(n+4)}{5}
 \end{eqnarray*}
-\paragraph{$\blacksquare$ Power Reduction}
-$a^b\%p=a^{(b\% \varphi (p))+\varphi (p)}\% p \, (b \ge \varphi (p))$
 \paragraph{$\blacksquare$ Burnside's Lemma}
 \noindent
 \begin{displaymath}
@@ -428,17 +360,6 @@ $f'(x')\not\equiv 0 \mod p \Rightarrow x=x'-\frac{f(x')}{f'(x')}$
 && \sum_{0 \le k \le n}\mathrm{C}_{k}^{m}=\mathrm{C}_{n+1}^{m+1}\qquad \sum_{k}\mathrm{C}_{r}^{k}\mathrm{C}_{s}^{n-k}=\mathrm{C}_{r+s}^{n}
 \end{eqnarray*}
 The number of non-negative solutions to equation $x_1 + x_2 + x_3 + \ldots + x_k = n$ is $\binom{n+k-1}{k-1}$.
-\paragraph{$\blacksquare$ Probability Distribution}
-\begin{itemize}
-\item Binomial distribution:
-$\mathrm{Pr}[\mathit{X}=k]=\binom{n}{k}p^kq^{n-k}, p+q=1, \mathrm{E}[\mathit{X}]=np.$
-\item Poisson distribution:
-$\mathrm{Pr}[\mathit{X}=k]=\frac{e^{-\lambda }\lambda ^{k}}{k!}, \mathrm{E}[\mathit{X}]=\lambda .$
-\item Gaussian distribution:
-$p(x)=\frac{1}{\sigma \sqrt{2\pi }}e^{-(x-\mu)^2/2\sigma ^2}, \mathrm{E}[\mathit{X}]=\mu .$
-\item Geometric distribution:
-$\mathrm{Pr}[\mathit{X}=k]=pq^{k-1}, p+q=1, \mathrm{E}[\mathit{X}]=\frac{1}{p}.$
-\end{itemize}
 \paragraph{$\blacksquare$ Catalan Number}
 \noindent \\
 The number of sequences with $1$ of $m$ and $-1$ of $n$, and m$\ge n$, satifisying the constraint that any sum of the first $k$ elements is always non-negative: $\mathrm{C}_{m+n}^{m}-\mathrm{C}_{m+n}^{m+1}$. \\
@@ -460,14 +381,16 @@ If $p$ is a prime then, $B_{p+n} \equiv B_n+B_{n+1} (mod \; p)$, $B_{p^m+n} \equ
 The number of permutations of n elements with no fixed points, denotes as $D_n$. \\
 $D_n=n!(1-\frac{1}{1!}+\frac{1}{2!}-\frac{1}{3!}+\ldots +{(-1)}^n\frac{1}{n!})$, or $D_n=n*D_{n-1}+{(-1)}^n,D_n=(n-1)*(D_{n-1}+D_{n-2})$, with $D_1=1,D_2=1$.
 The first 10 derangement numbers are $0$, $1$, $2$, $9$, $44$, $265$, $1854$, $14833$, $133496$, $41334961$, from $n=1$.
-\subsubsection{Integration}
-\input{integration.tex}
-\subsection{Primes}
-\noindent
-$100003$, $200003$, $300007$, $400009$, $500009$, $600011$, $700001$, $800011$, $900001$, \\
-$1000003$, $2000003$, $3000017$, $4100011$, $5000011$, $8000009$, $9000011$, \\
-$10000019$, $20000003$, $50000017$, $50100007$, \\
-$100000007$, $100200011$, $200100007$, $250000019$
+% \subsubsection{Integration}
+% \input{integration.tex}
+\subsection{Compiler}
+\lstinputlisting{code/gcc.sh}
+\subsection{Prefix sum on multiplicative function}
+\lstinputlisting{code/prefix-multiplicative.cpp}
+\subsection{Lagrange}
+$A(x) = \sum\limits_{i=1}^{n} y_i \prod\limits_{j \ne i} \dfrac{x - x_j}{x_i - x_j}$ - $O(n^2)$. \\
+D\&Q $O(n \log^2(n))$: $A_{l, r} = A_{l, m} \cdot P_{m + 1, r} + A_{m + 1, r} \cdot P_{l, m}$; $P_{l, r} = P_{l, m} \cdot P_{m + 1, r}$
+
 % \subsection{Vimrc}
 % \begin{verbatim}
 % syntax on
@@ -490,7 +413,5 @@ $100000007$, $100200011$, $200100007$, $250000019$
 % prog : prog.cpp
 %	g++ -o prog -g prog.cpp -Wall
 % \end{verbatim}
-\subsection{Java Fast IO}
-\lstinputlisting[language=Java]{code/java.java}
 
 \end{document}

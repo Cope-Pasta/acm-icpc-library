@@ -1,67 +1,70 @@
-struct node {
-	int v, key, size;
-	node *c[2];
-	void resize() { size = c[0]->size + c[1]->size + 1; }
+struct item {
+    int key, prior;
+    item *l, *r;
+    item () { }
+    item (int key) : key(key), prior(rand()), l(nullptr), r(nullptr) { }
+    item (int key, int prior) : key(key), prior(prior), l(nullptr), r(nullptr) { }
 };
-node *newNode(int _v, node *n) {
-	++ref;
-	pool[ref].v = _v, pool[ref].c[0] = pool[ref].c[1] = n, pool[ref].size = 1, pool[ref].key = rand();
-	return &pool[ref];
+typedef item* pitem;
+
+void split (pitem t, pitem & l, pitem & r, int key, int add = 0) {
+    if (!t)
+        return void( l = r = 0 );
+    int cur_key = add + cnt(t->l); //implicit key
+    if (key <= cur_key)
+        split (t->l, l, t->l, key, add),  r = t;
+    else
+        split (t->r, t->r, r, key, add + 1 + cnt(t->l)),  l = t;
+    upd_cnt (t);
 }
-struct Treap {
-	node *root, *nil;
-	void rotate(node *&t, int d) {
-		node *c = t->c[d];
-		t->c[d] = c->c[!d];
-		c->c[!d] = t;
-		t->resize(); c->resize();
-		t = c;
-	}
-	void insert(node *&t, int x) {
-		if (t == nil) t = newNode(x, nil);
-		else {
-			if (x == t->v) return;
-			int d = x > t->v;
-			insert(t->c[d], x);
-			if (t->c[d]->key < t->key) rotate(t, d);
-			else t->resize();
-		}
-	}
-	void remove(node *&t, int x) {
-		if (t == nil) return;
-		if (t->v == x) {
-			int d = t->c[1]->key < t->c[0]->key;
-			if (t->c[d] == nil) {
-				t = nil;
-				return;
-			}
-			rotate(t, d);
-			remove(t->c[!d], x);
-		} else {
-			int d = x > t->v;
-			remove(t->c[d], x);
-		}
-		t->resize();
-	}
-	int rank(node *t, int x) {
-		if (t == nil) return 0;
-		int r = t->c[0]->size;
-		if (x == t->v) return r + 1;
-		if (x < t->v) return rank(t->c[0], x);
-		return r + 1 + rank(t->c[1], x);
-	}
-	int select(node *t, int k) {
-		int r = t->c[0]->size;
-		if (k == r + 1) return t->v;
-		if (k <= r) return select(t->c[0], k);
-		return select(t->c[1], k - r - 1);
-	}
-	int size() {
-		return root->size;
-	}
-	void init(int *a, int n) {
-		nil = newNode(0, 0);
-		nil->size = 0, nil->key = ~0U >> 1;
-		root = nil;
-	}
-};
+
+void insert (pitem & t, pitem it) {
+    if (!t)
+        t = it;
+    else if (it->prior > t->prior)
+        split (t, it->key, it->l, it->r),  t = it;
+    else
+        insert (t->key <= it->key ? t->r : t->l, it);
+	upd_cnt (t);
+}
+
+void merge (pitem & t, pitem l, pitem r) {
+    if (!l || !r)
+        t = l ? l : r;
+    else if (l->prior > r->prior)
+        merge (l->r, l->r, r),  t = l;
+    else
+        merge (r->l, l, r->l),  t = r;
+    upd_cnt (t);
+}
+
+void erase (pitem & t, int key) {
+    if (t->key == key) {
+        pitem th = t;
+        merge (t, t->l, t->r);
+        delete th;
+    }
+    else
+        erase (key < t->key ? t->l : t->r, key);
+	upd_cnt (t);
+}
+
+pitem unite (pitem l, pitem r) {
+    if (!l || !r)  return l ? l : r;
+    if (l->prior < r->prior)  swap (l, r);
+    pitem lt, rt;
+    split (r, l->key, lt, rt);
+    l->l = unite (l->l, lt);
+    l->r = unite (l->r, rt);
+	upd_cnt (l);
+    return l;
+}
+
+int cnt (pitem t) {
+    return t ? t->cnt : 0;
+}
+
+void upd_cnt (pitem t) {
+    if (t)
+        t->cnt = 1 + cnt(t->l) + cnt (t->r);
+}
