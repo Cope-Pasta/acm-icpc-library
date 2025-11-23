@@ -62,3 +62,18 @@ ve<ll> multiply(ve<int> a, ve<int> b)
 		res[i] = round(ca[i].imag() / 2);
 	return res;
 }
+
+void preprocess()
+{
+	w[0] = {1};
+	for (int i = 1; i < LG; i++)
+	{
+		complex<ld> cw(cos(pi * 2 / (1 << i)), sin(pi * 2 / (1 << i)));
+		w[i].resize(1 << i);
+		for (int j = 0; j < (1 << (i - 1)); j++)
+		{
+			w[i][j * 2] = w[i - 1][j];
+			w[i][j * 2 + 1] = w[i - 1][j] * cw;
+		}
+	}
+}
