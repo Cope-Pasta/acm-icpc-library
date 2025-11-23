@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: build-pdf
+        name: Build pdf
+        entry: make
+        language: system
+        pass_filenames: false
+        always_run: true
