@@ -212,7 +212,7 @@ $mod = c \cdot 2^k + 1 \rightarrow root = (primitive)^c$
 \begin{lstlisting}[frame=none]
 for (int sub = mask; sub > 0; sub = (sub - 1) & mask)
 \end{lstlisting}
-\item Enumerate $\mathrm{C}_{n}^{k}$
+\item Enumerate $\binom{n}{k}$
 \begin{lstlisting}[frame=none]
 for (int comb = (1 << k) - 1; comb < 1 << n; ) {
 	// ...
@@ -355,14 +355,14 @@ $f'(x')\equiv 0 \mod p$ \textbf{and} $f(x')\equiv 0 \mod p^a \Rightarrow x=x'+dp
 $f'(x')\not\equiv 0 \mod p \Rightarrow x=x'-\frac{f(x')}{f'(x')}$
 \paragraph{$\blacksquare$ Binomial Coefficients}
 \begin{eqnarray*}
-&& \mathrm{C}_{r}^{k}=\frac{r}{k}\mathrm{C}_{r-1}^{k-1}\qquad \qquad \: \: \: \mathrm{C}_{r}^{k}=\mathrm{C}_{r-1}^{k}+\mathrm{C}_{r-1}^{k-1} \\
-&& \mathrm{C}_{r}^{m}\mathrm{C}_{m}^{k}=\mathrm{C}_{r}^{k}\mathrm{C}_{r-k}^{m-k}\qquad \sum_{k\le n}\mathrm{C}_{r+k}^{k}=\mathrm{C}_{r+n+1}^{n} \\
-&& \sum_{0 \le k \le n}\mathrm{C}_{k}^{m}=\mathrm{C}_{n+1}^{m+1}\qquad \sum_{k}\mathrm{C}_{r}^{k}\mathrm{C}_{s}^{n-k}=\mathrm{C}_{r+s}^{n}
+&& \binom{r}{k}=\frac{r}{k}\binom{r-1}{k-1}\qquad \qquad\qquad \: \: \binom{r}{k}=\binom{r-1}{k}+\binom{r-1}{k-1} \\
+&& \binom{r}{m}\binom{m}{k}=\binom{r}{k}\binom{r-k}{m-k}\qquad \: \sum_{k\le n}\binom{r+k}{k}=\binom{r+n+1}{n} \\
+&& \sum_{0 \le k \le n}\binom{k}{m}=\binom{n+1}{m+1}\qquad\qquad \sum_{k}\binom{r}{k}\binom{s}{n-k}=\binom{r+s}{n}
 \end{eqnarray*}
 The number of non-negative solutions to equation $x_1 + x_2 + x_3 + \ldots + x_k = n$ is $\binom{n+k-1}{k-1}$.
 \paragraph{$\blacksquare$ Catalan Number}
 \noindent \\
-The number of sequences with $1$ of $m$ and $-1$ of $n$, and m$\ge n$, satifisying the constraint that any sum of the first $k$ elements is always non-negative: $\mathrm{C}_{m+n}^{m}-\mathrm{C}_{m+n}^{m+1}$. \\
+The number of sequences with $1$ of $m$ and $-1$ of $n$, and m$\ge n$, satifisying the constraint that any sum of the first $k$ elements is always non-negative: $\binom{m+n}{m}-\binom{m+n}{m+1}$. \\
 Specially, when $m=n$, it equals to $\mathrm{C}_{n}=\frac{\mathrm{C}_{2n}^{n}}{n+1}$, which is the Catalan number. \\
 The first 10 Catalan numbers are $1$, $2$, $5$, $14$, $42$, $132$, $429$, $1430$, $4862$, $16796$, from $n=1$, and $C_0=1$. \\
 Besides, $C_{n+1}=\sum_{i=0}^{n}C_{i}C_{n-i}$, for $n\ge 0$.
