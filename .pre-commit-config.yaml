@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: build-pdf
+        name: Build pdf
+        entry: bash
+        args: ['-c', 'make && git add main.pdf']
+        language: system
+        pass_filenames: false
+        always_run: true
