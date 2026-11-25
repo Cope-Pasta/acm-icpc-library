@@ -1,8 +1,10 @@
 // sa[i]: i-th smallest suffix, r[i]: rank of suffix i, h[i] = lcp(sa[i - 1], sa[i]); all 0-indexed
-int n; vector<int> sa, r, h; vector<vector<int>> mv;
-void construct(const vector<int/* Type */> &s) {
+int n;
+vector<int> sa, r, h;
+vector<vector<int>> mv;
+void construct(const vector<int /* Type */> &s) {
 	n = s.size(), sa.assign(n, 0), r.assign(n + n, 0), h.assign(n, 0); // r is `doubled`
-	vector<pair<int/* Type */, int>> ord(n);
+	vector<pair<int /* Type */, int>> ord(n);
 	for (int i = 0; i < n; ++i) ord[i] = make_pair(s[i], i);
 	sort(all(ord));
 	for (int i = 0; i < n; ++i) {
@@ -12,8 +14,10 @@ void construct(const vector<int/* Type */> &s) {
 	vector<int> tr(n), tsa(n), c(n + 1);
 	for (int l = 1; l < n; l <<= 1) {
 		int cnt = 0;
-		for (int i = 0; i < n; ++i) if (sa[i] + l >= n) tsa[cnt++] = sa[i];
-		for (int i = 0; i < n; ++i) if (sa[i] >= l) tsa[cnt++] = sa[i] - l;
+		for (int i = 0; i < n; ++i)
+			if (sa[i] + l >= n) tsa[cnt++] = sa[i];
+		for (int i = 0; i < n; ++i)
+			if (sa[i] >= l) tsa[cnt++] = sa[i] - l;
 		fill(all(c), 0);
 		for (int i = 0; i < n; ++i) ++c[r[i]];
 		for (int i = 1; i <= n; ++i) c[i] += c[i - 1];
@@ -29,7 +33,10 @@ void construct(const vector<int/* Type */> &s) {
 	for (int &x : r) --x;
 	for (int i = 0, k = 0; i < n; ++i) { /* Height && RMQ */
 		if (k > 0) --k;
-		if (r[i] == 0) { k = 0; continue; }
+		if (r[i] == 0) {
+			k = 0;
+			continue;
+		}
 		for (int j = sa[r[i] - 1]; max(i, j) + k < n && s[i + k] == s[j + k]; ++k);
 		h[r[i]] = k;
 	}

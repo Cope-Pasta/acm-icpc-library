@@ -10,7 +10,8 @@ struct node_t {
 	int sd;
 	node_t *l, *r;
 };
-vector<node_t> node; node_t *root;
+vector<node_t> node;
+node_t *root;
 struct cmp_t {
 	int dd;
 	bool operator()(const point_t &a, const point_t &b) {

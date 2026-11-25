@@ -9,8 +9,7 @@ const ld pi = acosl(-1);
 const int LG = 22;
 ve<complex<ld>> w[LG];
 
-void fft(vc &a, int clg)
-{
+void fft(vc &a, int clg) {
 	int n = a.size();
 	ve<int> dp(n, 0);
 	for (int i = 1; i < n; i++)
@@ -18,12 +17,10 @@ void fft(vc &a, int clg)
 	for (int i = 0; i < n; i++)
 		if (i < dp[i])
 			swap(a[i], a[dp[i]]);
-	for (int i = 1; i <= clg; i++)
-	{
+	for (int i = 1; i <= clg; i++) {
 		int m = 1 << i;
 		for (int j = 0; j < n; j += m)
-			for (int k = 0; k < m / 2; k++)
-			{
+			for (int k = 0; k < m / 2; k++) {
 				auto x = a[j + k], y = a[j + k + m / 2];
 				a[j + k] = x + w[i][k] * y;
 				a[j + k + m / 2] = x - w[i][k] * y;
@@ -31,20 +28,17 @@ void fft(vc &a, int clg)
 	}
 }
 
-void ifft(vc &a, int clg)
-{
+void ifft(vc &a, int clg) {
 	fft(a, clg);
 	reverse(a.begin() + 1, a.end());
 	for (auto &i : a)
 		i /= a.size();
 }
 
-ve<ll> multiply(ve<int> a, ve<int> b)
-{
+ve<ll> multiply(ve<int> a, ve<int> b) {
 	int n = 1, clg = 0;
 	int m = a.size() + b.size() - 1;
-	while (n < m)
-	{
+	while (n < m) {
 		n *= 2;
 		clg++;
 	}
@@ -63,15 +57,12 @@ ve<ll> multiply(ve<int> a, ve<int> b)
 	return res;
 }
 
-void preprocess()
-{
+void preprocess() {
 	w[0] = {1};
-	for (int i = 1; i < LG; i++)
-	{
+	for (int i = 1; i < LG; i++) {
 		complex<ld> cw(cos(pi * 2 / (1 << i)), sin(pi * 2 / (1 << i)));
 		w[i].resize(1 << i);
-		for (int j = 0; j < (1 << (i - 1)); j++)
-		{
+		for (int j = 0; j < (1 << (i - 1)); j++) {
 			w[i][j * 2] = w[i - 1][j];
 			w[i][j * 2 + 1] = w[i - 1][j] * cw;
 		}

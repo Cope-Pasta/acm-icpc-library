@@ -28,8 +28,10 @@ int solve(const vector<int> &a, const vector<int> &f, ll n) {
 	}
 	vector<int> ret(k), x(k);
 	ret[0] = 1;
-	if (k > 1) x[1] = 1; else x[0] = coef[0][0];
-	for (; n; n >>= 1, x = mul(x, x)) if (n & 1) ret = mul(ret, x);
+	if (k > 1) x[1] = 1;
+	else x[0] = coef[0][0];
+	for (; n; n >>= 1, x = mul(x, x))
+		if (n & 1) ret = mul(ret, x);
 	for (int i = 0; i < k; ++i) r = (r + (ll)ret[i] * f[i]) % mod;
 	return r;
 }

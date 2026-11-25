@@ -84,7 +84,8 @@ point_t rotate(point_t p, double a) {
 
 bool insidePoly(const vector<point_t> &p, point_t t) {
 	int n = p.size();
-	for (int i = 0; i < n; ++i) if (onSeg(t, p[i], p[(i + 1) % n])) return true;
+	for (int i = 0; i < n; ++i)
+		if (onSeg(t, p[i], p[(i + 1) % n])) return true;
 	point_t r = point_t(-3863456.6633422, 5126546.243); // random point
 	int cnt = 0;
 	for (int i = 0; i < n; ++i) {

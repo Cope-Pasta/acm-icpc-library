@@ -29,7 +29,8 @@ double distLL(point3_t p1, point3_t u, point3_t p2, point3_t v) {
 	double t = dot(u, u) * dot(v, p1 - p2) - dot(u, v) * dot(u, p1 - p2);
 	double deno = dot(u, u) * dot(v, v) - dot(u, v) * dot(u, v);
 	if (dblcmp(deno) == 0) return dist(p1, p2 + v * (dot(p1 - p2, u) / dot(u, v)));
-	s /= deno; t /= deno;
+	s /= deno;
+	t /= deno;
 	point3_t a = p1 + u * s, b = p2 + v * t;
 	return dist(a, b);
 }

@@ -9,12 +9,14 @@ vector<node> T; // Fenwick tree, 1-indexed
 
 int query(int x) {
 	int r = maxint, p = -1;
-	for (; x < int(T.size()); x += (x & -x)) if (T[x].value < r) r = T[x].value, p = T[x].p;
+	for (; x < int(T.size()); x += (x & -x))
+		if (T[x].value < r) r = T[x].value, p = T[x].p;
 	return p;
 }
 
 void modify(int x, int w, int p) {
-	for (; x > 0; x -= (x & -x)) if (T[x].value > w) T[x].value = w, T[x].p = p;
+	for (; x > 0; x -= (x & -x))
+		if (T[x].value > w) T[x].value = w, T[x].p = p;
 }
 
 int manhattan(vector<point> p) { // add(u, v, w) gets 0-indexed point ids
@@ -29,7 +31,8 @@ int manhattan(vector<point> p) { // add(u, v, w) gets 0-indexed point ids
 		sort(all(p));
 		vector<int> v, a(n);
 		for (int i = 0; i < n; ++i) a[i] = p[i].y - p[i].x, v.push_back(a[i]);
-		sort(all(v)); v.erase(unique(all(v)), v.end());
+		sort(all(v));
+		v.erase(unique(all(v)), v.end());
 		for (int i = 0; i < n; ++i) a[i] = lower_bound(all(v), a[i]) - v.begin() + 1;
 		T.assign(n + 1, {maxint, -1});
 		for (int i = n - 1; i >= 0; --i) {

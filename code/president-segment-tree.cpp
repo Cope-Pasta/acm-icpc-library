@@ -3,7 +3,7 @@ struct Node {
 	Node *left, *right;
 } *nil;
 deque<Node> pool; // deque: push_back keeps pointers valid
-vector<Node*> root; // root[i]: version i, positions 0..n-1
+vector<Node *> root; // root[i]: version i, positions 0..n-1
 vector<int> a;
 
 Node *newNode(int _d, int _s, Node *_left, Node *_right) {
@@ -19,7 +19,8 @@ Node *build(int l, int r) {
 }
 
 void init() { // ask/add on [0, n - 1]
-	pool.clear(); nil = newNode(0, 0, NULL, NULL);
+	pool.clear();
+	nil = newNode(0, 0, NULL, NULL);
 	root = {build(0, a.size() - 1)};
 }
 

@@ -12,7 +12,7 @@ pair<double, double> isCC(point_t c1, point_t c2, double r1, double r2) {
 struct event_t {
 	double theta;
 	int delta;
-	event_t(double t, int d) : theta(t), delta(d) { }
+	event_t(double t, int d) : theta(t), delta(d) {}
 	bool operator<(const event_t &r) const {
 		if (fabs(theta - r.theta) < eps) return delta > r.delta;
 		return theta < r.theta;
@@ -53,7 +53,7 @@ vector<double> circle_union(const vector<point_t> &center, const vector<double> 
 				if (r == 2) ++cvrcnt;
 				else if (r == 0) {
 					pair<double, double> paa = isCC(center[c], center[i], radius[c], radius[i]);
-					add(paa.first, paa.second);	
+					add(paa.first, paa.second);
 				}
 			}
 		}
@@ -74,4 +74,4 @@ vector<double> circle_union(const vector<point_t> &center, const vector<double> 
 		}
 	}
 	return cntarea;
-}
+}

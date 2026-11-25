@@ -63,4 +63,7 @@ void link(node_t *x, node_t *y) {
 	access(y);
 }
 
-void init(int n) { nil->size = 0; s.assign(n, node_t()); }
+void init(int n) {
+	nil->size = 0;
+	s.assign(n, node_t());
+}

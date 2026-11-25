@@ -2,7 +2,7 @@
 struct hp_t {
 	point_t p1, p2;
 	double a;
-	hp_t() { }
+	hp_t() {}
 	hp_t(point_t tp1, point_t tp2) : p1(tp1), p2(tp2) {
 		tp2 = tp2 - tp1;
 		a = atan2(tp2.y, tp2.x);
@@ -41,12 +41,12 @@ vector<point_t> hp_inter() {
 	DQ.push_back(hp[0]);
 	DQ.push_back(hp[1]);
 	for (int i = 2; i < (int)hp.size(); ++i) {
-		while (DQ.size() > 1 && checkhp(*----DQ.end(), *--DQ.end(), hp[i])) DQ.pop_back();
+		while (DQ.size() > 1 && checkhp(*-- --DQ.end(), *--DQ.end(), hp[i])) DQ.pop_back();
 		while (DQ.size() > 1 && checkhp(*++DQ.begin(), *DQ.begin(), hp[i])) DQ.pop_front();
 		if (dblcmp(cross(DQ.back().p2 - DQ.back().p1, hp[i].p2 - hp[i].p1)) == 0) return {}; // opposite half-planes met: empty
 		DQ.push_back(hp[i]);
 	}
-	while (DQ.size() > 1 && checkhp(*----DQ.end(), *--DQ.end(), DQ.front())) DQ.pop_back();
+	while (DQ.size() > 1 && checkhp(*-- --DQ.end(), *--DQ.end(), DQ.front())) DQ.pop_back();
 	while (DQ.size() > 1 && checkhp(*++DQ.begin(), *DQ.begin(), DQ.back())) DQ.pop_front();
 	if (DQ.size() < 3) return {};
 	DQ.push_front(DQ.back());

@@ -1,8 +1,9 @@
 #!/bin/sh
-# Check that every snippet compiles, then rebuild main.pdf and include it in the commit.
+# Check formatting and that every snippet compiles, then rebuild main.pdf and include it in the commit.
 set -e
 
 cd "$(git rev-parse --show-toplevel)"
+make format-check || { echo 'pre-commit: format check failed (see above). If files need formatting, run "make format" and re-stage.' >&2; exit 1; }
 make check
 make
 git add main.pdf

@@ -4,11 +4,13 @@ vector<bool> cut; // cut.assign(n, false)
 
 void bfs(int r) { // bfs in each sub-tree
 	parent[r] = -1, ver.clear(); // maintain root extra information
-	static queue<int> Q; static stack<int> U;
+	static queue<int> Q;
+	static stack<int> U;
 	Q.push(r);
 	while (!Q.empty()) {
 		int u = Q.front();
-		Q.pop(); U.push(u);
+		Q.pop();
+		U.push(u);
 		sz[u] = 1, ver.push_back(u); // find a node in sub-tree
 		for (int v : edge[u]) {
 			if (v == parent[u] || cut[v]) continue;
@@ -17,7 +19,8 @@ void bfs(int r) { // bfs in each sub-tree
 		}
 	}
 	while (!U.empty()) {
-		int u = U.top(); U.pop();
+		int u = U.top();
+		U.pop();
 		if (parent[u] != -1) sz[parent[u]] += sz[u];
 	}
 }
@@ -46,7 +49,8 @@ int work(int u) {
 	u = findCentre(u);
 	cut[u] = true;
 	for (int v : edge[u]) {
-		if (!cut[v]) /*result += */work(v); // process each sub-tree
+		if (!cut[v]) /*result += */
+			work(v); // process each sub-tree
 	}
 	for (int v : edge[u]) {
 		if (cut[v]) continue;

@@ -16,7 +16,8 @@ void node_t::update() {
 
 node_t *newNode(int cnt) {
 	++pt;
-	s[pt].cnt = cnt; s[pt].p = s[pt].ch[0] = s[pt].ch[1] = nil;
+	s[pt].cnt = cnt;
+	s[pt].p = s[pt].ch[0] = s[pt].ch[1] = nil;
 	s[pt].update();
 	return &s[pt];
 }
@@ -83,7 +84,8 @@ void removeAll(node_t *x) { // Remove all the whole subtree of x
 }
 
 void remove(node_t *x) { // Remove the single node x
-	node_t *p = prev(x); node_t *s = succ(x);
+	node_t *p = prev(x);
+	node_t *s = succ(x);
 	splay(p);
 	splay(s, p);
 	removeAll(s->ch[0]);

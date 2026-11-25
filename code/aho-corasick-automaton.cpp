@@ -1,5 +1,7 @@
 struct trie_t { // node 0 is the root
-	vector<array<int, C>> ch; vector<int> fail; vector<bool> flag;
+	vector<array<int, C>> ch;
+	vector<int> fail;
+	vector<bool> flag;
 	trie_t() : ch(1), fail(1), flag(1) {}
 	void add(const string &str) {
 		int p = 0;
@@ -12,9 +14,11 @@ struct trie_t { // node 0 is the root
 	}
 	void build() {
 		queue<int> q;
-		for (int i = 0; i < C; ++i) if (ch[0][i]) q.push(ch[0][i]);
+		for (int i = 0; i < C; ++i)
+			if (ch[0][i]) q.push(ch[0][i]);
 		while (!q.empty()) {
-			int p = q.front(); q.pop();
+			int p = q.front();
+			q.pop();
 			flag[p] = flag[p] || flag[fail[p]];
 			for (int i = 0; i < C; ++i) {
 				int &v = ch[p][i];

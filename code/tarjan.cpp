@@ -1,9 +1,12 @@
 int ind, color; // vertices 0..n-1, dfn[u] = 0 if unvisited, timer starts at 1
-vector<int> dfn, low, block; vector<bool> instack; vector<vector<int>> edge; stack<int> sk;
+vector<int> dfn, low, block;
+vector<bool> instack;
+vector<vector<int>> edge;
+stack<int> sk;
 
 void tarjan(int u) {
 	dfn[u] = low[u] = ++ind;
-	sk.push(u), instack[u] = true; 
+	sk.push(u), instack[u] = true;
 	for (int v : edge[u]) { // Check if v is the parent of u(BCC)
 		if (!dfn[v]) {
 			tarjan(v);

@@ -11,7 +11,8 @@ void init(int m) { // m: number of columns
 void insert(int row, const vector<int> &t) { // t: columns of 1
 	int first = L.size();
 	for (int col : t) {
-		int pt = L.size(); ++col, ++S[col];
+		int pt = L.size();
+		++col, ++S[col];
 		C.push_back(col), A.push_back(row), U.push_back(col), D.push_back(D[col]);
 		U[D[col]] = pt, D[col] = pt;
 		L.push_back(pt), R.push_back(pt);

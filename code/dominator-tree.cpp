@@ -3,7 +3,8 @@ vector<vector<int>> edge, pred, bucket; // edge.assign(n, {})
 vector<int> parent, label, rev, semi, idom, ancestor, best;
 
 void dfs(int u) {
-	label[u] = cnt; rev[cnt++] = u;
+	label[u] = cnt;
+	rev[cnt++] = u;
 	for (int v : edge[u]) {
 		if (v == parent[u] || label[v] != -1) continue;
 		parent[v] = u;

@@ -11,7 +11,7 @@ bool operator==(const point_t &a, const point_t &b) {
 struct segment_t {
 	point_t a, b;
 	segment_t() { a = b = point_t(); }
-	segment_t(point_t ta, point_t tb) : a(ta), b(tb) { }
+	segment_t(point_t ta, point_t tb) : a(ta), b(tb) {}
 	double len() const { return dist(a, b); }
 	double k() const { return (a.y - b.y) / (a.x - b.x); }
 	double l() const { return a.y - k() * a.x; }
@@ -59,7 +59,7 @@ struct event_t {
 	double x;
 	int type;
 	event_t() { x = 0, type = 0; }
-	event_t(double _x, int _t) : x(_x), type(_t) { }
+	event_t(double _x, int _t) : x(_x), type(_t) {}
 	bool operator<(const event_t &r) const {
 		return x < r.x;
 	}
@@ -73,12 +73,13 @@ double solve(const vector<segment_t> &v, const vector<int> &sl) {
 	for (int i = 0; i < v.size(); ++i) lines.push_back(point_t(v[i].k(), v[i].l()));
 	sort(all(lines));
 	lines.erase(unique(all(lines)), lines.end());
-	for(int i = 0; i < lines.size(); ++i) {
+	for (int i = 0; i < lines.size(); ++i) {
 		vector<event_t> e;
 		vector<int>::const_iterator it = sl.begin();
-		for(int j = 0; j < s.size(); j += *it++) {
+		for (int j = 0; j < s.size(); j += *it++) {
 			bool touch = false;
-			for (int k = 0; k < *it; ++k) if (lines[i] == point_t(s[j + k].k(), s[j + k].l())) touch = true;
+			for (int k = 0; k < *it; ++k)
+				if (lines[i] == point_t(s[j + k].k(), s[j + k].l())) touch = true;
 			if (touch) continue;
 			vector<point_t> cuts;
 			for (int k = 0; k < *it; ++k) {
@@ -116,7 +117,7 @@ double solve(const vector<segment_t> &v, const vector<int> &sl) {
 	return ret;
 }
 
-double polyUnion(vector<vector<point_t> > polys) {
+double polyUnion(vector<vector<point_t>> polys) {
 	s.clear();
 	vector<segment_t> A, B;
 	vector<int> sl;

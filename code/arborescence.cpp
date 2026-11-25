@@ -1,4 +1,6 @@
-﻿struct edge_t { int u, v, w; }; // vertices 0..n-1, -1 if no arborescence
+﻿struct edge_t {
+	int u, v, w;
+}; // vertices 0..n-1, -1 if no arborescence
 
 int arborescence(int n, int root, vector<edge_t> edge) {
 	int res = 0;
@@ -27,7 +29,8 @@ int arborescence(int n, int root, vector<edge_t> edge) {
 			ID[v] = index++;
 		}
 		if (index == 0) return res;
-		for (int i = 0; i < n; ++i) if (ID[i] == -1) ID[i] = index++;
+		for (int i = 0; i < n; ++i)
+			if (ID[i] == -1) ID[i] = index++;
 		for (auto &[u, v, w] : edge) {
 			w -= in[v];
 			u = ID[u], v = ID[v];

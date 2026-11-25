@@ -1,6 +1,11 @@
 struct SAP { // vertices 0..n-1, edge i ^ 1 is the reverse of edge i
-	struct E { int v, r; };
-	int n, s, t; vector<E> e; vector<vector<int>> g; vector<int> d, vd, cur;
+	struct E {
+		int v, r;
+	};
+	int n, s, t;
+	vector<E> e;
+	vector<vector<int>> g;
+	vector<int> d, vd, cur;
 	SAP(int n) : n(n), g(n) {}
 	void add(int u, int v, int r) { // (u, v, r), (v, u, 0)
 		g[u].push_back(e.size()), e.push_back({v, r});

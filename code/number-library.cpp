@@ -1,9 +1,12 @@
 int exgcd(int x, int y, int &a, int &b) { // extended gcd, ax + by = g.
 	int a0 = 1, a1 = 0, b0 = 0, b1 = 1;
 	while (y != 0) {
-		a0 -= x / y * a1; swap(a0, a1);
-		b0 -= x / y * b1; swap(b0, b1);
-		x %= y; swap(x, y);
+		a0 -= x / y * a1;
+		swap(a0, a1);
+		b0 -= x / y * b1;
+		swap(b0, b1);
+		x %= y;
+		swap(x, y);
 	}
 	if (x < 0) a0 = -a0, b0 = -b0, x = -x;
 	a = a0, b = b0;
@@ -11,11 +14,13 @@ int exgcd(int x, int y, int &a, int &b) { // extended gcd, ax + by = g.
 }
 
 ll CRT(const vector<int> &p, const vector<int> &b) { // chinese remainder theorem
-	ll N = accumulate(all(p), 1LL, multiplies<ll>()), ans = 0; int k = p.size();
+	ll N = accumulate(all(p), 1LL, multiplies<ll>()), ans = 0;
+	int k = p.size();
 	for (int i = 0; i < k; ++i) {
 		ll mult = (inverse(N / p[i], p[i]) * (N / p[i])) % N;
 		mult = (mult * b[i]) % N;
-		ans += mult; ans %= N;
+		ans += mult;
+		ans %= N;
 	}
 	if (ans < 0) ans += N;
 	return ans;
@@ -40,7 +45,7 @@ bool prime_test(ll n) {
 	if (n < 4) return true;
 	if (n == 3215031751LL) return false;
 	const int BASIC[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
-	for (int i = 0; i < 12 && BASIC[i] < n; ++ i) {
+	for (int i = 0; i < 12 && BASIC[i] < n; ++i) {
 		if (!miller_rabin(n, BASIC[i])) return false;
 	}
 	return true;
@@ -82,7 +87,7 @@ int primtive_root(int p) {
 		}
 	}
 	if (tmp != 1) factor.push_back(tmp);
-	for (int root = 1; ; ++root) {
+	for (int root = 1;; ++root) {
 		bool flag = true;
 		for (int i = 0; i < factor.size(); ++i) {
 			if (fpow(root, (p - 1) / factor[i], p) == 1) {

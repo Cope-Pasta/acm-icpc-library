@@ -16,7 +16,7 @@ bool dfs(int u) {
 
 int hopcroftKarp() {
 	pr.assign(n, -1), pr2.assign(m, -1), level.assign(n, 0);
-	for (int match = 0; ;) {
+	for (int match = 0;;) {
 		queue<int> Q;
 		for (int i = 0; i < n; ++i) {
 			if (pr[i] == -1) {
@@ -25,7 +25,8 @@ int hopcroftKarp() {
 			} else level[i] = -1;
 		}
 		while (!Q.empty()) {
-			int u = Q.front(); Q.pop();
+			int u = Q.front();
+			Q.pop();
 			for (int w : edge[u]) {
 				int v = pr2[w];
 				if (v != -1 && level[v] < 0) {
@@ -36,7 +37,8 @@ int hopcroftKarp() {
 		}
 		vis.assign(n, false);
 		int d = 0;
-		for (int i = 0; i < n; ++i) if (pr[i] == -1 && dfs(i)) ++d;
+		for (int i = 0; i < n; ++i)
+			if (pr[i] == -1 && dfs(i)) ++d;
 		if (d == 0) return match;
 		match += d;
 	}

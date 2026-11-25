@@ -1,4 +1,6 @@
-struct edge_t { int u, v, w; }; // minimum mean cycle(allow negative weight)
+struct edge_t {
+	int u, v, w;
+}; // minimum mean cycle(allow negative weight)
 double mmc(int n, const vector<edge_t> &edge) { // vertices 0..n-1
 	vector<vector<int>> dp(n + 1, vector<int>(n, maxint));
 	dp[0].assign(n, 0);

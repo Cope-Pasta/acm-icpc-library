@@ -1,6 +1,12 @@
 struct MCMF { // Minimum cost, maximum flow(ZKW version), vertices 0..n-1
-	struct E { int v, r, w; };
-	int n, s, t; vector<E> e; vector<vector<int>> g; vector<int> d; vector<bool> vis;
+	struct E {
+		int v, r, w;
+	};
+	int n, s, t;
+	vector<E> e;
+	vector<vector<int>> g;
+	vector<int> d;
+	vector<bool> vis;
 	MCMF(int n) : n(n), g(n), d(n), vis(n) {}
 	void add(int u, int v, int r, int w) { // (u, v, r, w), (v, u, 0, -w)
 		g[u].push_back(e.size()), e.push_back({v, r, w});

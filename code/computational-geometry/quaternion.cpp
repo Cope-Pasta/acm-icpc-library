@@ -1,7 +1,7 @@
 struct quater_t {
 	double w, x, y, z; // w + xi + yj + zk
-	quater_t(double tw, const point3_t &v) : w(tw), x(v.x), y(v.y), z(v.z) { }
-	quater_t(double tw, double tx, double ty, double tz) : w(tw), x(tx), y(ty), z(tz) { }
+	quater_t(double tw, const point3_t &v) : w(tw), x(v.x), y(v.y), z(v.z) {}
+	quater_t(double tw, double tx, double ty, double tz) : w(tw), x(tx), y(ty), z(tz) {}
 	double length() const {
 		return sqrt(w * w + x * x + y * y + z * z);
 	}
@@ -12,7 +12,7 @@ struct quater_t {
 		return quater_t(w, -x, -y, -z);
 	}
 	quater_t operator*(const quater_t &q2) {
-		return quater_t(w * q2.w - x * q2.x - y * q2.y - z * q2.z, w * q2.x + x * q2.w + y * q2.z - z * q2.y, w * q2.y - x * q2.z + y * q2.w + z * q2.x, w * q2.z + x * q2.y - y * q2.x + z * q2.w); 
+		return quater_t(w * q2.w - x * q2.x - y * q2.y - z * q2.z, w * q2.x + x * q2.w + y * q2.z - z * q2.y, w * q2.y - x * q2.z + y * q2.w + z * q2.x, w * q2.z + x * q2.y - y * q2.x + z * q2.w);
 	}
 };
 

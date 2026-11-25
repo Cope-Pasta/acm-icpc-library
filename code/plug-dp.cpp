@@ -1,10 +1,15 @@
 // Count Hamiltonian cycles on n * m grid, plugs 0...m, m <= maxm
 const int maxm = 7, pow3[] = {1, 3, 9, 27, 81, 243, 729, 2187, 6561};
-int cnt; vector<int> valid, ID; vector<vector<int>> match;
+int cnt;
+vector<int> valid, ID;
+vector<vector<int>> match;
 int gb3(int v, int bit) { return (v / pow3[bit]) % 3; }
 int mb3(int v, int bit, int value) { return v - pow3[bit] * gb3(v, bit) + pow3[bit] * value; }
 int ub3(int v, int bit) { return v - pow3[bit] * gb3(v, bit); }
-void upd(int &x, int v) { x += v; x %= mod; }
+void upd(int &x, int v) {
+	x += v;
+	x %= mod;
+}
 
 void dfs(int p, int st, int lt, int m) {
 	if (p > m) {
@@ -29,14 +34,16 @@ void dfs(int p, int st, int lt, int m) {
 }
 
 int plugDP(int n, int m) {
-	int S = pow3[m + 1]; cnt = 0;
+	int S = pow3[m + 1];
+	cnt = 0;
 	valid.assign(S, 0), ID.assign(S, -1), match.assign(S, vector<int>(m + 1));
 	dfs(0, 0, 0, m);
 	matrix_t<int> mat(cnt), mat2(cnt);
 	for (int start = 0; start < S; ++start) {
 		if (ID[start] == -1) continue;
 		for (int fi = 0; fi < 2; ++fi) { // Last row flag
-			vector<vector<int>> f(m + 1, vector<int>(S)); vector<int> g(S);
+			vector<vector<int>> f(m + 1, vector<int>(S));
+			vector<int> g(S);
 			f[0][start] = 1;
 			for (int j = 0; j <= m; ++j) {
 				for (int k = 0; k < S; ++k) {
@@ -46,9 +53,9 @@ int plugDP(int n, int m) {
 							upd(g[ub3(k, j) * 3], f[j][k]); // Unmark last bit
 						}
 					} else {
-						 // Consider mp[i][j] valid ? (bit1 = bit2 = 0)
+						// Consider mp[i][j] valid ? (bit1 = bit2 = 0)
 						int bit1 = gb3(k, j), bit2 = gb3(k, j + 1),
-							t = ub3(ub3(k, j), j + 1), tt;
+						    t = ub3(ub3(k, j), j + 1), tt;
 						if (bit1 == 1 && bit2 == 2) { // Merge two brackets
 							if (fi && j + 1 == m) { // i == n
 								upd(f[j + 1][t], f[j][k]);
@@ -75,10 +82,11 @@ int plugDP(int n, int m) {
 					}
 				}
 			}
-			for (int i = 0; i < S; ++i) if (ID[i] != -1) {
-				if (fi) mat2.x[ID[i]][ID[start]] = f[m][i];
-				else mat.x[ID[i]][ID[start]] = g[i];
-			}
+			for (int i = 0; i < S; ++i)
+				if (ID[i] != -1) {
+					if (fi) mat2.x[ID[i]][ID[start]] = f[m][i];
+					else mat.x[ID[i]][ID[start]] = g[i];
+				}
 		}
 	}
 	mat = mat2 * mat.power(n - 1);

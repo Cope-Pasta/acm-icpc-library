@@ -1,10 +1,13 @@
 void deal(stack<int> &num, stack<char> &oper) {
 	int x, y;
-	y = num.top(); num.pop();
-	char op = oper.top(); oper.pop();
+	y = num.top();
+	num.pop();
+	char op = oper.top();
+	oper.pop();
 	if (op == '?') num.push(-y);
 	else {
-		x = num.top(); num.pop();
+		x = num.top();
+		num.pop();
 		num.push(cal(x, y, op));
 	}
 }
@@ -18,7 +21,7 @@ int parse(const string &s) {
 	priv['('] = 10;
 	int len = s.size();
 	char last = 0;
-	for (int i = 0; i < len; ++i)  {
+	for (int i = 0; i < len; ++i) {
 		if (isdigit(s[i])) {
 			int tmp = 0;
 			while (isdigit(s[i])) tmp = tmp * 10 + s[i++] - '0';
