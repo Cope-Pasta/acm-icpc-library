@@ -1,22 +1,20 @@
+// Karp minimum mean cycle (negative weights ok), O(nm). Vertices 0..n-1.
+// maxdbl if there is no cycle.
 struct edge_t {
 	int u, v, w;
-}; // minimum mean cycle(allow negative weight)
-double mmc(int n, const vector<edge_t> &edge) { // vertices 0..n-1
-	vector<vector<int>> dp(n + 1, vector<int>(n, maxint));
-	dp[0].assign(n, 0);
-	for (int i = 0; i < n; ++i) {
-		for (auto [u, v, w] : edge) {
-			if (dp[i][u] != maxint) dp[i + 1][v] = min(dp[i + 1][v], dp[i][u] + w);
-		}
-	}
+};
+double mmc(int n, const vector<edge_t> &e) {
+	vector<vector<int>> d(n + 1, vector<int>(n, maxint));
+	d[0].assign(n, 0);
+	for (int i = 0; i < n; i++)
+		for (auto [u, v, w] : e)
+			if (d[i][u] != maxint) d[i + 1][v] = min(d[i + 1][v], d[i][u] + w);
 	double res = maxdbl;
-	for (int i = 0; i < n; ++i) {
-		if (dp[n][i] == maxint) continue;
-		double value = -maxdbl;
-		for (int j = 0; j < n; ++j) {
-			value = max(value, (double)(dp[n][i] - dp[j][i]) / (n - j));
-		}
-		res = min(res, value);
+	for (int v = 0; v < n; v++) {
+		double x = -maxdbl;
+		for (int k = 0; k < n; k++)
+			x = max(x, (double(d[n][v]) - d[k][v]) / (n - k));
+		if (d[n][v] != maxint) res = min(res, x);
 	}
 	return res;
 }

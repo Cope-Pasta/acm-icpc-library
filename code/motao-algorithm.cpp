@@ -1,14 +1,25 @@
-// Complexity: Q*N^0.5 * O(add), Q: vector of queries [l, r], positions from 0
-int q = Q.size(), SQRTN = max(1, (int)sqrt((double)q));
-sort(all(Q), cmpL);
-for (int i = 0; i < q; i += SQRTN) {
-	clear();
-	int end = min(q, i + SQRTN), L = 0, R = -1;
-	sort(Q.begin() + i, Q.begin() + end, cmpR);
-	for (int j = i; j < end; ++j) {
-		while (R < Q[j].r) add(++R, 1);
-		while (L < Q[j].l) add(L++, -1);
-		while (L > Q[j].l) add(--L, 1);
-		ans[Q[j].ID] = res;
+// Mo's algorithm, O(n sqrt q) calls of add. Offline queries Q[i] = [l, r]
+// (0-indexed, inclusive) on positions 0..n-1.
+// add(i, d): d = 1 inserts position i, d = -1 removes it.
+// Returns ans[i] = get() on range Q[i].
+template <class A, class G>
+vector<ll> mo(int n, const vector<pair<int, int>> &Q, A add, G get) {
+	int q = Q.size(), B = max(1, int(n / sqrt(q + 1))), L = 0, R = -1;
+	vector<int> s(q);
+	vector<ll> ans(q);
+	iota(all(s), 0);
+	auto key = [&](int i) {
+		auto [l, r] = Q[i];
+		return pair(l / B, l / B & 1 ? -r : r);
+	};
+	sort(all(s), [&](int i, int j) { return key(i) < key(j); });
+	for (int i : s) {
+		auto [l, r] = Q[i];
+		while (R < r) add(++R, 1);
+		while (L > l) add(--L, 1);
+		while (R > r) add(R--, -1);
+		while (L < l) add(L++, -1);
+		ans[i] = get();
 	}
+	return ans;
 }

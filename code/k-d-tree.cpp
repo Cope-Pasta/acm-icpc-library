@@ -1,65 +1,33 @@
-// scnt: the number of target points
-// sp: the point to search the closest target points
-const int DIM = 5;
-int d, scnt;
-struct point_t {
-	int x[DIM];
-} sp;
-vector<point_t> points; // 0-indexed
-struct node_t {
-	int sd;
-	node_t *l, *r;
+// k-d tree: k nearest neighbours by squared distance in D dims.
+// Build O(n log n), query ~O(log n) on random data.
+// KD t(pts): pts non-empty, reordered into t.p.
+// t.knn(q, k): max-heap of (dist2, index into t.p) of the k nearest.
+typedef vector<ll> P;
+struct KD {
+	vector<P> p;
+	int D, k;
+	P q;
+	priority_queue<pair<ll, int>> pq;
+	KD(vector<P> p) : p(p), D(p[0].size()) { build(0, p.size(), 0); }
+	void build(int l, int r, int d) {
+		if (r - l < 2) return;
+		int m = (l + r) / 2;
+		nth_element(p.begin() + l, p.begin() + m, p.begin() + r,
+		    [&](P &a, P &b) { return a[d] < b[d]; });
+		build(l, m, (d + 1) % D), build(m + 1, r, (d + 1) % D);
+	}
+	void go(int l, int r, int d) {
+		if (l >= r) return;
+		int m = (l + r) / 2, a = l, b = m, c = m + 1, e = r;
+		ll s = 0, t = q[d] - p[m][d];
+		for (int i = 0; i < D; ++i) s += (q[i] - p[m][i]) * (q[i] - p[m][i]);
+		pq.push({s, m});
+		if ((int)pq.size() > k) pq.pop();
+		if (t >= 0) swap(a, c), swap(b, e);
+		go(a, b, (d + 1) % D);
+		if ((int)pq.size() < k || t * t <= pq.top().first) go(c, e, (d + 1) % D);
+	}
+	priority_queue<pair<ll, int>> knn(P x, int K) {
+		return q = x, k = K, pq = {}, go(0, p.size(), 0), pq;
+	}
 };
-vector<node_t> node;
-node_t *root;
-struct cmp_t {
-	int dd;
-	bool operator()(const point_t &a, const point_t &b) {
-		return a.x[dd] < b.x[dd];
-	}
-} cmp[DIM];
-
-int dist2(const point_t &a, const point_t &b) {
-	int res = 0;
-	for (int i = 0; i < d; ++i) {
-		res += (b.x[i] - a.x[i]) * (b.x[i] - a.x[i]);
-	}
-	return res;
-}
-
-struct cmp2_t {
-	bool operator()(const point_t &a, const point_t &b) {
-		return dist2(a, sp) < dist2(b, sp);
-	}
-};
-priority_queue<point_t, vector<point_t>, cmp2_t> pq;
-
-node_t *build(int dd, int l, int r) {
-	if (l > r) return NULL;
-	sort(points.begin() + l, points.begin() + r + 1, cmp[dd]);
-	int mid = (l + r) / 2;
-	node[mid].l = build((dd + 1) % d, l, mid - 1);
-	node[mid].r = build((dd + 1) % d, mid + 1, r);
-	node[mid].sd = dd;
-	return &node[mid];
-}
-
-void search(node_t *nd) {
-	int sd = nd->sd, p = nd - node.data();
-	pq.push(points[p]);
-	while ((int)pq.size() > scnt) pq.pop();
-	int d2 = (sp.x[sd] - points[p].x[sd]) * (sp.x[sd] - points[p].x[sd]);
-	if (sp.x[sd] < points[p].x[sd]) {
-		if (nd->l) search(nd->l);
-		if (nd->r && ((int)pq.size() < scnt || dist2(sp, pq.top()) >= d2)) search(nd->r);
-	} else {
-		if (nd->r) search(nd->r);
-		if (nd->l && ((int)pq.size() < scnt || dist2(sp, pq.top()) >= d2)) search(nd->l);
-	}
-}
-
-void init() {
-	for (int i = 0; i < DIM; ++i) cmp[i].dd = i;
-	node.assign(points.size(), {});
-	root = build(0, 0, points.size() - 1);
-}

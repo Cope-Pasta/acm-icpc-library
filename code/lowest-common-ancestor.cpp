@@ -1,27 +1,21 @@
-const int logn = 20; // vertices 0..n-1, parent[root] = root
-vector<int> parent, depth;
-vector<vector<int>> lca;
-
-void initLCA(int n) {
-	lca.assign(logn, vector<int>(n));
-	lca[0] = parent;
-	for (int j = 1; j < logn; ++j) {
-		for (int i = 0; i < n; ++i) {
-			lca[j][i] = lca[j - 1][lca[j - 1][i]];
+// Binary lifting LCA: O(n log n) build, O(log n) query. 0-indexed.
+// p[v]: parent (p[root] = root), d[v]: depth.
+struct LCA {
+	vector<vector<int>> up;
+	vector<int> d;
+	LCA(const vector<int> &p, const vector<int> &d) : up(1, p), d(d) {
+		for (int j = 1; (1 << j) < (int)p.size(); j++) {
+			up.push_back(up[j - 1]);
+			for (int &x : up[j]) x = up[j - 1][x];
 		}
 	}
-}
-
-int LCA(int x, int y) {
-	if (depth[x] < depth[y]) swap(x, y);
-	for (int i = logn - 1; i >= 0; --i) {
-		if (depth[x] - (1 << i) >= depth[y]) x = lca[i][x];
+	int query(int a, int b) {
+		if (d[a] < d[b]) swap(a, b);
+		for (int j = 0, k = d[a] - d[b]; k; j++, k >>= 1)
+			if (k & 1) a = up[j][a];
+		if (a == b) return a;
+		for (int j = up.size() - 1; j >= 0; j--)
+			if (up[j][a] != up[j][b]) a = up[j][a], b = up[j][b];
+		return up[0][a];
 	}
-	if (x == y) return x;
-	for (int i = logn - 1; i >= 0; --i) {
-		if (lca[i][x] != lca[i][y]) {
-			x = lca[i][x], y = lca[i][y];
-		}
-	}
-	return lca[0][x];
-}
+};

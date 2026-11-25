@@ -1,36 +1,18 @@
-// stoer-wagner algorithm, complexity: O(n^3)
-// used to compute the global minimum cut, and self-loop is ignored. g: n*n, 0-indexed.
+// Stoer-Wagner global min cut, O(n^3). 0-indexed.
+// g: n*n symmetric weight matrix; self-loops are ignored.
 int stoer_wagner(vector<vector<int>> g) {
-	int n = g.size(), res = maxint;
-	vector<int> v(n), d(n), vis(n, 0);
-	iota(all(v), 0);
-	while (n > 1) {
-		int p = 1, prev = 0;
-		for (int i = 1; i < n; ++i) {
-			d[v[i]] = g[v[0]][v[i]];
-			if (d[v[i]] > d[v[p]]) p = i;
+	int n = g.size(), best = INT_MAX;
+	for (int ph = 1; ph < n; ph++) {
+		vector<int> w = g[0];
+		int s = 0, t = 0;
+		for (int it = 0; it < n - ph; it++) {
+			w[t] = INT_MIN, s = t, t = max_element(all(w)) - w.begin();
+			for (int i = 0; i < n; i++) w[i] += g[t][i];
 		}
-		vis[v[0]] = n;
-		for (int i = 1; i < n; ++i) {
-			if (i == n - 1) {
-				res = min(res, d[v[p]]); // if d[v[p]] < res, then s = v[p] & t = v[prev]
-				for (int j = 0; j < n; ++j) {
-					g[v[prev]][v[j]] += g[v[p]][v[j]];
-					g[v[j]][v[prev]] = g[v[prev]][v[j]];
-				}
-				v[p] = v[--n];
-				break;
-			}
-			vis[v[p]] = n;
-			prev = p;
-			p = -1;
-			for (int j = 1; j < n; ++j) {
-				if (vis[v[j]] != n) {
-					d[v[j]] += g[v[prev]][v[j]];
-					if (p == -1 || d[v[p]] < d[v[j]]) p = j;
-				}
-			}
-		}
+		best = min(best, w[t] - g[t][t]);
+		for (int i = 0; i < n; i++) g[s][i] += g[t][i];
+		for (int i = 0; i < n; i++) g[i][s] = g[s][i];
+		g[0][t] = INT_MIN; // t merged into s
 	}
-	return res;
+	return best;
 }

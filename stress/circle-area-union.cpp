@@ -25,7 +25,7 @@ int main() {
 			for (int i = 0; i < (int)c.size(); ++i) if (dist(c[i], p) < 1e-9 && fabs(r[i] - rr) < 1e-9) dup = true;
 			if (!dup) c.push_back(p), r.push_back(rr);
 		}
-		auto a = circle_union(c, r);
+		auto a = circleUnion(c, r);
 		auto fail = [&](const char *what, int k, double got, double exp) {
 			printf("seed %u it %d %s k=%d: got %.9f expected %.9f\n", seed, it, what, k, got, exp);
 			for (int i = 0; i < n; ++i) printf("(%g,%g,r=%g) ", c[i].x, c[i].y, r[i]);

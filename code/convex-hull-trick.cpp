@@ -1,34 +1,22 @@
-typedef int ftype;
-typedef complex<ftype> point;
-#define x real
-#define y imag
-
-ftype dot(point a, point b) {
-	return (conj(a) * b).x();
-}
-
-ftype cross(point a, point b) {
-	return (conj(a) * b).y();
-}
-
-vector<point> hull, vecs;
-
-void add_line(ftype k, ftype b) { // k strictly increasing, get() = min k*x+b
-	point nw = {k, b};
-	while (!vecs.empty() && dot(vecs.back(), nw - hull.back()) < 0) {
-		hull.pop_back();
-		vecs.pop_back();
+// Convex hull trick, O(log n): add lines k*x+b with strictly increasing k;
+// get(x) = min over lines. For max: add (-k, -b), answer -get(x).
+// db * dk products must fit in ll.
+struct CHT {
+	vector<ll> K, B;
+	ll f(int i, ll x) { return K[i] * x + B[i]; }
+	void add(ll k, ll b) {
+		for (int n; (n = K.size()) > 1 &&
+		    (B[n - 2] - B[n - 1]) * (k - K[n - 1]) <=
+		        (B[n - 1] - b) * (K[n - 1] - K[n - 2]);)
+			K.pop_back(), B.pop_back();
+		K.push_back(k), B.push_back(b);
 	}
-	if (!hull.empty()) {
-		vecs.push_back(point(0, 1) * (nw - hull.back()));
+	ll get(ll x) {
+		int l = 0, r = K.size() - 1;
+		while (l < r) {
+			int m = (l + r) / 2;
+			f(m, x) <= f(m + 1, x) ? r = m : l = m + 1;
+		}
+		return f(l, x);
 	}
-	hull.push_back(nw);
-}
-
-ftype get(ftype x) {
-	point query = {x, 1};
-	auto it = lower_bound(all(vecs), query, [](point a, point b) {
-		return cross(a, b) > 0;
-	});
-	return dot(query, hull[it - vecs.begin()]);
-}
+};

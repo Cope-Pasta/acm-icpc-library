@@ -1,124 +1,63 @@
-struct node_t {
-	node_t();
-	void update();
-	int dir() { return (this == p->ch[1]); }
-	void setc(node_t *c, int d) { ch[d] = c, c->p = this; }
-	node_t *p, *ch[2];
-	int size, cnt; // maintain tag from top to bottom (via find).
-} s[maxn], *nil = s, *root;
-int pt; // last used node in s
-node_t::node_t() { p = ch[0] = ch[1] = nil; }
-
-void node_t::update() {
-	if (this == nil) return;
-	size = ch[0]->size + ch[1]->size + cnt;
-}
-
-node_t *newNode(int cnt) {
-	++pt;
-	s[pt].cnt = cnt;
-	s[pt].p = s[pt].ch[0] = s[pt].ch[1] = nil;
-	s[pt].update();
-	return &s[pt];
-}
-
-void rotate(node_t *t) {
-	node_t *p = t->p;
-	p->p->update();
-	p->update();
-	t->update();
-	int d = t->dir();
-	p->p->setc(t, p->dir());
-	p->setc(t->ch[!d], d);
-	t->setc(p, !d);
-	if (p == root) root = t;
-	p->update(), t->update();
-}
-
-node_t *splay(node_t *t, node_t *dst = nil) {
-	while (t->p != dst) {
-		if (t->p->p == dst) rotate(t);
-		else if (t->dir() == t->p->dir()) rotate(t->p), rotate(t);
-		else rotate(t), rotate(t);
+// Splay tree over a sequence; node x holds cnt[x] units. Amortized O(log n).
+// Node 0 is nil. Keep a sentinel node at each end.
+// add(c): new node (root = add(c) for the first one).
+// ins(y, x, d): put x right after (d=1) / before (d=0) y.
+// nb(x, d): next (d=1) / previous (d=0) node.
+// find(k): node holding unit k (0-indexed).
+// split(k): make unit k its own node, return it.
+// expose(x, y): subtree holding exactly nodes x..y. cut(x, y): remove x..y.
+struct Splay {
+	vector<int> p, sz, cnt;
+	vector<array<int, 2>> ch;
+	int root = 0;
+	Splay() { add(0); }
+	int add(int c) {
+		p.push_back(0), sz.push_back(c), cnt.push_back(c), ch.push_back({0, 0});
+		return p.size() - 1;
 	}
-	t->update();
-	return t;
-}
-
-node_t *prev(node_t *p) {
-	splay(p);
-	p = p->ch[0], p->update();
-	while (p->ch[1] != nil) p = p->ch[1], p->update();
-	return p;
-}
-
-node_t *succ(node_t *p) {
-	splay(p);
-	p = p->ch[1], p->update();
-	while (p->ch[0] != nil) p = p->ch[0], p->update();
-	return p;
-}
-
-void insert(node_t *y, node_t *x) { // Insert node x after y
-	splay(y);
-	if (y->ch[1] == nil) {
-		y->ch[1] = x;
-		x->p = y;
-		y->update();
-	} else {
-		y = y->ch[1], y->update();
-		while (y->ch[0] != nil) y = y->ch[0], y->update();
-		y->ch[0] = x;
-		x->p = y;
-		y->update();
+	int dir(int x) { return ch[p[x]][1] == x; }
+	void pull(int x) { sz[x] = sz[ch[x][0]] + sz[ch[x][1]] + cnt[x]; }
+	void rot(int x) {
+		int y = p[x], z = p[y], d = dir(x), b = ch[x][!d];
+		if (z) ch[z][dir(y)] = x;
+		else root = x;
+		p[x] = z, ch[y][d] = b, p[b] = y, ch[x][!d] = y, p[y] = x;
+		pull(y), pull(x);
 	}
-	splay(x);
-}
-
-void removeAll(node_t *x) { // Remove all the whole subtree of x
-	x->p->update();
-	x->p->ch[x->dir()] = nil;
-	x->p->update();
-	splay(x->p);
-	x->p = nil;
-}
-
-void remove(node_t *x) { // Remove the single node x
-	node_t *p = prev(x);
-	node_t *s = succ(x);
-	splay(p);
-	splay(s, p);
-	removeAll(s->ch[0]);
-}
-
-node_t *find(node_t *t, int k) { // k-th unit, 0-indexed
-	t->update();
-	if (t->ch[0]->size <= k && k < t->ch[0]->size + t->cnt) return t;
-	if (k < t->ch[0]->size) return find(t->ch[0], k);
-	return find(t->ch[1], k - t->ch[0]->size - t->cnt);
-}
-
-node_t *findAndSplit(node_t *t, int k) { // 0-indexed
-	t->update();
-	if (t->ch[0]->size <= k && k < t->ch[0]->size + t->cnt) {
-		int cnt = t->cnt;
-		k -= t->ch[0]->size;
-		t->cnt = 1;
-		splay(t);
-		node_t *p = prev(t);
-		if (k) insert(p, newNode(k));
-		if (cnt - k - 1) insert(t, newNode(cnt - k - 1));
+	int splay(int x, int g = 0) {
+		for (int y; (y = p[x]) != g; rot(x))
+			if (p[y] != g) rot(dir(x) == dir(y) ? y : x);
+		return x;
+	}
+	int nb(int x, int d) {
+		for (x = ch[splay(x)][d]; ch[x][!d];) x = ch[x][!d];
+		return x;
+	}
+	void ins(int y, int x, int d = 1) {
+		if (ch[splay(y)][d]) y = nb(y, d), d = !d;
+		ch[y][d] = x, p[x] = y, splay(x);
+	}
+	int find(int k) {
+		for (int t = root;;) {
+			int l = sz[ch[t][0]];
+			if (k < l) t = ch[t][0];
+			else if ((k -= l) < cnt[t]) return splay(t);
+			else k -= cnt[t], t = ch[t][1];
+		}
+	}
+	int split(int k) {
+		int t = find(k), a = k - sz[ch[t][0]], b = cnt[t] - a - 1;
+		cnt[t] = 1;
+		if (a) ins(t, add(a), 0);
+		if (b) ins(t, add(b));
 		return t;
 	}
-	if (k < t->ch[0]->size) return findAndSplit(t->ch[0], k);
-	return findAndSplit(t->ch[1], k - t->ch[0]->size - t->cnt);
-}
-
-void init() {
-	pt = 0, nil->p = nil->ch[0] = nil->ch[1] = nil;
-}
-
-node_t *expose(node_t *x, node_t *y) {
-	x = prev(x), y = succ(y);
-	return splay(y, splay(x))->ch[0];
-}
+	int expose(int x, int y) {
+		x = nb(x, 0), y = nb(y, 1);
+		return ch[splay(y, splay(x))][0];
+	}
+	void cut(int x, int y) {
+		int t = expose(x, y), b = p[t];
+		ch[b][0] = p[t] = 0, pull(b), pull(p[b]);
+	}
+};

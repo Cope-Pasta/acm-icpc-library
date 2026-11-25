@@ -1,45 +1,23 @@
-void deal(stack<int> &num, stack<char> &oper) {
-	int x, y;
-	y = num.top();
-	num.pop();
-	char op = oper.top();
-	oper.pop();
-	if (op == '?') num.push(-y);
-	else {
-		x = num.top();
-		num.pop();
-		num.push(cal(x, y, op));
+// Recursive descent, O(n): non-negative ints, + - * / (left assoc.), unary -,
+// parentheses, spaces. cal(x, y, op) applies a binary op (e.g. modular).
+// parse("2*(3+4)-10/2") = 9
+struct Expr {
+	string s;
+	int i = 0;
+	int get(int lv) { // lv 0: + -, 1: * /, 2: unary - and atoms
+		if (lv == 2) {
+			if (s[i] == '-') return i++, -get(2);
+			int v = 0;
+			if (s[i] == '(') return i++, v = get(0), i++, v;
+			while (isdigit(s[i])) v = v * 10 + s[i++] - '0';
+			return v;
+		}
+		int v = get(lv + 1);
+		for (char o; (o = s[i]) && strchr(lv ? "*/" : "+-", o);)
+			i++, v = cal(v, get(lv + 1), o);
+		return v;
 	}
-}
-
-int parse(const string &s) {
-	static int priv[256];
-	stack<int> num;
-	stack<char> oper;
-	priv['+'] = priv['-'] = 3;
-	priv['*'] = priv['/'] = 2;
-	priv['('] = 10;
-	int len = s.size();
-	char last = 0;
-	for (int i = 0; i < len; ++i) {
-		if (isdigit(s[i])) {
-			int tmp = 0;
-			while (isdigit(s[i])) tmp = tmp * 10 + s[i++] - '0';
-			i -= 1;
-			num.push(tmp);
-		} else if (s[i] == '(') {
-			oper.push(s[i]);
-		} else if (s[i] == ')') {
-			while (oper.top() != '(') deal(num, oper);
-			oper.pop();
-		} else if (s[i] == '-' && (last == 0 || last == '(')) {
-			oper.push('?'); // unary operator
-		} else if (priv[s[i]] > 0) {
-			while (!oper.empty() && priv[s[i]] >= priv[oper.top()]) deal(num, oper); // >= used for operator of left associative law
-			oper.push(s[i]);
-		} else continue;
-		last = s[i];
-	}
-	while (!oper.empty()) deal(num, oper);
-	return num.top();
+};
+int parse(string s) {
+	return s.erase(remove(all(s), ' '), s.end()), Expr{s}.get(0);
 }

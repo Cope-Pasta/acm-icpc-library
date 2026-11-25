@@ -1,7 +1,6 @@
 #include "check/prelude.h"
 #include "check/common/geo2d.h"
-const double maxd = 1e5;
-point_t isLL(point_t a, point_t b, point_t c, point_t d) { point_t u = b - a, v = d - c; return a + u * (cross(c - a, v) / cross(u, v)); }
+#include "code/computational-geometry/common-2d.cpp"
 #include "code/computational-geometry/halfplane-intersection-nlogn.cpp"
 #include "stress/test.h"
 const unsigned SEED = 7;
@@ -10,7 +9,7 @@ int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
 
 
 double area(const vector<point_t> &p) { double s = 0; for (int i = 0; i < (int)p.size(); ++i) s += cross(p[i], p[(i + 1) % p.size()]); return s / 2; }
-vector<point_t> run(vector<pair<point_t, point_t>> hs) { init(); for (auto &h : hs) addhp(h.first, h.second); return hp_inter(); }
+vector<point_t> run(vector<pair<point_t, point_t>> hs) { vector<hp_t> h; for (auto &x : hs) h.push_back({x.first, x.second}); return hpInter(h); }
 int unit() {
 	EXPECT(run({{{1, 1}, {1, 0}}, {{-1, 0}, {-1, 1}}}).empty()); // x >= 1 and x <= -1
 	EXPECT(run({{{0, 0}, {1, 0}}, {{1, 0}, {0, 1}}, {{0, 1}, {0, 0}}, {{1, 2}, {2, 2}}}).empty()); // triangle and y >= 2
@@ -21,6 +20,7 @@ int unit() {
 	p = run({{{0, 0}, {1, 0}}, {{1, 0}, {0, 1}}, {{0, 1}, {0, 0}}}); EXPECT(p.size() == 3 && near(area(p), 0.5));
 	p = run({{{0, 0}, {0, 1}}, {{0, 1}, {0, 0}}}); EXPECT(near(area(p), 0)); // x = 0: degenerate
 	p = run({}); EXPECT(near(area(p), 4 * maxd * maxd)); // just the bounding box
+	p = run({{{0, 0}, {1, 0}}, {{1, 1}, {0, 1}}}); EXPECT(near(area(p), 2 * maxd, 1e-3)); // strip 0 <= y <= 1
 	return 0;
 }
 
@@ -37,9 +37,7 @@ int main() {
 			if (c < 0) swap(a, b); // q on the left
 			hs.push_back({a, b});
 		}
-		init();
-		for (auto &h : hs) addhp(h.first, h.second);
-		vector<point_t> p = hp_inter();
+		vector<point_t> p = run(hs);
 		int n = p.size();
 		bool bad = n < 3;
 		for (int i = 0; i < n && !bad; ++i) { // result vertices satisfy every half-plane, polygon is CCW

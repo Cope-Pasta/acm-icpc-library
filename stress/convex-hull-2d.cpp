@@ -18,13 +18,13 @@ bool extreme(const vector<point_t> &s, point_t q) { // q is a strict hull vertex
 
 
 int unit() {
-	EXPECT(graham({}).empty());
-	EXPECT(graham({{2, 3}}).size() == 1);
-	EXPECT(graham({{1, 1}, {1, 1}}).size() == 1); // duplicates
-	EXPECT(graham({{1, 1}, {1, 1}, {1, 1}, {1, 1}}).size() == 1);
-	vector<point_t> h = graham({{0, 0}, {3, 3}, {1, 1}, {2, 2}, {3, 3}, {0, 0}}); // collinear with duplicates
+	EXPECT(convexHull({}).empty());
+	EXPECT(convexHull({{2, 3}}).size() == 1);
+	EXPECT(convexHull({{1, 1}, {1, 1}}).size() == 1); // duplicates
+	EXPECT(convexHull({{1, 1}, {1, 1}, {1, 1}, {1, 1}}).size() == 1);
+	vector<point_t> h = convexHull({{0, 0}, {3, 3}, {1, 1}, {2, 2}, {3, 3}, {0, 0}}); // collinear with duplicates
 	EXPECT(h.size() == 2 && near(h[0].x, 0) && near(h[1].x, 3) && near(h[1].y, 3));
-	h = graham({{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}, {1, 0}, {2, 2}, {0, 0}}); // CCW from the lowest point, no edge midpoints
+	h = convexHull({{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}, {1, 0}, {2, 2}, {0, 0}}); // CCW from the lowest point, no edge midpoints
 	EXPECT(h.size() == 4 && near(h[0].x, 0) && near(h[0].y, 0) && near(h[1].x, 2) && near(h[1].y, 0) && near(h[2].x, 2) && near(h[2].y, 2));
 	return 0;
 }
@@ -36,19 +36,18 @@ int main() {
 		vector<point_t> s(n);
 		for (auto &q : s) q = point_t(ri(-R, R), ri(-R, R));
 		if (it % 10 == 0) for (auto &q : s) q = point_t(q.x, 2 * q.x + 1); // all collinear
-		vector<point_t> h = graham(s);
+		vector<point_t> h = convexHull(s);
 		set<pair<double, double>> bv, hv;
 		for (auto &q : s) if (extreme(s, q)) bv.insert({q.x, q.y});
 		for (auto &q : h) hv.insert({q.x, q.y});
-		bool bad = false;
+		bool bad = bv != hv || hv.size() != h.size(); // degenerate input: the 1 or 2 extreme points
 		if (bv.size() >= 3) {
-			bad = bv != hv || hv.size() != h.size();
 			int m = h.size();
 			for (int i = 0; i < m; ++i) if (cross(h[(i + 1) % m] - h[i], h[(i + 2) % m] - h[i]) <= 0) bad = true; // strictly CCW
-			for (int i = 1; i < m; ++i) if (cmp(h[i], h[0])) bad = true; // starts at lowest point
-		} else bad = h.size() > (size_t)n || h.empty() != s.empty();
+			for (int i = 1; i < m; ++i) if (h[i].y < h[0].y || (h[i].y == h[0].y && h[i].x < h[0].x)) bad = true; // starts at lowest point
+		}
 		if (bad) {
-			printf("seed %u iter %d: graham mismatch\n", SEED, it);
+			printf("seed %u iter %d: convexHull mismatch\n", SEED, it);
 			for (auto &q : s) printf("(%g,%g) ", q.x, q.y);
 			puts("");
 			return 1;

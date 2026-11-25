@@ -1,52 +1,39 @@
-struct node_t {
-	int key, cnt, size;
+// Persistent treap (rope of string chunks), O(log n) expected per op.
+// Old versions stay valid. Empty tree = 0. split(t, k): (first k chars, rest).
+// ins(t, p, v): insert v before position p. del(t, x, y): remove [x, y].
+struct Node {
+	Node *l, *r;
 	string v;
-	node_t *c[2];
-	void resize() {
-		size = (c[0] ? c[0]->size : 0) + cnt + (c[1] ? c[1]->size : 0);
-	}
-} *nil;
-
-node_t *newNode(string v, node_t *l = nil, node_t *r = nil, int key = rand()) {
-	node_t *ret = new node_t();
-	ret->key = key;
-	ret->cnt = v.length(), ret->v = v;
-	ret->c[0] = l, ret->c[1] = r;
-	ret->resize();
-	return ret;
-}
-
-void init() {
-	nil = newNode("", 0, 0);
-	nil->size = 0, nil->key = ~0U >> 1;
-}
-
-struct PresidentTreap {
-	node_t *root;
-	node_t *splitL(node_t *a, int size) {
-		if (a == nil || size == 0) return nil;
-		if (a->c[0]->size >= size) return splitL(a->c[0], size);
-		if (a->c[0]->size + a->cnt >= size) return newNode(a->v.substr(0, size - a->c[0]->size), a->c[0], nil, a->key);
-		return newNode(a->v, a->c[0], splitL(a->c[1], size - a->c[0]->size - a->cnt), a->key);
-	}
-	node_t *splitR(node_t *a, int size) {
-		if (a == nil || size == 0) return nil;
-		if (a->c[1]->size >= size) return splitR(a->c[1], size);
-		if (a->c[1]->size + a->cnt >= size) return newNode(a->v.substr(a->v.length() - (size - a->c[1]->size), size - a->c[1]->size), nil, a->c[1], a->key);
-		return newNode(a->v, splitR(a->c[0], size - a->c[1]->size - a->cnt), a->c[1], a->key);
-	}
-	node_t *merge(node_t *a, node_t *b) {
-		if (a == nil) return b;
-		if (b == nil) return a;
-		if (a->key > b->key) return newNode(a->v, a->c[0], merge(a->c[1], b), a->key);
-		return newNode(b->v, merge(a, b->c[0]), b->c[1], b->key);
-	}
-	node_t *insert(string v, int p) { // insert before position p (0-indexed)
-		int l = root->size;
-		return merge(merge(splitL(root, p), newNode(v, nil, nil)), splitR(root, l - p));
-	}
-	node_t *remove(int x, int y) { // remove [x, y], 0-indexed
-		int l = root->size;
-		return merge(splitL(root, x), splitR(root, l - y - 1));
-	}
+	int y, s;
 };
+int sz(Node *t) { return t ? t->s : 0; }
+Node *mk(Node *l, string v, Node *r, int y = rand()) {
+	return new Node{l, r, v, y, sz(l) + (int)v.size() + sz(r)};
+}
+pair<Node *, Node *> split(Node *t, int k) {
+	if (!t) return {};
+	int a = sz(t->l), b = a + t->v.size();
+	if (k <= a) {
+		auto [x, y] = split(t->l, k);
+		return {x, mk(y, t->v, t->r, t->y)};
+	}
+	if (k >= b) {
+		auto [x, y] = split(t->r, k - b);
+		return {mk(t->l, t->v, x, t->y), y};
+	}
+	return {mk(t->l, t->v.substr(0, k - a), 0, t->y),
+	    mk(0, t->v.substr(k - a), t->r, t->y)};
+}
+Node *merge(Node *a, Node *b) {
+	if (!a || !b) return a ? a : b;
+	if (a->y > b->y) return mk(a->l, a->v, merge(a->r, b), a->y);
+	return mk(merge(a, b->l), b->v, b->r, b->y);
+}
+Node *ins(Node *t, int p, string v) {
+	auto [a, b] = split(t, p);
+	return merge(merge(a, mk(0, v, 0)), b);
+}
+Node *del(Node *t, int x, int y) {
+	auto [a, b] = split(t, x);
+	return merge(a, split(b, y - x + 1).second);
+}

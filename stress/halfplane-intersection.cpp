@@ -3,6 +3,9 @@
 #include "code/computational-geometry/common-2d.cpp"
 #include "code/computational-geometry/halfplane-intersection.cpp"
 #include "stress/test.h"
+const double maxd = 1e5;
+vector<point_t> p;
+void init() { p = {point_t(-maxd, -maxd), point_t(maxd, -maxd), point_t(maxd, maxd), point_t(-maxd, maxd)}; }
 const unsigned SEED = 6;
 mt19937 rng(SEED);
 int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
@@ -10,12 +13,12 @@ int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
 
 double area(const vector<point_t> &p) { double s = 0; for (int i = 0; i < (int)p.size(); ++i) s += cross(p[i], p[(i + 1) % p.size()]); return s / 2; }
 int unit() {
-	init(); cut({1, 1}, {1, 0}); cut({-1, 0}, {-1, 1}); EXPECT(p.empty()); // x >= 1 and x <= -1
-	init(); cut({0, 0}, {1, 0}); cut({1, 0}, {0, 1}); cut({0, 1}, {0, 0}); cut({1, 2}, {2, 2}); EXPECT(p.empty()); // triangle and y >= 2
-	init(); cut({0, 0}, {1, 0}); cut({1, 0}, {1, 1}); cut({1, 1}, {0, 1}); cut({0, 1}, {0, 0}); EXPECT(p.size() == 4 && near(area(p), 1)); // unit square
-	init(); cut({0, 0}, {1, 0}); cut({0, 0}, {1, 0}); cut({5, -1}, {6, -1}); cut({1, 0}, {1, 1}); cut({1, 1}, {0, 1}); cut({0, 1}, {0, 0});
+	init(); p = cut(p, {1, 1}, {1, 0}); p = cut(p, {-1, 0}, {-1, 1}); EXPECT(p.empty()); // x >= 1 and x <= -1
+	init(); p = cut(p, {0, 0}, {1, 0}); p = cut(p, {1, 0}, {0, 1}); p = cut(p, {0, 1}, {0, 0}); p = cut(p, {1, 2}, {2, 2}); EXPECT(p.empty()); // triangle and y >= 2
+	init(); p = cut(p, {0, 0}, {1, 0}); p = cut(p, {1, 0}, {1, 1}); p = cut(p, {1, 1}, {0, 1}); p = cut(p, {0, 1}, {0, 0}); EXPECT(p.size() == 4 && near(area(p), 1)); // unit square
+	init(); p = cut(p, {0, 0}, {1, 0}); p = cut(p, {0, 0}, {1, 0}); p = cut(p, {5, -1}, {6, -1}); p = cut(p, {1, 0}, {1, 1}); p = cut(p, {1, 1}, {0, 1}); p = cut(p, {0, 1}, {0, 0});
 	EXPECT(near(area(p), 1)); // duplicate and redundant half-planes
-	init(); cut({0, 0}, {0, 1}); cut({0, 1}, {0, 0}); EXPECT(near(area(p), 0)); // x = 0: degenerate
+	init(); p = cut(p, {0, 0}, {0, 1}); p = cut(p, {0, 1}, {0, 0}); EXPECT(near(area(p), 0)); // x = 0: degenerate
 	init(); EXPECT(near(area(p), 4 * maxd * maxd)); // just the bounding box
 	return 0;
 }
@@ -34,7 +37,7 @@ int main() {
 			hs.push_back({a, b});
 		}
 		init();
-		for (auto &h : hs) cut(h.first, h.second);
+		for (auto &h : hs) p = cut(p, h.first, h.second);
 		int n = p.size();
 		bool bad = n < 3;
 		for (int i = 0; i < n && !bad; ++i) { // result vertices satisfy every half-plane, polygon is CCW

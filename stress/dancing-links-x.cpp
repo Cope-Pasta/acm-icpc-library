@@ -7,8 +7,8 @@ int main() {
 		int m = 1 + rng() % 7, rows = rng() % 10;
 		vector<vector<int>> M(rows);
 		for (auto &row : M) for (int c = 0; c < m; ++c) if (rng() % 3 == 0) row.push_back(c);
-		init(m);
-		for (int i = 0; i < rows; ++i) insert(i, M[i]);
+		DLX d(m);
+		for (int i = 0; i < rows; ++i) d.add(i, M[i]);
 		auto exact = [&](const vector<int> &chosen) {
 			vector<int> c(m);
 			for (int i : chosen) for (int x : M[i]) c[x]++;
@@ -20,8 +20,8 @@ int main() {
 			for (int i = 0; i < rows; ++i) if (mask >> i & 1) chosen.push_back(i);
 			br = exact(chosen);
 		}
-		bool got = dlx();
-		if (got != br || (got && !exact(res))) {
+		bool got = d.solve();
+		if (got != br || (got && !exact(d.res))) {
 			printf("mismatch (m=%d): got %d want %d, rows:\n", m, got, br);
 			for (auto &row : M) { for (int x : row) printf("%d ", x); puts(""); }
 			return 1;

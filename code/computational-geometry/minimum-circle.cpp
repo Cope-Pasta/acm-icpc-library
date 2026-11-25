@@ -1,44 +1,20 @@
-void set_circle(point_t &p, double &r, point_t a, point_t b) {
-	r = dist(a, b) / 2;
-	p = (a + b) / 2;
-}
-
-void set_circle(point_t &p, double &r, point_t a, point_t b, point_t c) {
-	if (dblcmp(cross(b - a, c - a)) == 0) {
-		if (dist(a, c) > dist(b, c)) {
-			r = dist(a, c) / 2;
-			p = (a + c) / 2;
-		} else {
-			r = dist(b, c) / 2;
-			p = (b + c) / 2;
-		}
-	} else {
-		p = circumcenter(a, b, c);
-		r = dist(p, a);
-	}
-}
-
-bool in_circle(point_t &p, double &r, point_t x) {
-	return dblcmp(dist(x, p) - r) <= 0;
-}
-
-pair<point_t, double> minimum_circle(vector<point_t> p) {
-	point_t c = point_t(0, 0);
-	double r = 0;
-	int n = p.size();
+// Minimum enclosing circle (center, radius), expected O(n), n >= 1.
+// circumcenter: common-2d
+pair<point_t, double> minCircle(vector<point_t> p) {
 	shuffle(all(p), mt19937(time(0)));
-	set_circle(c, r, p[0], p[n > 1]);
-	for (int i = 2; i < n; ++i) {
-		if (in_circle(c, r, p[i])) continue;
-		set_circle(c, r, p[i], p[0]);
-		for (int j = 1; j < i; ++j) {
-			if (in_circle(c, r, p[j])) continue;
-			set_circle(c, r, p[i], p[j]);
-			for (int k = 0; k < j; ++k) {
-				if (in_circle(c, r, p[k])) continue;
-				set_circle(c, r, p[i], p[j], p[k]);
-			}
+	point_t o = p[0];
+	double r = 0;
+	auto out = [&](point_t q) { return dblcmp(dist(o, q) - r) > 0; };
+	for (int i = 0; i < (int)p.size(); ++i)
+		if (out(p[i])) {
+			o = p[i], r = 0;
+			for (int j = 0; j < i; ++j)
+				if (out(p[j])) {
+					o = (p[i] + p[j]) / 2, r = dist(o, p[i]);
+					for (int k = 0; k < j; ++k)
+						if (out(p[k]))
+							o = circumcenter(p[i], p[j], p[k]), r = dist(o, p[i]);
+				}
 		}
-	}
-	return make_pair(c, r);
+	return {o, r};
 }

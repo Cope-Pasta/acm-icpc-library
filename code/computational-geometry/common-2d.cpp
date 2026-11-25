@@ -1,113 +1,57 @@
-﻿// implementation of (dblcmp,dist,cross,dot) is trivial
-
-// count-clock wise is positive direction
-double angle(point_t p1, point_t p2) {
-	double x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
-	double a1 = atan2(y1, x1), a2 = atan2(y2, x2);
-	double a = a2 - a1;
-	while (a < -pi) a += 2 * pi;
-	while (a >= pi) a -= 2 * pi;
-	return a;
-}
-
+// implementation of (dblcmp,dist,cross,dot,rot90) is trivial; CCW is positive
+// signed angle a->b in (-pi,pi]
+double angle(point_t a, point_t b) { return atan2(cross(a, b), dot(a, b)); }
+point_t rotate(point_t p, double a) { return p * cos(a) + p.rot90() * sin(a); }
 bool onSeg(point_t p, point_t a, point_t b) {
-	return dblcmp(cross(a - p, b - p)) == 0 && dblcmp(dot(a - p, b - p)) <= 0;
+	return !dblcmp(cross(a - p, b - p)) && dblcmp(dot(a - p, b - p)) <= 0;
 }
-
-// 1 normal intersected, -1 denormal intersected, 0 not intersected
+// 1 proper intersection, -1 touching (endpoint/collinear overlap), 0 none
 int testSS(point_t a, point_t b, point_t c, point_t d) {
-	if (dblcmp(max(a.x, b.x) - min(c.x, d.x)) < 0) return 0;
-	if (dblcmp(max(c.x, d.x) - min(a.x, b.x)) < 0) return 0;
-	if (dblcmp(max(a.y, b.y) - min(c.y, d.y)) < 0) return 0;
-	if (dblcmp(max(c.y, d.y) - min(a.y, b.y)) < 0) return 0;
-	int d1 = dblcmp(cross(c - a, b - a));
-	int d2 = dblcmp(cross(d - a, b - a));
-	int d3 = dblcmp(cross(a - c, d - c));
-	int d4 = dblcmp(cross(b - c, d - c));
-	if ((d1 * d2 < 0) && (d3 * d4 < 0)) return 1;
-	if ((d1 * d2 <= 0 && d3 * d4 == 0) || (d1 * d2 == 0 && d3 * d4 <= 0)) return -1;
-	return 0;
+	if (dblcmp(cross(b - a, c - a)) * dblcmp(cross(b - a, d - a)) < 0 &&
+	    dblcmp(cross(d - c, a - c)) * dblcmp(cross(d - c, b - c)) < 0)
+		return 1;
+	return onSeg(c, a, b) || onSeg(d, a, b) || onSeg(a, c, d) || onSeg(b, c, d) ? -1
+	                                                                            : 0;
 }
-
-vector<point_t> isLL(point_t a, point_t b, point_t c, point_t d) {
-	point_t p1 = b - a, p2 = d - c;
-	vector<point_t> ret;
-	double a1 = p1.y, b1 = -p1.x, c1;
-	double a2 = p2.y, b2 = -p2.x, c2;
-	if (dblcmp(a1 * b2 - a2 * b1) == 0) return ret; // colined <=> a1*c2-a2*c1=0 && b1*c2-b2*c1=0
-	else {
-		c1 = a1 * a.x + b1 * a.y;
-		c2 = a2 * c.x + b2 * c.y;
-		ret.push_back(point_t((c1 * b2 - c2 * b1) / (a1 * b2 - a2 * b1), (c1 * a2 - c2 * a1) / (b1 * a2 - b2 * a1)));
-		return ret;
-	}
+// lines ab, cd; must not be parallel (check dblcmp(cross(b - a, d - c)))
+point_t isLL(point_t a, point_t b, point_t c, point_t d) {
+	point_t u = b - a, v = d - c;
+	return a + u * (cross(c - a, v) / cross(u, v));
 }
-
-point_t angle_bisector(point_t p0, point_t p1, point_t p2) {
-	point_t v1 = p1 - p0, v2 = p2 - p0;
-	v1 = v1 / dist(v1) * dist(v2);
-	return v1 + v2 + p0;
+point_t circumcenter(point_t a, point_t b, point_t c) {
+	b = b - a, c = c - a;
+	double d = 2 * cross(b, c);
+	assert(dblcmp(d)); // collinear
+	return a + (b * dot(c, c) - c * dot(b, b)).rot90() / d;
 }
-
-point_t perpendicular_bisector(point_t p1, point_t p2) {
-	point_t v = p2 - p1;
-	swap(v.x, v.y);
-	v.x = -v.x;
-	return v + (p1 + p2) / 2;
+point_t incenter(point_t a, point_t b, point_t c) {
+	double x = dist(b, c), y = dist(c, a), z = dist(a, b);
+	assert(dblcmp(cross(b - a, c - a))); // collinear
+	return (a * x + b * y + c * z) / (x + y + z);
 }
-
-point_t circumcenter(point_t p0, point_t p1, point_t p2) {
-	point_t v1 = perpendicular_bisector(p0, p1);
-	point_t v2 = perpendicular_bisector(p1, p2);
-	vector<point_t> r = isLL((p0 + p1) / 2, v1, (p1 + p2) / 2, v2);
-	assert(!r.empty()); // collinear or coincident points have no circumcenter
-	return r[0];
+point_t orthocenter(point_t a, point_t b, point_t c) {
+	return a + b + c - circumcenter(a, b, c) * 2;
 }
-
-point_t incenter(point_t p0, point_t p1, point_t p2) {
-	point_t v1 = angle_bisector(p0, p1, p2);
-	point_t v2 = angle_bisector(p1, p2, p0);
-	vector<point_t> r = isLL(p0, v1, p1, v2);
-	assert(!r.empty()); // degenerate triangle
-	return r[0];
-}
-
-point_t orthocenter(point_t p0, point_t p1, point_t p2) {
-	return p0 + p1 + p2 - circumcenter(p0, p1, p2) * 2;
-}
-
-// count-clock wise is positive direction
-point_t rotate(point_t p, double a) {
-	double s = sin(a), c = cos(a);
-	return point_t(p.x * c - p.y * s, p.y * c + p.x * s);
-}
-
+// any simple polygon, boundary is inside
 bool insidePoly(const vector<point_t> &p, point_t t) {
-	int n = p.size();
-	for (int i = 0; i < n; ++i)
-		if (onSeg(t, p[i], p[(i + 1) % n])) return true;
-	point_t r = point_t(-3863456.6633422, 5126546.243); // random point
-	int cnt = 0;
-	for (int i = 0; i < n; ++i) {
-		if (testSS(t, r, p[i], p[(i + 1) % n]) != 0) ++cnt;
+	bool in = 0;
+	for (int i = 0, n = p.size(); i < n; ++i) {
+		point_t a = p[i], b = p[(i + 1) % n];
+		if (onSeg(t, a, b)) return 1;
+		in ^= ((a.y < t.y) - (b.y < t.y)) * cross(a - t, b - t) > 0;
 	}
-	return cnt & 1;
+	return in;
 }
-
-bool insideConvex(const vector<point_t> &convex, point_t t) { // O(logN), convex polygen, cross(p[1] - p[0], p[2] - p[0]) > 0
-	int n = convex.size();
-	if (n == 1) return dblcmp(dist(t, convex[0])) == 0;
-	if (n == 2) return onSeg(t, convex[0], convex[1]);
-	int l = 1, r = n - 1;
-	while (l < r) {
-		int mid = (l + r) / 2 + 1;
-		int side = dblcmp(cross(convex[mid] - convex[0], t - convex[0]));
-		if (side == 1) l = mid;
-		else r = mid - 1;
+// O(log n), CCW, no 3 collinear, boundary is inside
+bool insideConvex(const vector<point_t> &p, point_t t) {
+	int n = p.size(), l = 1, r = n - 1;
+	if (n < 3) return onSeg(t, p[0], p[r]);
+	if (dblcmp(cross(p[1] - p[0], t - p[0])) < 0 ||
+	    dblcmp(cross(p[r] - p[0], t - p[0])) > 0)
+		return 0;
+	while (r - l > 1) {
+		int m = (l + r) / 2;
+		(dblcmp(cross(p[m] - p[0], t - p[0])) >= 0 ? l : r) = m;
 	}
-	int s = dblcmp(cross(convex[l] - convex[0], t - convex[0]));
-	if (s == -1 || l == n - 1) return false;
-	point_t v = convex[l + 1] - convex[l];
-	if (dblcmp(cross(v, t - convex[l])) >= 0) return true;
-	return false;
+	return dblcmp(cross(p[r] - p[l], t - p[l])) >= 0;
 }

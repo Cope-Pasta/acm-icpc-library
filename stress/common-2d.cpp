@@ -33,9 +33,8 @@ double lineDist(point_t p, point_t a, point_t b) { return fabs(cross(b - a, p - 
 
 
 int unit() {
-	EXPECT(isLL({0, 0}, {1, 0}, {0, 1}, {1, 1}).empty()); // parallel
-	EXPECT(isLL({0, 0}, {1, 0}, {2, 0}, {3, 0}).empty()); // same line
-	vector<point_t> x = isLL({0, 0}, {2, 2}, {0, 2}, {2, 0}); EXPECT(x.size() == 1 && near(x[0].x, 1) && near(x[0].y, 1));
+	point_t x = isLL({0, 0}, {2, 2}, {0, 2}, {2, 0}); EXPECT(near(x.x, 1) && near(x.y, 1));
+	x = isLL({0, 0}, {1, 0}, {5, -3}, {5, 7}); EXPECT(near(x.x, 5) && near(x.y, 0)); // outside both segments
 	EXPECT(testSS({0, 0}, {2, 2}, {0, 2}, {2, 0}) == 1);
 	EXPECT(testSS({0, 0}, {2, 0}, {1, 0}, {3, 0}) == -1); // collinear overlap
 	EXPECT(testSS({0, 0}, {1, 0}, {1, 0}, {2, 0}) == -1); // shared endpoint
@@ -67,11 +66,9 @@ int main() {
 		point_t a = rp(R), b = rp(R), c = rp(R), d = rp(R);
 		if (onSeg(a, c, d) != onSegB(a, c, d)) return fail(it, "onSeg");
 		if (testSS(a, b, c, d) != testSSB(a, b, c, d)) return fail(it, "testSS");
-		vector<point_t> x = isLL(a, b, c, d);
-		bool par = sgn(cross(b - a, d - c)) == 0;
-		if (!(a.x == b.x && a.y == b.y) && !(c.x == d.x && c.y == d.y)) {
-			if (par != x.empty()) return fail(it, "isLL parallel");
-			if (!par && (lineDist(x[0], a, b) > 1e-6 || lineDist(x[0], c, d) > 1e-6)) return fail(it, "isLL point");
+		if (sgn(cross(b - a, d - c))) { // isLL requires non-parallel lines
+			point_t x = isLL(a, b, c, d);
+			if (lineDist(x, a, b) > 1e-6 || lineDist(x, c, d) > 1e-6) return fail(it, "isLL point");
 		}
 		if (fabs(cross(b - a, c - a)) > 0.5) { // non-degenerate triangle a, b, c
 			point_t o = circumcenter(a, b, c), i = incenter(a, b, c), h = orthocenter(a, b, c);

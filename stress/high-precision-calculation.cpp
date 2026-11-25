@@ -3,7 +3,7 @@
 
 typedef __int128 i128;
 string str(i128 v) { string s; do s += char('0' + v % 10), v /= 10; while (v); return string(s.rbegin(), s.rend()); }
-string str(const bnum_t &v) { stringstream ss; ss << v; return ss.str(); }
+string str(const Big &v) { stringstream ss; ss << v; return ss.str(); }
 
 int main() {
 	mt19937_64 rng(7);
@@ -16,10 +16,10 @@ int main() {
 	for (int it = 0; it < 200000; ++it) {
 		ll a = rnd(), b = rnd(); int k = 1 + rng() % 1000000;
 		if (a < b) swap(a, b);
-		bnum_t x(a), y(to_string(b));
+		Big x(a), y(to_string(b));
 		vector<pair<string, string>> chk = {
 			{str(x), str((i128)a)}, {str(y), str((i128)b)}, {str(x + y), str((i128)a + b)}, {str(x - y), str((i128)a - b)},
-			{str(x * y), str((i128)a * b)}, {str(x / k), str((i128)a / k)}, {str(x * bnum_t(k)), str((i128)a * k)}};
+			{str(x * y), str((i128)a * b)}, {str(x / k), str((i128)a / k)}, {str(x * Big(k)), str((i128)a * k)}};
 		for (auto &[got, want] : chk) if (got != want) {
 			printf("mismatch: a=%lld b=%lld k=%d got %s want %s\n", a, b, k, got.c_str(), want.c_str());
 			return 1;

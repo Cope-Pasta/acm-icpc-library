@@ -1,29 +1,27 @@
-int ind, color; // vertices 0..n-1, dfn[u] = 0 if unvisited, timer starts at 1
-vector<int> dfn, low, block;
-vector<bool> instack;
-vector<vector<int>> edge;
-stack<int> sk;
-
-void tarjan(int u) {
-	dfn[u] = low[u] = ++ind;
-	sk.push(u), instack[u] = true;
-	for (int v : edge[u]) { // Check if v is the parent of u(BCC)
-		if (!dfn[v]) {
-			tarjan(v);
-			low[u] = min(low[u], low[v]);
-			// Check BCC here
-			// Cut vertex: Pop stack until v is poped, then add u.
-		} else if (instack[v]) { // ! instack[v] -> else
-			low[u] = min(low[u], dfn[v]);
-		}
+// Tarjan lowlink, undirected (multi-edges, self-loops ok), O(n+m). 0-indexed.
+// cut[v]: v is an articulation point; br: bridges (u, v).
+// For SCC (directed) see scc.cpp.
+struct Lowlink {
+	vector<int> dfn, low;
+	vector<bool> cut;
+	vector<pair<int, int>> br;
+	int t = 0;
+	Lowlink(const vector<vector<int>> &g)
+	    : dfn(g.size(), -1), low(g.size()), cut(g.size()) {
+		for (int i = 0; i < (int)g.size(); i++)
+			if (dfn[i] < 0) dfs(i, -1, g);
 	}
-	/* Check SCC here
-	if (dfn[u] == low[u]) {
-		++color; int v;
-		do {
-			v = sk.top(), instack[v] = false;
-			sk.pop();
-			block[v] = color;
-		} while (v != u);
-	} */
-}
+	void dfs(int u, int p, const vector<vector<int>> &g) {
+		dfn[u] = low[u] = t++;
+		int ch = 0;
+		for (int v : g[u])
+			if (v == p)
+				p = -2; // skip one copy of the tree edge; p == -1 only at a root
+			else if (dfn[v] >= 0) low[u] = min(low[u], dfn[v]);
+			else {
+				dfs(v, u, g), ch++, low[u] = min(low[u], low[v]);
+				if (low[v] > dfn[u]) br.push_back({u, v});
+				if (low[v] >= dfn[u] && (p != -1 || ch > 1)) cut[u] = true;
+			}
+	}
+};

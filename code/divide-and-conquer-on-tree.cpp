@@ -1,61 +1,26 @@
-vector<vector<int>> edge; // vertices 0..n-1
-vector<int> sz, parent, ver; // sz.assign(n, 0), parent.assign(n, -1)
-vector<bool> cut; // cut.assign(n, false)
-
-void bfs(int r) { // bfs in each sub-tree
-	parent[r] = -1, ver.clear(); // maintain root extra information
-	static queue<int> Q;
-	static stack<int> U;
-	Q.push(r);
-	while (!Q.empty()) {
-		int u = Q.front();
-		Q.pop();
-		U.push(u);
-		sz[u] = 1, ver.push_back(u); // find a node in sub-tree
-		for (int v : edge[u]) {
-			if (v == parent[u] || cut[v]) continue;
-			parent[v] = u; // maintain v from u
-			Q.push(v);
-		}
+// Centroid decomposition, O(n log n) + work in f. g: tree adjacency, 0-indexed.
+// solve(u, f) calls f(c) for the centroid c of u's component, then recurses.
+// c is already removed in f: walk from c over !rem vertices.
+struct Centroid {
+	vector<vector<int>> g;
+	vector<int> sz;
+	vector<bool> rem;
+	Centroid(const vector<vector<int>> &g) : g(g), sz(g.size()), rem(g.size()) {}
+	int calc(int u, int p) {
+		sz[u] = 1;
+		for (int v : g[u])
+			if (v != p && !rem[v]) sz[u] += calc(v, u);
+		return sz[u];
 	}
-	while (!U.empty()) {
-		int u = U.top();
-		U.pop();
-		if (parent[u] != -1) sz[parent[u]] += sz[u];
+	int find(int u, int p, int tot) {
+		for (int v : g[u])
+			if (v != p && !rem[v] && 2 * sz[v] > tot) return find(v, u, tot);
+		return u;
 	}
-}
-
-int findCentre(int r) {
-	static queue<int> Q;
-	int result = -1, rsize = maxint;
-	bfs(r);
-	Q.push(r);
-	while (!Q.empty()) {
-		int u = Q.front();
-		Q.pop();
-		int temp = sz[r] - sz[u];
-		for (int v : edge[u]) {
-			if (cut[v] || v == parent[u]) continue;
-			temp = max(temp, sz[v]);
-			Q.push(v);
-		}
-		if (temp < rsize) rsize = temp, result = u;
+	template <class F> void solve(int u, F f) {
+		int c = find(u, -1, calc(u, -1));
+		rem[c] = true, f(c);
+		for (int v : g[c])
+			if (!rem[v]) solve(v, f);
 	}
-	return result;
-}
-
-int work(int u) {
-	int result = 0;
-	u = findCentre(u);
-	cut[u] = true;
-	for (int v : edge[u]) {
-		if (!cut[v]) /*result += */
-			work(v); // process each sub-tree
-	}
-	for (int v : edge[u]) {
-		if (cut[v]) continue;
-		bfs(v); // then combine sub-trees
-	}
-	cut[u] = false;
-	return result;
-}
+};

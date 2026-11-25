@@ -1,48 +1,36 @@
-vector<vector<int>> pa;
-
-int trace(int sx, int sy, int ex, int ey) {
-	int l = 0;
-	while (ex != sx || ey != sy) {
-		if (pa[ex][ey] == 1) --ey;
-		else if (pa[ex][ey] == 2) --ex, --ey, ++l;
-		else --ex;
-	}
-	return l;
-}
-
-void reroot(int root, int m, int n) {
-	int i = root, j = 1;
-	while (j <= n && pa[i][j] != 2) ++j;
-	if (j > n) return;
-	pa[i][j] = 1;
-	while (i < 2 * m && j < n) {
-		if (pa[i + 1][j] == 3) pa[++i][j] = 1;
-		else if (pa[i + 1][j + 1] == 2) pa[++i][++j] = 1;
-		else ++j;
-	}
-	while (i < 2 * m && pa[i + 1][j] == 3) pa[++i][j] = 1;
-}
-
-void lcs(const string &a, const string &b) { // dp[i][j]: a[0...i-1], b[0...j-1]
-	int m = a.size(), n = b.size();
-	vector<vector<int>> dp(m + 1, vector<int>(n + 1, -1));
-	pa.assign(m + 1, vector<int>(n + 1, 0)), dp[0][0] = 0;
-	for (int i = 0; i <= m; ++i) {
-		for (int j = 0; j <= n; ++j) {
-			if (j >= 1 && dp[i][j] < dp[i][j - 1]) dp[i][j] = dp[i][j - 1], pa[i][j] = 1;
-			if (i >= 1 && j >= 1 && dp[i][j] < dp[i - 1][j - 1] + 1 && a[i - 1] == b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1, pa[i][j] = 2;
-			if (i >= 1 && dp[i][j] < dp[i - 1][j]) dp[i][j] = dp[i - 1][j], pa[i][j] = 3;
-		}
-	}
-}
-
+// Cyclic LCS: max over rotations r of a of LCS(r, b), O(|a| |b|).
+// LCS table of (a + a, b), rerooted row by row.
 int clcs(const string &a, const string &b) {
 	int m = a.size(), n = b.size(), ans = 0;
-	lcs(a + a, b);
-	ans = trace(0, 0, m, n);
-	for (int i = 1; i < m; ++i) {
-		reroot(i, m, n);
-		ans = max(ans, trace(i, 0, m + i, n));
+	// p: 1 left, 2 diagonal, 3 (or 0) up
+	vector<vector<int>> d(2 * m + 1, vector<int>(n + 1)), p = d;
+	for (int i = 0; i <= 2 * m; ++i)
+		for (int j = 0; j <= n; ++j) {
+			if (j) d[i][j] = d[i][j - 1], p[i][j] = 1;
+			if (i && j && a[(i - 1) % m] == b[j - 1] &&
+			    d[i - 1][j - 1] + 1 > d[i][j])
+				d[i][j] = d[i - 1][j - 1] + 1, p[i][j] = 2;
+			if (i && d[i - 1][j] > d[i][j]) d[i][j] = d[i - 1][j], p[i][j] = 3;
+		}
+	for (int r = 0; r < m; ++r) {
+		if (r) { // reroot the path tree at (r, 0)
+			int i = r, j = 1;
+			while (j <= n && p[i][j] != 2) ++j;
+			if (j <= n) {
+				p[i][j] = 1;
+				while (i < 2 * m && j < n)
+					if (p[i + 1][j] == 3) p[++i][j] = 1;
+					else if (p[i + 1][j + 1] == 2) p[++i][++j] = 1;
+					else ++j;
+				while (i < 2 * m && p[i + 1][j] == 3) p[++i][j] = 1;
+			}
+		}
+		int i = r + m, j = n, l = 0;
+		while (i != r || j) {
+			int q = p[i][j];
+			l += q == 2, i -= q != 1, j -= q == 1 || q == 2;
+		}
+		ans = max(ans, l);
 	}
 	return ans;
 }

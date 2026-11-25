@@ -1,7 +1,4 @@
 #include "check/prelude.h"
-ll mult(ll a, ll b, ll m) { return (__int128)a * b % m; }
-ll fpow(ll a, ll e, ll m) { ll r = 1 % m; for (a %= m; e; e >>= 1, a = mult(a, a, m)) if (e & 1) r = mult(r, a, m); return r; }
-ll inverse(ll a, ll m) { ll x0 = 1, x1 = 0, b = m; a %= m; while (b) { ll q = a / b; swap(a -= q * b, b); swap(x0 -= q * x1, x1); } return (x0 % m + m) % m; }
 #include "code/number-library.cpp"
 
 bool slow_prime(ll n) { if (n < 2) return false; for (ll d = 2; d * d <= n; ++d) if (n % d == 0) return false; return true; }
@@ -10,7 +7,7 @@ int main() {
 	unsigned seed = 5; mt19937_64 rng(seed); srand(seed);
 	auto fail = [&](const char *what, ll v) { printf("seed %u: %s %lld\n", seed, what, v); return 1; };
 	for (int it = 0; it < 100000; ++it) { // exgcd
-		int x = (int)(rng() % 2001) - 1000, y = (int)(rng() % 2001) - 1000, a, b;
+		int x = (int)(rng() % 2001) - 1000, y = (int)(rng() % 2001) - 1000; ll a, b;
 		int g = exgcd(x, y, a, b);
 		if (g != __gcd(abs(x), abs(y)) || a * x + b * y != g) return fail("exgcd", x * 10000LL + y);
 	}
@@ -25,21 +22,21 @@ int main() {
 	}
 	vector<bool> sieve(200001, true); sieve[0] = sieve[1] = false;
 	for (int i = 2; i <= 200000; ++i) if (sieve[i]) for (ll j = (ll)i * i; j <= 200000; j += i) sieve[j] = false;
-	for (int i = 0; i <= 200000; ++i) if (prime_test(i) != sieve[i]) return fail("prime_test small", i);
-	for (int it = 0; it < 3000; ++it) { ll n = rng() % 1000000000000LL; if (prime_test(n) != slow_prime(n)) return fail("prime_test", n); }
-	for (ll n : {3215031751LL, 3825123056546413051LL, 1000000007LL * 998244353, (1LL << 61) - 1}) if (prime_test(n) != (n == (1LL << 61) - 1)) return fail("prime_test special", n);
+	for (int i = 0; i <= 200000; ++i) if (isPrime(i) != sieve[i]) return fail("prime_test small", i);
+	for (int it = 0; it < 3000; ++it) { ll n = rng() % 1000000000000LL; if (isPrime(n) != slow_prime(n)) return fail("prime_test", n); }
+	for (ll n : {3215031751LL, 3825123056546413051LL, 1000000007LL * 998244353, (1LL << 61) - 1}) if (isPrime(n) != (n == (1LL << 61) - 1)) return fail("prime_test special", n);
 	for (int it = 0; it < 300; ++it) { // factorize
 		ll n = it < 100 ? rng() % 1000000 + 2 : it < 200 ? (ll)(rng() % 1000000 + 2) * (ll)(rng() % 1000000 + 2) : (ll)1000000007 * (ll)(rng() % 1000000000 + 2);
 		vector<ll> d; factorize(n, d); ll prod = 1;
-		for (ll x : d) { if (!prime_test(x)) return fail("factor not prime", x); prod *= x; }
+		for (ll x : d) { if (!isPrime(x)) return fail("factor not prime", x); prod *= x; }
 		if (prod != n) return fail("factorize product", n);
 	}
 	for (int p = 3; p < 3000; ++p) if (sieve[p]) { // primitive root vs order check
-		int g = primtive_root(p), ord = 1; ll x = g % p;
+		int g = primitiveRoot(p), ord = 1; ll x = g % p;
 		while (x != 1) x = x * g % p, ++ord;
 		if (ord != p - 1) return fail("primtive_root", p);
 		for (int h = 1; h < g; ++h) { int o = 1; ll y = h; while (y != 1) y = y * h % p, ++o; if (o == p - 1) return fail("primtive_root not smallest", p); }
 	}
-	if (primtive_root(998244353) != 3) return fail("primtive_root 998244353", 0);
+	if (primitiveRoot(998244353) != 3) return fail("primtive_root 998244353", 0);
 	puts("OK number-library");
 }

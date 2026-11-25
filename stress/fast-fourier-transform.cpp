@@ -2,7 +2,7 @@
 #include "code/fast-fourier-transform.cpp"
 
 int main() {
-	unsigned seed = 6; mt19937 rng(seed); preprocess();
+	unsigned seed = 6; mt19937 rng(seed);
 	for (int it = 0; it < 3000; ++it) {
 		int n = rng() % 300 + 1, m = rng() % 300 + 1, lim = it % 3 ? 1000 : 100000;
 		if (it % 10 == 0) n = 1;

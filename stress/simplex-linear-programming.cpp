@@ -2,7 +2,7 @@
 const double eps = 1e-9;
 #include "code/simplex-linear-programming.cpp"
 
-// brute: max over vertices of {Ax <= b, x >= 0}; returns -1 if infeasible (box rows keep it bounded)
+// brute: max over vertices of {Ax <= b, x >= 0}; returns -maxdbl if infeasible (box rows keep it bounded)
 double brute(const vector<vector<double>> &a, const vector<double> &b, const vector<double> &c) {
 	int n = a.size(), m = c.size(); vector<vector<double>> A = a; vector<double> B = b;
 	for (int j = 0; j < m; ++j) { vector<double> r(m); r[j] = -1; A.push_back(r); B.push_back(0); }
@@ -23,7 +23,7 @@ double brute(const vector<vector<double>> &a, const vector<double> &b, const vec
 		double v = 0; for (int j = 0; j < m; ++j) v += c[j] * x[j];
 		best = max(best, v), any = true;
 	}
-	return any ? best : -1;
+	return any ? best : -maxdbl;
 }
 
 int main() {
@@ -36,11 +36,11 @@ int main() {
 		for (int j = 0; j < m; ++j) { vector<double> r(m); r[j] = 1; a.push_back(r); b.push_back(rng() % 10 + 1); } // box: bounded
 		for (auto &v : c) v = (int)(rng() % 11) - 5;
 		double want = brute(a, b, c), got = simplex(a, b, c);
-		if (want == -1) ++infeasible;
+		if (want == -maxdbl) ++infeasible;
 		if (fabs(want - got) > 1e-6) { printf("seed %u it %d n %d m %d: want %.6f got %.6f\n", seed, it, (int)a.size(), m, want, got); return 1; }
 	}
-	if (simplex({{1, -1}}, {1}, {1, 1}) != -1) { puts("unbounded"); return 1; } // x - y <= 1, max x + y
-	if (simplex({{1}, {-1}}, {1, -2}, {1}) != -1) { puts("infeasible"); return 1; } // x <= 1, x >= 2
+	if (simplex({{1, -1}}, {1}, {1, 1}) != maxdbl) { puts("unbounded"); return 1; } // x - y <= 1, max x + y
+	if (simplex({{1}, {-1}}, {1, -2}, {1}) != -maxdbl) { puts("infeasible"); return 1; } // x <= 1, x >= 2
 	if (infeasible == 0) { puts("no infeasible cases generated"); return 1; }
 	puts("OK simplex-linear-programming");
 }

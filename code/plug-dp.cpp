@@ -1,94 +1,49 @@
-// Count Hamiltonian cycles on n * m grid, plugs 0...m, m <= maxm
-const int maxm = 7, pow3[] = {1, 3, 9, 27, 81, 243, 729, 2187, 6561};
-int cnt;
-vector<int> valid, ID;
-vector<vector<int>> match;
-int gb3(int v, int bit) { return (v / pow3[bit]) % 3; }
-int mb3(int v, int bit, int value) { return v - pow3[bit] * gb3(v, bit) + pow3[bit] * value; }
-int ub3(int v, int bit) { return v - pow3[bit] * gb3(v, bit); }
-void upd(int &x, int v) {
-	x += v;
-	x %= mod;
-}
-
-void dfs(int p, int st, int lt, int m) {
-	if (p > m) {
-		if (lt == 0) {
-			valid[st] = true;
-			if (st % 3 == 0) ID[st] = cnt++; // omitted
-			vector<int> sk;
-			for (int j = 0; j <= m; ++j) {
-				if (gb3(st, j) == 1) {
-					sk.push_back(j);
-				} else if (gb3(st, j) == 2) {
-					match[st][j] = sk.back();
-					match[st][sk.back()] = j, sk.pop_back();
-				}
+// Hamiltonian cycles on an n x m grid mod `mod`, huge n via transfer matrix
+// (matrix_t with * and power). m <= 7 or so. Plug states: m + 1 base-3 digits
+// (0 none, 1 "(", 2 ")"), plus -1 = cycle closed on the last cell.
+int plugDP(ll n, int m) {
+	vector<int> p3(m + 2, 1);
+	for (int i = 1; i <= m + 1; ++i) p3[i] = p3[i - 1] * 3;
+	auto get = [&](int s, int j) { return s / p3[j] % 3; };
+	auto put = [&](int s, int j, int v) { return s + (v - get(s, j)) * p3[j]; };
+	auto mate = [&](int s, int j) { // position of the bracket matching the one at j
+		for (int d = get(s, j) == 1 ? 1 : -1, c = 0;; j += d)
+			if (int x = get(s, j); x && !(c += x == 1 ? d : -d)) return j;
+	};
+	auto row = [&](int s) { // fill one row starting from plug state s
+		map<int, int> f{{s, 1}};
+		for (int j = 0; j < m; ++j) {
+			map<int, int> h;
+			for (auto [k, v] : f) {
+				auto add = [&](int s) { h[s] = (h[s] + v) % mod; };
+				int x = get(k, j), y = get(k, j + 1),
+				    t = put(put(k, j, 0), j + 1, 0);
+				if (!x && !y) add(put(put(t, j, 1), j + 1, 2));
+				else if (!x || !y) add(k), add(put(put(t, j, y), j + 1, x));
+				else if (x == 1 && y == 2) {
+					if (j == m - 1 && !t)
+						add(-1); // close the only loop on the last cell of a row
+				} else if (x == 2 && y == 1) add(t);
+				else if (x == 1) add(put(t, mate(k, j + 1), 1));
+				else add(put(t, mate(k, j), 2));
 			}
+			f = h;
 		}
-	} else {
-		dfs(p + 1, st, lt, m); // #
-		dfs(p + 1, mb3(st, p, 1), lt + 1, m); // (
-		if (lt) dfs(p + 1, mb3(st, p, 2), lt - 1, m); // )
+		map<int, int> r;
+		for (auto [k, v] : f)
+			if (k < 0 || !get(k, m)) r[k < 0 ? k : k * 3] = v;
+		return r;
+	};
+	vector<int> st{0, -1};
+	map<int, int> id{{0, 0}, {-1, 1}};
+	vector<map<int, int>> R;
+	for (int i = 0; i < (int)st.size(); ++i) {
+		R.push_back(st[i] < 0 ? map<int, int>() : row(st[i]));
+		for (auto [k, v] : R[i])
+			if (!id.count(k)) id[k] = st.size(), st.push_back(k);
 	}
-}
-
-int plugDP(int n, int m) {
-	int S = pow3[m + 1];
-	cnt = 0;
-	valid.assign(S, 0), ID.assign(S, -1), match.assign(S, vector<int>(m + 1));
-	dfs(0, 0, 0, m);
-	matrix_t<int> mat(cnt), mat2(cnt);
-	for (int start = 0; start < S; ++start) {
-		if (ID[start] == -1) continue;
-		for (int fi = 0; fi < 2; ++fi) { // Last row flag
-			vector<vector<int>> f(m + 1, vector<int>(S));
-			vector<int> g(S);
-			f[0][start] = 1;
-			for (int j = 0; j <= m; ++j) {
-				for (int k = 0; k < S; ++k) {
-					if (!valid[k]) continue;
-					if (j == m) {
-						if (!fi && !gb3(k, j)) { // i != n
-							upd(g[ub3(k, j) * 3], f[j][k]); // Unmark last bit
-						}
-					} else {
-						// Consider mp[i][j] valid ? (bit1 = bit2 = 0)
-						int bit1 = gb3(k, j), bit2 = gb3(k, j + 1),
-						    t = ub3(ub3(k, j), j + 1), tt;
-						if (bit1 == 1 && bit2 == 2) { // Merge two brackets
-							if (fi && j + 1 == m) { // i == n
-								upd(f[j + 1][t], f[j][k]);
-							}
-						} else if (bit1 == 2 && bit2 == 1) {
-							upd(f[j + 1][t], f[j][k]);
-						} else if (!bit1 && !bit2) { // bit1 == 0 && bit2 == 0
-							tt = mb3(mb3(t, j, 1), j + 1, 2);
-							upd(f[j + 1][tt], f[j][k]);
-						} else if (bit1 == bit2) {
-							if (bit1 == 1) { // bit1 == 1 && bit2 == 1
-								tt = mb3(t, match[k][j + 1], 1);
-								upd(f[j + 1][tt], f[j][k]);
-							} else { // bit1 == 2 && bit2 == 2
-								tt = mb3(t, match[k][j], 2);
-								upd(f[j + 1][tt], f[j][k]);
-							}
-						} else { // bit1 == 0 || bit2 == 0
-							upd(f[j + 1][k], f[j][k]);
-							swap(bit1, bit2);
-							tt = mb3(mb3(t, j, bit1), j + 1, bit2);
-							upd(f[j + 1][tt], f[j][k]);
-						}
-					}
-				}
-			}
-			for (int i = 0; i < S; ++i)
-				if (ID[i] != -1) {
-					if (fi) mat2.x[ID[i]][ID[start]] = f[m][i];
-					else mat.x[ID[i]][ID[start]] = g[i];
-				}
-		}
-	}
-	mat = mat2 * mat.power(n - 1);
-	return mat.x[ID[0]][ID[0]];
+	matrix_t<int> a(st.size());
+	for (int i = 0; i < (int)st.size(); ++i)
+		for (auto [k, v] : R[i]) a.x[id[k]][i] = v;
+	return a.power(n).x[1][0];
 }

@@ -1,3 +1,5 @@
+// Negamax alpha-beta: score() is for the player to move.
+// Call alphabeta(root, -inf, inf).
 int alphabeta(state s, int alpha, int beta) {
 	if (s.finished()) return s.score();
 	for (state t : s.next()) {
