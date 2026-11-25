@@ -1,83 +1,53 @@
-int n; // maximum matching on graphs, vertices 0..n-1, match[u] = -1 if unmatched
-vector<int> match, pre, base;
-vector<vector<int>> edge; // edge.assign(n, {})
-vector<bool> inQ, inB, inP;
-queue<int> Q;
-
-int LCA(int u, int v) {
-	inP.assign(n, false);
-	while (true) {
-		u = base[u];
-		inP[u] = true;
-		if (match[u] == -1) break;
-		u = pre[match[u]];
-	}
-	while (true) {
-		v = base[v];
-		if (inP[v]) return v;
-		v = pre[match[v]];
-	}
-}
-
-void reset(int u, int a) {
-	while (u != a) {
-		int v = match[u];
-		inB[base[u]] = inB[base[v]] = true;
-		v = pre[v];
-		if (base[v] != a) pre[v] = match[u];
-		u = v;
-	}
-}
-
-void contract(int u, int v) {
-	int a = LCA(u, v);
-	inB.assign(n, false);
-	reset(u, a), reset(v, a);
-	if (base[u] != a) pre[u] = v;
-	if (base[v] != a) pre[v] = u;
-	for (int i = 0; i < n; ++i) {
-		if (!inB[base[i]]) continue;
-		base[i] = a;
-		if (!inQ[i]) Q.push(i), inQ[i] = true;
-	}
-}
-
-bool dfs(int s) {
-	pre.assign(n, -1), inQ.assign(n, false), base.resize(n);
-	iota(all(base), 0);
-	while (!Q.empty()) Q.pop();
-	Q.push(s), inQ[s] = true;
-	while (!Q.empty()) {
-		int u = Q.front();
-		Q.pop();
-		for (int v : edge[u]) {
-			if (base[u] == base[v] || match[u] == v) continue;
-			if (v == s || (match[v] != -1 && pre[match[v]] != -1)) contract(u, v);
-			else if (pre[v] == -1) {
-				pre[v] = u;
-				if (match[v] != -1) {
-					Q.push(match[v]), inQ[match[v]] = true;
-				} else {
-					u = v;
-					while (u != -1) {
-						v = pre[u];
-						int w = match[v];
-						match[u] = v, match[v] = u;
-						u = w;
-					}
-					return true;
-				}
+// Edmonds blossom: max matching in a general graph, vertices 0..n-1, O(V^3).
+// add(u, v); run() returns the matching size; mt[u]: partner of u or -1.
+struct Blossom {
+	int n, t = 0;
+	vector<vector<int>> g;
+	vector<int> mt, pre, f, st, vis; // f: blossom base dsu, st: 1 even, 2 odd
+	queue<int> q;
+	Blossom(int n) : n(n), g(n), mt(n, -1), pre(n), f(n), st(n), vis(n) {}
+	void add(int u, int v) { g[u].push_back(v), g[v].push_back(u); }
+	int fd(int x) { return f[x] == x ? x : f[x] = fd(f[x]); }
+	int lca(int u, int v) {
+		for (++t;; swap(u, v))
+			if (u >= 0) {
+				if (vis[u = fd(u)] == t) return u;
+				vis[u] = t, u = mt[u] < 0 ? -1 : pre[mt[u]];
 			}
+	}
+	void blo(int u, int v, int a) {
+		while (fd(u) != a) {
+			pre[u] = v, v = mt[u];
+			if (st[v] == 2) st[v] = 1, q.push(v);
+			if (fd(u) == u) f[u] = a;
+			if (fd(v) == v) f[v] = a;
+			u = pre[v];
 		}
 	}
-	return false;
-}
-
-int blossom() {
-	int ans = 0;
-	match.assign(n, -1);
-	for (int i = 0; i < n; ++i) {
-		if (match[i] == -1 && dfs(i)) ++ans;
+	bool aug(int s) {
+		iota(all(f), 0), fill(all(st), 0), q = queue<int>({s}), st[s] = 1;
+		while (!q.empty()) {
+			int u = q.front();
+			q.pop();
+			for (int v : g[u])
+				if (!st[v]) {
+					pre[v] = u, st[v] = 2;
+					if (mt[v] < 0) {
+						for (int x = v, y; x >= 0; x = y) y = mt[pre[x]], mt[x] = pre[x], mt[pre[x]] = x;
+						return 1;
+					}
+					st[mt[v]] = 1, q.push(mt[v]);
+				} else if (st[v] == 1 && fd(u) != fd(v)) {
+					int a = lca(u, v);
+					blo(u, v, a), blo(v, u, a);
+				}
+		}
+		return 0;
 	}
-	return ans;
-}
+	int run() {
+		int r = 0;
+		for (int i = 0; i < n; ++i)
+			if (mt[i] < 0) r += aug(i);
+		return r;
+	}
+};
