@@ -11,8 +11,7 @@ int exgcd(int x, int y, int &a, int &b) { // extended gcd, ax + by = g.
 }
 
 LL CRT(const vector<int> &p, const vector<int> &b) { // chinese remainder theorem
-	LL N = 1, ans = 0; int k = p.size();
-	for (int i = 0; i < k; ++i) N *= p[i];
+	LL N = accumulate(p.begin(), p.end(), 1LL, multiplies<LL>()), ans = 0; int k = p.size();
 	for (int i = 0; i < k; ++i) {
 		LL mult = (inverse(N / p[i], p[i]) * (N / p[i])) % N;
 		mult = (mult * b[i]) % N;
