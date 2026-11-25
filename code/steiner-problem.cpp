@@ -1,30 +1,17 @@
-// Steiner's Problem: g: n*n matrix (0x3f3f3f3f if no edge, g[i][i] = 0), ts: vertices to be united, 0-indexed.
-int steiner(vector<vector<int>> g, const vector<int> &ts) { // O(3^m*n+2^m*n^2+n^3)
+// Steiner tree: min weight of a tree connecting terminals ts (connected), O(3^m n + 2^m n^2 + n^3).
+// g: n*n matrix (maxint if no edge, g[i][i] = 0), 0-indexed. dp[S][v]: tree spanning S and v.
+int steiner(vector<vector<int>> g, const vector<int> &ts) {
 	int n = g.size(), m = ts.size();
-	for (int k = 0; k < n; ++k)
-		for (int i = 0; i < n; ++i)
-			for (int j = 0; j < n; ++j)
-				g[i][j] = min(g[i][j], g[i][k] + g[k][j]); // floyd
-	vector<vector<int>> dp(1 << m, vector<int>(n, 0));
-	for (int i = 0; i < m; ++i) {
-		for (int j = 0; j < n; ++j) {
-			dp[1 << i][j] = g[ts[i]][j];
-		}
+	for (int k = 0; k < n; k++)
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++) g[i][j] = min(g[i][j], g[i][k] + g[k][j]);
+	vector<vector<int>> dp(1 << m, vector<int>(n, maxint));
+	for (int i = 0; i < m; i++) dp[1 << i] = g[ts[i]];
+	for (int S = 1; S < 1 << m; S++) {
+		for (int T = (S - 1) & S; T; T = (T - 1) & S)
+			for (int j = 0; j < n; j++) dp[S][j] = min(dp[S][j], dp[T][j] + dp[S ^ T][j]);
+		for (int j = 0; j < n; j++)
+			for (int k = 0; k < n; k++) dp[S][j] = min(dp[S][j], dp[S][k] + g[k][j]);
 	}
-	for (int i = 1; i < (1 << m); ++i) {
-		if (((i - 1) & i) != 0) {
-			for (int j = 0; j < n; ++j) {
-				dp[i][j] = maxint;
-				for (int k = (i - 1) & i; k > 0; k = (k - 1) & i) {
-					dp[i][j] = min(dp[i][j], dp[k][j] + dp[i ^ k][j]);
-				}
-			}
-			for (int j = 0; j < n; ++j) {
-				for (int k = 0; k < n; ++k) {
-					dp[i][j] = min(dp[i][j], dp[i][k] + g[k][j]);
-				}
-			}
-		}
-	}
-	return dp[(1 << m) - 1][ts[0]];
+	return dp.back()[ts[0]];
 }
