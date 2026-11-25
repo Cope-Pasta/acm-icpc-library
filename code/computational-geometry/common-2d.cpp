@@ -59,13 +59,13 @@ point_t perpendicular_bisector(point_t p1, point_t p2) {
 point_t circumcenter(point_t p0, point_t p1, point_t p2) {
 	point_t v1 = perpendicular_bisector(p0, p1);
 	point_t v2 = perpendicular_bisector(p1, p2);
-	return isLL((p0 + p1) / 2, v1, (p1 + p2) / 2, v2);
+	return isLL((p0 + p1) / 2, v1, (p1 + p2) / 2, v2)[0];
 }
 
 point_t incenter(point_t p0, point_t p1, point_t p2) {
 	point_t v1 = angle_bisector(p0, p1, p2);
 	point_t v2 = angle_bisector(p1, p2, p0);
-	return isLL(p0, v1, p1, v2);
+	return isLL(p0, v1, p1, v2)[0];
 }
 
 point_t orthocenter(point_t p0, point_t p1, point_t p2) {
@@ -78,28 +78,29 @@ point_t rotate(point_t p, double a) {
 	return point_t(p.x * c - p.y * s, p.y * c + p.x * s);
 }
 
-bool insidePoly(point_t *p, int n, point_t t) {
-	p[0] = p[n];
-	for (int i = 0; i < n; ++i) if (onSeg(t, p[i], p[i + 1])) return true;
+bool insidePoly(const vector<point_t> &p, point_t t) {
+	int n = p.size();
+	for (int i = 0; i < n; ++i) if (onSeg(t, p[i], p[(i + 1) % n])) return true;
 	point_t r = point_t(-3863456.6633422, 5126546.243); // random point
 	int cnt = 0;
 	for (int i = 0; i < n; ++i) {
-		if (testSS(t, r, p[i], p[i + 1]) != 0) ++cnt;
+		if (testSS(t, r, p[i], p[(i + 1) % n]) != 0) ++cnt;
 	}
 	return cnt & 1;
 }
 
-bool insideConvex(point_t *convex, int n, point_t t) { // O(logN), convex polygen, cross(p[2] - p[1], p[3] - p[1]) > 0
-	if (n == 2) return onSeg(t, convex[1], convex[2]);
-	int l = 2, r = n;
+bool insideConvex(const vector<point_t> &convex, point_t t) { // O(logN), convex polygen, cross(p[1] - p[0], p[2] - p[0]) > 0
+	int n = convex.size();
+	if (n == 2) return onSeg(t, convex[0], convex[1]);
+	int l = 1, r = n - 1;
 	while (l < r) {
 		int mid = (l + r) / 2 + 1;
-		int side = dblcmp(cross(convex[mid] - convex[1], t - convex[1]));
+		int side = dblcmp(cross(convex[mid] - convex[0], t - convex[0]));
 		if (side == 1) l = mid;
 		else r = mid - 1;
 	}
-	int s = dblcmp(cross(convex[l] - convex[1], t - convex[1]));
-	if (s == -1 || l == n) return false;
+	int s = dblcmp(cross(convex[l] - convex[0], t - convex[0]));
+	if (s == -1 || l == n - 1) return false;
 	point_t v = convex[l + 1] - convex[l];
 	if (dblcmp(cross(v, t - convex[l])) >= 0) return true;
 	return false;
