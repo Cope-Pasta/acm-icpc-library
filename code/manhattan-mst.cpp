@@ -26,11 +26,11 @@ int manhattan(vector<point> p) { // add(u, v, w) gets 0-indexed point ids
 		} else if (dir == 2) {
 			for (auto &q : p) q.x = -q.x;
 		}
-		sort(p.begin(), p.end());
+		sort(all(p));
 		vector<int> v, a(n);
 		for (int i = 0; i < n; ++i) a[i] = p[i].y - p[i].x, v.push_back(a[i]);
-		sort(v.begin(), v.end()); v.erase(unique(v.begin(), v.end()), v.end());
-		for (int i = 0; i < n; ++i) a[i] = lower_bound(v.begin(), v.end(), a[i]) - v.begin() + 1;
+		sort(all(v)); v.erase(unique(all(v)), v.end());
+		for (int i = 0; i < n; ++i) a[i] = lower_bound(all(v), a[i]) - v.begin() + 1;
 		T.assign(n + 1, {maxint, -1});
 		for (int i = n - 1; i >= 0; --i) {
 			int pos = query(a[i]);

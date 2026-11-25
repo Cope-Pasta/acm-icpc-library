@@ -1,5 +1,4 @@
 #include "check/prelude.h"
-#define all(x) (x).begin(), (x).end()
 #include "code/fast-fourier-transform.cpp"
 
 int main() {

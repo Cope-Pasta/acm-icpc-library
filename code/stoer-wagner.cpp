@@ -3,7 +3,7 @@
 int stoer_wagner(vector<vector<int>> g) {
 	int n = g.size(), res = maxint;
 	vector<int> v(n), d(n), vis(n, 0);
-	iota(v.begin(), v.end(), 0);
+	iota(all(v), 0);
 	while (n > 1) {
 		int p = 1, prev = 0;
 		for (int i = 1; i < n; ++i) {

@@ -51,5 +51,5 @@ void hull3d() { // n >= 4, not all coplanar
 			}
 		}
 	}
-	fc.erase(remove_if(fc.begin(), fc.end(), [](const face_t &f) { return !f.vis; }), fc.end());
+	fc.erase(remove_if(all(fc), [](const face_t &f) { return !f.vis; }), fc.end());
 }

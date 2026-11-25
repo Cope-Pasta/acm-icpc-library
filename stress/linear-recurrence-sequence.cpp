@@ -9,8 +9,8 @@ int main() {
 		vector<int> a(k), f(k);
 		for (auto &x : a) x = rng() % (it % 3 ? 10 : mod);
 		for (auto &x : f) x = rng() % (it % 3 ? 10 : mod);
-		vector<LL> h(f.begin(), f.end());
-		for (int i = k; i <= n; ++i) { LL s = 0; for (int j = 0; j < k; ++j) s = (s + (LL)a[j] * h[i - 1 - j]) % mod; h.push_back(s); }
+		vector<ll> h(f.begin(), f.end());
+		for (int i = k; i <= n; ++i) { ll s = 0; for (int j = 0; j < k; ++j) s = (s + (ll)a[j] * h[i - 1 - j]) % mod; h.push_back(s); }
 		int got = solve(a, f, n);
 		if (got != h[n]) { printf("seed %u it %d k %d n %d: want %lld got %d\n", seed, it, k, n, h[n], got); return 1; }
 	}

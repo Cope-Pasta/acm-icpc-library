@@ -27,6 +27,6 @@ double dac(vector<point_t> &p, int l, int r) { // [l, r]
 }
 
 double cal(vector<point_t> p) {
-	sort(p.begin(), p.end(), cmpX);
+	sort(all(p), cmpX);
 	return sqrt(dac(p, 0, p.size() - 1));
 }

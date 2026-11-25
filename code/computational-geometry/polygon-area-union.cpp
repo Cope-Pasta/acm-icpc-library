@@ -71,8 +71,8 @@ double solve(const vector<segment_t> &v, const vector<int> &sl) {
 	double ret = 0;
 	vector<point_t> lines;
 	for (int i = 0; i < v.size(); ++i) lines.push_back(point_t(v[i].k(), v[i].l()));
-	sort(lines.begin(), lines.end());
-	lines.erase(unique(lines.begin(), lines.end()), lines.end());
+	sort(all(lines));
+	lines.erase(unique(all(lines)), lines.end());
 	for(int i = 0; i < lines.size(); ++i) {
 		vector<event_t> e;
 		vector<int>::const_iterator it = sl.begin();
@@ -86,8 +86,8 @@ double solve(const vector<segment_t> &v, const vector<int> &sl) {
 				point_t r = cutl(line_t(lines[i]), line_t(s[j + k].a, s[j + k].b));
 				if (onseg(r, s[j + k])) cuts.push_back(r);
 			}
-			sort(cuts.begin(), cuts.end());
-			cuts.erase(unique(cuts.begin(), cuts.end()), cuts.end());
+			sort(all(cuts));
+			cuts.erase(unique(all(cuts)), cuts.end());
 			if (cuts.size() == 2) {
 				e.push_back(event_t(cuts[0].x, 0));
 				e.push_back(event_t(cuts[1].x, 1));
@@ -99,7 +99,7 @@ double solve(const vector<segment_t> &v, const vector<int> &sl) {
 				e.push_back(event_t(max(v[j].a.x, v[j].b.x), 3));
 			}
 		}
-		sort(e.begin(), e.end());
+		sort(all(e));
 		double last = e[0].x;
 		int cntg = 0, cntb = 0;
 		for (int j = 0; j < e.size(); ++j) {
@@ -126,7 +126,7 @@ double polyUnion(vector<vector<point_t> > polys) {
 		for (int j = 0; j < tot; ++j) {
 			area += cross(polys[i][j], polys[i][(j + 1) % tot]);
 		}
-		if (dblcmp(area) > 0) reverse(polys[i].begin(), polys[i].end());
+		if (dblcmp(area) > 0) reverse(all(polys[i]));
 		if (dblcmp(area) != 0) {
 			sl.push_back(tot);
 			for (int j = 0; j < tot; ++j) s.push_back(segment_t(polys[i][j], polys[i][(j + 1) % tot]));

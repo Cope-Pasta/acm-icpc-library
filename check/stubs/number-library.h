@@ -1,3 +1,3 @@
-LL fpow(LL a, LL b, LL m);
-LL inverse(LL a, LL m);
-LL mult(LL a, LL b, LL m);
+ll fpow(ll a, ll b, ll m);
+ll inverse(ll a, ll m);
+ll mult(ll a, ll b, ll m);

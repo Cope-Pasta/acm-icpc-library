@@ -38,10 +38,10 @@ int main() {
 		int R = ri(1, 10);
 		point_t c1(ri(-R, R), ri(-R, R)), c2(ri(-R, R), ri(-R, R));
 		int r1 = ri(1, R), r2 = ri(1, R);
-		LL d2 = (LL)dist2(c1, c2); // exact integer classification
-		int want = d2 >= (LL)(r1 + r2) * (r1 + r2) ? 1 : r1 <= r2 && d2 <= (LL)(r2 - r1) * (r2 - r1) ? 2 : d2 <= (LL)(r1 - r2) * (r1 - r2) ? 3 : 0;
+		ll d2 = (ll)dist2(c1, c2); // exact integer classification
+		int want = d2 >= (ll)(r1 + r2) * (r1 + r2) ? 1 : r1 <= r2 && d2 <= (ll)(r2 - r1) * (r2 - r1) ? 2 : d2 <= (ll)(r1 - r2) * (r1 - r2) ? 3 : 0;
 		if (testCC(c1, c2, r1, r2) != want) return fail(it, "testCC");
-		if (want == 0 || (d2 > 0 && (d2 == (LL)(r1 + r2) * (r1 + r2) || d2 == (LL)(r1 - r2) * (r1 - r2)))) { // intersecting or tangent
+		if (want == 0 || (d2 > 0 && (d2 == (ll)(r1 + r2) * (r1 + r2) || d2 == (ll)(r1 - r2) * (r1 - r2)))) { // intersecting or tangent
 			auto pr = isCC(c1, c2, r1, r2);
 			for (point_t p : {pr.first, pr.second})
 				if (fabs(dist(p, c1) - r1) > 1e-6 || fabs(dist(p, c2) - r2) > 1e-6) return fail(it, "isCC point not on both circles");

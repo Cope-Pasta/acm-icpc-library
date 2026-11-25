@@ -27,7 +27,7 @@ void add_line(ftype k, ftype b) { // k strictly increasing, get() = min k*x+b
 
 ftype get(ftype x) {
     point query = {x, 1};
-    auto it = lower_bound(vecs.begin(), vecs.end(), query, [](point a, point b) {
+    auto it = lower_bound(all(vecs), query, [](point a, point b) {
         return cross(a, b) > 0;
     });
     return dot(query, hull[it - vecs.begin()]);

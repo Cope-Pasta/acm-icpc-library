@@ -39,7 +39,7 @@ void dominator(int root) {
 		}
 	}
 	semi.resize(n), best.resize(n), idom.assign(n, -1), ancestor.assign(n, -1);
-	iota(semi.begin(), semi.end(), 0), iota(best.begin(), best.end(), 0);
+	iota(all(semi), 0), iota(all(best), 0);
 	for (int w = cnt - 1; w >= 1; --w) {
 		int p = label[parent[rev[w]]];
 		for (int v : pred[w]) {

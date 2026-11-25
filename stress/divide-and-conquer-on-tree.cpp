@@ -5,17 +5,17 @@
 mt19937 rng(13); int rnd(int l, int r) { return uniform_int_distribution<int>(l, r)(rng); }
 int n, K, depthMax; vector<int> chosen;
 void dists(int u, int p, int d, vector<int> &out) { out.push_back(d); for (int v : edge[u]) if (v != p && !cut[v]) dists(v, u, d + 1, out); }
-LL pairs(vector<int> d) { // pairs i < j with d[i] + d[j] <= K
-	sort(d.begin(), d.end()); LL r = 0;
+ll pairs(vector<int> d) { // pairs i < j with d[i] + d[j] <= K
+	sort(d.begin(), d.end()); ll r = 0;
 	for (int i = 0, j = d.size() - 1; i < j;) if (d[i] + d[j] <= K) r += j - i++; else --j;
 	return r;
 }
-LL solve(int u, int lvl) {
+ll solve(int u, int lvl) {
 	depthMax = max(depthMax, lvl);
 	int c = findCentre(u), total = ver.size();
 	chosen[c]++, cut[c] = true;
 	for (int v : edge[c]) if (!cut[v]) { bfs(v); if (2 * (int)ver.size() > total) throw 1; }
-	vector<int> all{0}; LL r = 0;
+	vector<int> all{0}; ll r = 0;
 	for (int v : edge[c]) if (!cut[v]) { vector<int> d; dists(v, c, 1, d); r -= pairs(d); all.insert(all.end(), d.begin(), d.end()); }
 	r += pairs(all);
 	for (int v : edge[c]) if (!cut[v]) r += solve(v, lvl + 1);
@@ -28,9 +28,9 @@ int main() {
 		for (int i = 1; i < n; ++i) { int p = rnd(0, 2) ? i - 1 : rnd(0, i - 1); edge[i].push_back(p), edge[p].push_back(i); }
 		work(rnd(0, n - 1));
 		if (count(cut.begin(), cut.end(), true)) { printf("FAIL it=%d: work() left cut[] set\n", it); return 1; }
-		LL got;
+		ll got;
 		try { got = solve(rnd(0, n - 1), 1); } catch (int) { printf("FAIL it=%d n=%d: findCentre is not a centroid\n", it, n); return 1; }
-		LL want = 0;
+		ll want = 0;
 		if (n <= 300) for (int s = 0; s < n; ++s) { // BFS from every vertex
 			vector<int> d(n, -1); queue<int> q; q.push(s), d[s] = 0;
 			while (!q.empty()) { int u = q.front(); q.pop(); for (int v : edge[u]) if (d[v] < 0) d[v] = d[u] + 1, q.push(v); }

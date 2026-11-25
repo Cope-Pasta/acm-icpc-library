@@ -37,28 +37,28 @@ void push(Node *node, int l, int r) {
 	}
 }
 
-int ask(Node *node, int l, int r, int ll, int rr) {
+int ask(Node *node, int l, int r, int ql, int qr) {
 	push(node, l, r);
-	if (l == ll && r == rr) return node->s;
+	if (l == ql && r == qr) return node->s;
 	int mid = (l + r) / 2;
-	if (rr <= mid) return ask(node->left, l, mid, ll, rr);
-	else if (ll > mid) return ask(node->right, mid + 1, r, ll, rr);
-	else return ask(node->left, l, mid, ll, mid) + ask(node->right, mid + 1, r, mid + 1, rr);
+	if (qr <= mid) return ask(node->left, l, mid, ql, qr);
+	else if (ql > mid) return ask(node->right, mid + 1, r, ql, qr);
+	else return ask(node->left, l, mid, ql, mid) + ask(node->right, mid + 1, r, mid + 1, qr);
 }
 
-Node *add(Node *node, int l, int r, int ll, int rr, int d) {
+Node *add(Node *node, int l, int r, int ql, int qr, int d) {
 	push(node, l, r);
-	if (l == ll && r == rr) return newNode(node->d + d, node->s + d * int(r - l + 1), node->left, node->right);
+	if (l == ql && r == qr) return newNode(node->d + d, node->s + d * int(r - l + 1), node->left, node->right);
 	int mid = (l + r) / 2;
-	if (rr <= mid) {
-		Node *nl = add(node->left, l, mid, ll, rr, d);
+	if (qr <= mid) {
+		Node *nl = add(node->left, l, mid, ql, qr, d);
 		return newNode(0, nl->s + node->right->s, nl, node->right);
-	} else if (ll > mid) {
-		Node *nr = add(node->right, mid + 1, r, ll, rr, d);
+	} else if (ql > mid) {
+		Node *nr = add(node->right, mid + 1, r, ql, qr, d);
 		return newNode(0, node->left->s + nr->s, node->left, nr);
 	} else {
-		Node *nl = add(node->left, l, mid, ll, mid, d);
-		Node *nr = add(node->right, mid + 1, r, mid + 1, rr, d);
+		Node *nl = add(node->left, l, mid, ql, mid, d);
+		Node *nr = add(node->right, mid + 1, r, mid + 1, qr, d);
 		return newNode(0, nl->s + nr->s, nl, nr);
 	}
 }

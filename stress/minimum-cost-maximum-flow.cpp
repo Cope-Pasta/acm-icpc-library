@@ -7,7 +7,7 @@ pair<int, int> ssp(int n, const vector<array<int, 4>> &es, int s, int t) {
 	for (auto [u, v, r, w] : es) g[u].push_back(e.size()), e.push_back({v, r, w}), g[v].push_back(e.size()), e.push_back({u, 0, -w});
 	int flow = 0, cost = 0;
 	while (true) {
-		vector<LL> d(n, LLONG_MAX); vector<int> pe(n, -1); d[s] = 0;
+		vector<ll> d(n, LLONG_MAX); vector<int> pe(n, -1); d[s] = 0;
 		for (int k = 0; k < n; ++k) for (int u = 0; u < n; ++u) if (d[u] != LLONG_MAX)
 			for (int id : g[u]) if (e[id].r && d[u] + e[id].w < d[e[id].v]) d[e[id].v] = d[u] + e[id].w, pe[e[id].v] = id;
 		if (d[t] == LLONG_MAX) return {flow, cost};

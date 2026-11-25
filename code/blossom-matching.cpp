@@ -44,7 +44,7 @@ void contract(int u, int v) {
 
 bool dfs(int s) {
 	pre.assign(n, -1), inQ.assign(n, false), base.resize(n);
-	iota(base.begin(), base.end(), 0);
+	iota(all(base), 0);
 	while (!Q.empty()) Q.pop();
 	Q.push(s), inQ[s] = true;
 	while (!Q.empty()) {

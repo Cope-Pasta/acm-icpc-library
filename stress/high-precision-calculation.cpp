@@ -7,14 +7,14 @@ string str(const bnum_t &v) { stringstream ss; ss << v; return ss.str(); }
 
 int main() {
 	mt19937_64 rng(7);
-	auto rnd = [&]() -> LL { // mix of tiny, digit-boundary and large values
+	auto rnd = [&]() -> ll { // mix of tiny, digit-boundary and large values
 		int t = rng() % 4;
 		if (t == 0) return rng() % 20;
-		if (t == 1) { LL p = 1; for (int k = rng() % 18; k; --k) p *= 10; return max(0LL, p - (LL)(rng() % 3)); }
-		return rng() % (LL)1e18;
+		if (t == 1) { ll p = 1; for (int k = rng() % 18; k; --k) p *= 10; return max(0LL, p - (ll)(rng() % 3)); }
+		return rng() % (ll)1e18;
 	};
 	for (int it = 0; it < 200000; ++it) {
-		LL a = rnd(), b = rnd(); int k = 1 + rng() % 1000000;
+		ll a = rnd(), b = rnd(); int k = 1 + rng() % 1000000;
 		if (a < b) swap(a, b);
 		bnum_t x(a), y(to_string(b));
 		vector<pair<string, string>> chk = {

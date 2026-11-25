@@ -72,7 +72,7 @@ int manacher(const string &s, vector<int> &l) {
 			l[i + k] = min(l[i - k], j - k);
 		}
 	}
-	return n ? *max_element(l.begin(), l.end()) : 0;
+	return n ? *max_element(all(l)) : 0;
 }
 
 vector<int> z_function(const string &s) {

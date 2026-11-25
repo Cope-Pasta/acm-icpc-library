@@ -33,7 +33,7 @@ void strongly_connected_components(vector<vector<int>> const& adj,
             adj_rev[u].push_back(v);
 
     visited.assign(n, false);
-    reverse(order.begin(), order.end());
+    reverse(all(order));
 
     vector<int> roots(n, 0); // gives the root vertex of a vertex's SCC
 

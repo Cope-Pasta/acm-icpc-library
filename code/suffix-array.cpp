@@ -4,7 +4,7 @@ void construct(const vector<int/* Type */> &s) {
 	n = s.size(), sa.assign(n, 0), r.assign(n + n, 0), h.assign(n, 0); // r is `doubled`
 	vector<pair<int/* Type */, int>> ord(n);
 	for (int i = 0; i < n; ++i) ord[i] = make_pair(s[i], i);
-	sort(ord.begin(), ord.end());
+	sort(all(ord));
 	for (int i = 0; i < n; ++i) {
 		sa[i] = ord[i].second;
 		r[sa[i]] = (i == 0 ? 1 : r[sa[i - 1]] + (ord[i - 1].first != ord[i].first));
@@ -14,7 +14,7 @@ void construct(const vector<int/* Type */> &s) {
 		int cnt = 0;
 		for (int i = 0; i < n; ++i) if (sa[i] + l >= n) tsa[cnt++] = sa[i];
 		for (int i = 0; i < n; ++i) if (sa[i] >= l) tsa[cnt++] = sa[i] - l;
-		fill(c.begin(), c.end(), 0);
+		fill(all(c), 0);
 		for (int i = 0; i < n; ++i) ++c[r[i]];
 		for (int i = 1; i <= n; ++i) c[i] += c[i - 1];
 		for (int i = n - 1; i >= 0; --i) sa[--c[r[tsa[i]]]] = tsa[i];

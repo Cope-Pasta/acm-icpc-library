@@ -8,11 +8,11 @@ template<typename T> struct matrix_t { // code/matrix.cpp interface plus * and p
 		for (int i = 0; i < n; ++i) for (int k = 0; k < n; ++k) for (int j = 0; j < n; ++j) r.x[i][j] = (r.x[i][j] + 1LL * x[i][k] * o.x[k][j]) % mod;
 		return r;
 	}
-	matrix_t power(LL e) const { matrix_t r(n, 1), b = *this; for (; e; e >>= 1, b = b * b) if (e & 1) r = r * b; return r; }
+	matrix_t power(ll e) const { matrix_t r(n, 1), b = *this; for (; e; e >>= 1, b = b * b) if (e & 1) r = r * b; return r; }
 };
 #include "code/plug-dp.cpp"
 
-int R, W; LL cycles; vector<int> vis;
+int R, W; ll cycles; vector<int> vis;
 void go(int v, int d) { // directed Hamiltonian cycles through cell 0
 	static const int dr[] = {0, 0, 1, -1}, dc[] = {1, -1, 0, 0};
 	for (int k = 0; k < 4; ++k) {

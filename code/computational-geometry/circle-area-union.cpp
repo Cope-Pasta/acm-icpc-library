@@ -64,7 +64,7 @@ vector<double> circle_union(const vector<point_t> &center, const vector<double> 
 		} else {
 			e.push_back(event_t(-pi, 1));
 			e.push_back(event_t(pi, -2));
-			sort(e.begin(), e.end());
+			sort(all(e));
 			for (int i = 0; i < int(e.size()) - 1; ++i) {
 				cvrcnt += e[i].delta;
 				double a = calc(center[c], radius[c], e[i].theta, e[i + 1].theta);

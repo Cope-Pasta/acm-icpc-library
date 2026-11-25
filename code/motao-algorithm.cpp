@@ -1,6 +1,6 @@
 // Complexity: Q*N^0.5 * O(add), Q: vector of queries [l, r], positions from 0
 int q = Q.size(), SQRTN = max(1, (int)sqrt((double)q));
-sort(Q.begin(), Q.end(), cmpL);
+sort(all(Q), cmpL);
 for (int i = 0; i < q; i += SQRTN) {
 	clear();
 	int end = min(q, i + SQRTN), L = 0, R = -1;

@@ -10,10 +10,10 @@ int exgcd(int x, int y, int &a, int &b) { // extended gcd, ax + by = g.
 	return x;
 }
 
-LL CRT(const vector<int> &p, const vector<int> &b) { // chinese remainder theorem
-	LL N = accumulate(p.begin(), p.end(), 1LL, multiplies<LL>()), ans = 0; int k = p.size();
+ll CRT(const vector<int> &p, const vector<int> &b) { // chinese remainder theorem
+	ll N = accumulate(all(p), 1LL, multiplies<ll>()), ans = 0; int k = p.size();
 	for (int i = 0; i < k; ++i) {
-		LL mult = (inverse(N / p[i], p[i]) * (N / p[i])) % N;
+		ll mult = (inverse(N / p[i], p[i]) * (N / p[i])) % N;
 		mult = (mult * b[i]) % N;
 		ans += mult; ans %= N;
 	}
@@ -21,10 +21,10 @@ LL CRT(const vector<int> &p, const vector<int> &b) { // chinese remainder theore
 	return ans;
 }
 
-bool miller_rabin(LL n, LL b) { // miller-rabin prime test
-	LL m = n - 1, cnt = 0;
+bool miller_rabin(ll n, ll b) { // miller-rabin prime test
+	ll m = n - 1, cnt = 0;
 	while (m % 2 == 0) m >>= 1, ++cnt;
-	LL ret = fpow(b, m, n);
+	ll ret = fpow(b, m, n);
 	if (ret == 1 || ret == n - 1) return true;
 	--cnt;
 	while (cnt >= 0) {
@@ -35,7 +35,7 @@ bool miller_rabin(LL n, LL b) { // miller-rabin prime test
 	return false;
 }
 
-bool prime_test(LL n) {
+bool prime_test(ll n) {
 	if (n < 2) return false;
 	if (n < 4) return true;
 	if (n == 3215031751LL) return false;
@@ -46,25 +46,25 @@ bool prime_test(LL n) {
 	return true;
 }
 
-LL pollard_rho(LL n, LL seed) { // pollard-rho divisors factorization
-	LL x, y;
+ll pollard_rho(ll n, ll seed) { // pollard-rho divisors factorization
+	ll x, y;
 	x = y = rand() % (n - 1) + 1;
-	LL head = 1, tail = 2;
+	ll head = 1, tail = 2;
 	while (true) {
 		x = mult(x, x, n);
 		x = (x + seed) % n;
 		if (x == y) return n;
-		LL d = gcd(max(x - y, y - x), n);
+		ll d = gcd(max(x - y, y - x), n);
 		if (1 < d && d < n) return d;
 		if (++head == tail) y = x, tail <<= 1;
 	}
 }
 
-void factorize(LL n, vector<LL> &divisor) {
+void factorize(ll n, vector<ll> &divisor) {
 	if (n == 1) return;
 	if (prime_test(n)) divisor.push_back(n);
 	else {
-		LL d = n;
+		ll d = n;
 		while (d >= n) d = pollard_rho(n, rand() % (n - 1) + 1);
 		factorize(n / d, divisor);
 		factorize(d, divisor);

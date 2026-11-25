@@ -46,5 +46,5 @@ int km() { // maximum weight, if minimum, negate all g then restore at the end.
 			}
 		}
 	}
-	return accumulate(lx.begin(), lx.end(), 0) + accumulate(ly.begin(), ly.end(), 0);
+	return accumulate(all(lx), 0) + accumulate(all(ly), 0);
 }

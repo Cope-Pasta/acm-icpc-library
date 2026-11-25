@@ -44,15 +44,15 @@ int main() {
 		int R = ri(1, 10);
 		point_t c(ri(-R, R), ri(-R, R)), p(ri(-R, R), ri(-R, R));
 		int r = ri(1, R);
-		LL d2 = (LL)dist2(c, p);
+		ll d2 = (ll)dist2(c, p);
 		vector<point_t> t = tanCP(c, r, p);
-		if ((d2 < (LL)r * r) != t.empty()) return fail(it, "tanCP count");
-		for (point_t q : t) if (!tangentAt(c, r, q, p - q) || (d2 == (LL)r * r && dist(q, p) > 1e-6)) return fail(it, "tanCP point");
-		if (t.size() == 2 && d2 > (LL)r * r && dist(t[0], t[1]) < 1e-6) return fail(it, "tanCP points coincide");
+		if ((d2 < (ll)r * r) != t.empty()) return fail(it, "tanCP count");
+		for (point_t q : t) if (!tangentAt(c, r, q, p - q) || (d2 == (ll)r * r && dist(q, p) > 1e-6)) return fail(it, "tanCP point");
+		if (t.size() == 2 && d2 > (ll)r * r && dist(t[0], t[1]) < 1e-6) return fail(it, "tanCP points coincide");
 
 		point_t c2(ri(-R, R), ri(-R, R));
 		int r2 = ri(1, R);
-		LL e2 = (LL)dist2(c, c2), out = (LL)(r + r2) * (r + r2), in = (LL)(r - r2) * (r - r2);
+		ll e2 = (ll)dist2(c, c2), out = (ll)(r + r2) * (r + r2), in = (ll)(r - r2) * (r - r2);
 		if (e2 == 0 || e2 == out || e2 == in) continue; // concentric or tangent circles: tangent lines degenerate
 		int want = e2 > out ? 4 : e2 > in ? 2 : 0;
 		vector<seg_t> s = tanCC(c, r, c2, r2);

@@ -26,7 +26,7 @@ pair<point_t, double> minimum_circle(vector<point_t> p) {
 	point_t c = point_t(0, 0);
 	double r = 0;
 	int n = p.size();
-	shuffle(p.begin(), p.end(), mt19937(time(0)));
+	shuffle(all(p), mt19937(time(0)));
 	set_circle(c, r, p[0], p[n > 1]);
 	for (int i = 2; i < n; ++i) {
 		if (in_circle(c, r, p[i])) continue;

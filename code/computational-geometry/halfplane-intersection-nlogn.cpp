@@ -35,8 +35,8 @@ bool checkhp(hp_t h1, hp_t h2, hp_t h3) {
 }
 
 vector<point_t> hp_inter() {
-	sort(hp.begin(), hp.end());
-	hp.erase(unique(hp.begin(), hp.end()), hp.end());
+	sort(all(hp));
+	hp.erase(unique(all(hp)), hp.end());
 	deque<hp_t> DQ;
 	DQ.push_back(hp[0]);
 	DQ.push_back(hp[1]);

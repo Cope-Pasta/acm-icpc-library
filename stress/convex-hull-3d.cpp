@@ -36,14 +36,14 @@ int main() {
 		}
 		for (auto [e, k] : edges) if (k != 1 || edges[{e.second, e.first}] != 1) return fail("surface not closed");
 		if (it % 20 == 0) { // grid volume: inside iff on inner side of every supporting plane from O(n^3) triples
-			set<array<LL, 4>> planes; // integer normal and offset, reduced by gcd
+			set<array<ll, 4>> planes; // integer normal and offset, reduced by gcd
 			for (int i = 0; i < n; ++i) for (int j = 0; j < n; ++j) for (int k = 0; k < n; ++k) {
 				point3_t nm = cross(p[j] - p[i], p[k] - p[i]);
-				array<LL, 4> h = {llround(nm.x), llround(nm.y), llround(nm.z), 0};
+				array<ll, 4> h = {llround(nm.x), llround(nm.y), llround(nm.z), 0};
 				if (!h[0] && !h[1] && !h[2]) continue;
 				h[3] = h[0] * llround(p[i].x) + h[1] * llround(p[i].y) + h[2] * llround(p[i].z);
-				LL g = 0; for (LL v : h) g = __gcd(g, llabs(v));
-				for (LL &v : h) v /= g;
+				ll g = 0; for (ll v : h) g = __gcd(g, llabs(v));
+				for (ll &v : h) v /= g;
 				if (planes.count(h)) continue;
 				bool ok = true; // all points on the side n . x <= d
 				for (int l = 0; l < n && ok; ++l) ok = h[0] * llround(p[l].x) + h[1] * llround(p[l].y) + h[2] * llround(p[l].z) <= h[3];
