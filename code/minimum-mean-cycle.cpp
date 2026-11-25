@@ -1,14 +1,14 @@
-int dp[maxn][maxn]; // minimum mean cycle(allow negative weight)
-double mmc(int n) { 
+struct edge_t { int u, v, w; }; // minimum mean cycle(allow negative weight)
+double mmc(int n, const vector<edge_t> &edge) { // vertices 0..n-1
+	vector<vector<int>> dp(n + 1, vector<int>(n, maxint));
+	dp[0].assign(n, 0);
 	for (int i = 0; i < n; ++i) {
-		memset(dp[i + 1], 0x7f, sizeof(dp[i + 1]));
-		for (int j = 1; j <= ec; ++j) {
-			int u = edge[j].u, v = edge[j].v, w = edge[j].w;
+		for (auto [u, v, w] : edge) {
 			if (dp[i][u] != maxint) dp[i + 1][v] = min(dp[i + 1][v], dp[i][u] + w);
 		}
 	}
 	double res = maxdbl;
-	for (int i = 1; i <= n; ++i) {
+	for (int i = 0; i < n; ++i) {
 		if (dp[n][i] == maxint) continue;
 		double value = -maxdbl;
 		for (int j = 0; j < n; ++j) {
