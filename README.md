@@ -1,6 +1,10 @@
 # acm-icpc-library
 
-Before the first run `pre-commit install` for automatically building PDF on each commit.
+To rebuild `main.pdf` automatically on each commit, enable the git hooks once:
+
+```sh
+git config core.hooksPath .githooks
+```
 
 My code library (a.k.a. reference document) used in ACM-ICPC.
 
