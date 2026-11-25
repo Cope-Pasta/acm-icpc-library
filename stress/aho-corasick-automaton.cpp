@@ -5,7 +5,7 @@ const int C = 3;
 int main() {
 	mt19937 rng(2);
 	for (int it = 0; it < 20000; ++it) {
-		trie_t ac; vector<string> pats;
+		AC ac; vector<string> pats;
 		int k = rng() % 6;
 		for (int i = 0; i < k; ++i) {
 			string p; int l = 1 + rng() % 4;
