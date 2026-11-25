@@ -1,62 +1,43 @@
-// node 0: header, node c + 1: column c (columns 0-indexed), res: rows of the found cover
-vector<int> L, R, U, D, C, A, S, O, res;
-
-void init(int m) { // m: number of columns
-	for (auto *v : {&L, &R, &U, &D, &C, &A}) v->assign(m + 1, 0);
-	S.assign(m + 1, 0), O.clear(), res.clear();
-	for (int i = 0; i <= m; ++i) L[i] = i - 1, R[i] = i + 1, C[i] = D[i] = U[i] = i;
-	L[0] = m, R[m] = 0;
-}
-
-void insert(int row, const vector<int> &t) { // t: columns of 1
-	int first = L.size();
-	for (int col : t) {
-		int pt = L.size();
-		++col, ++S[col];
-		C.push_back(col), A.push_back(row), U.push_back(col), D.push_back(D[col]);
-		U[D[col]] = pt, D[col] = pt;
-		L.push_back(pt), R.push_back(pt);
-		if (pt != first) L[pt] = pt - 1, R[pt] = first, R[pt - 1] = L[first] = pt;
+// Dancing links (Algorithm X), exact cover. DLX d(m): m columns, 0-indexed. d.add(row, cols): cols of the 1s in row.
+// d.solve(): true iff some set of rows covers every column exactly once; the rows are then in d.res.
+struct DLX {
+	vector<int> L, R, U, D, C, A, S, res; // node 0: header, node c + 1: column c
+	DLX(int m) : S(m + 1) {
+		for (int i = 0; i <= m; ++i) L.push_back(i - 1), R.push_back(i + 1), U.push_back(i), D.push_back(i), C.push_back(i), A.push_back(0);
+		L[0] = m, R[m] = 0;
 	}
-}
-
-void remove(int x) {
-	L[R[x]] = L[x], R[L[x]] = R[x];
-	for (int i = D[x]; i != x; i = D[i]) {
-		for (int j = R[i]; j != i; j = R[j]) {
-			U[D[j]] = U[j], D[U[j]] = D[j], --S[C[j]];
+	void add(int row, vector<int> t) {
+		int f = L.size();
+		for (int c : t) {
+			int p = L.size();
+			++S[++c], C.push_back(c), A.push_back(row), U.push_back(c), D.push_back(D[c]), U[D[c]] = p, D[c] = p;
+			L.push_back(p), R.push_back(p), L[p] = L[f], R[p] = f, R[L[f]] = p, L[f] = p;
 		}
 	}
-}
-
-void resume(int x) {
-	for (int i = U[x]; i != x; i = U[i]) {
-		for (int j = L[i]; j != i; j = L[j]) {
-			U[D[j]] = j, D[U[j]] = j, ++S[C[j]];
-		}
+	void remove(int x) {
+		L[R[x]] = L[x], R[L[x]] = R[x];
+		for (int i = D[x]; i != x; i = D[i])
+			for (int j = R[i]; j != i; j = R[j]) U[D[j]] = U[j], D[U[j]] = D[j], --S[C[j]];
 	}
-	L[R[x]] = x, R[L[x]] = x;
-}
-
-bool dlx() {
-	if (R[0] == 0) {
-		res = O;
-		return true;
-	} else {
-		int val = INT_MAX, col = 0;
-		for (int i = R[0]; i != 0; i = R[i]) {
-			if (S[i] <= val) col = i, val = S[i];
-		}
-		if (val == 0) return false;
-		remove(col);
-		for (int i = D[col]; i != col; i = D[i]) {
-			O.push_back(A[i]);
+	void resume(int x) {
+		for (int i = U[x]; i != x; i = U[i])
+			for (int j = L[i]; j != i; j = L[j]) U[D[j]] = j, D[U[j]] = j, ++S[C[j]];
+		L[R[x]] = x, R[L[x]] = x;
+	}
+	bool solve() {
+		if (!R[0]) return true;
+		int c = R[0];
+		for (int i = R[0]; i; i = R[i])
+			if (S[i] < S[c]) c = i;
+		remove(c);
+		for (int i = D[c]; i != c; i = D[i]) {
+			res.push_back(A[i]);
 			for (int j = R[i]; j != i; j = R[j]) remove(C[j]);
-			if (dlx()) return true;
+			if (solve()) return true;
 			for (int j = L[i]; j != i; j = L[j]) resume(C[j]);
-			O.pop_back();
+			res.pop_back();
 		}
-		resume(col);
+		resume(c);
 		return false;
 	}
-}
+};
