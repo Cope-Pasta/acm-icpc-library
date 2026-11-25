@@ -21,7 +21,7 @@ int main() {
 			if (!full) for (int k = 2; k < (int)p.size() && !full; ++k) for (int j = 1; j < k && !full; ++j) for (int i = 0; i < j && !full; ++i)
 				for (int l = 0; l < (int)p.size() && !full; ++l) full = dblcmp(volume(p[i], p[j], p[k], p[l])) != 0;
 		}
-		n = p.size(); pt = p; hull3d();
+		n = p.size(); vector<point3_t> pt = p; vector<array<int, 3>> fc = hull3d(pt);
 		auto fail = [&](const char *what) {
 			printf("seed %u it %d: %s\n", seed, it, what);
 			for (auto &q : p) printf("(%g,%g,%g) ", q.x, q.y, q.z);
@@ -29,10 +29,10 @@ int main() {
 		};
 		map<pair<int, int>, int> edges; double V = 0;
 		for (auto &f : fc) {
-			if (dblcmp(area(pt[f.a], pt[f.b], pt[f.c])) == 0) return fail("degenerate face");
-			for (int i = 0; i < n; ++i) if (dblcmp(volume(pt[i], pt[f.a], pt[f.b], pt[f.c])) > 0) return fail("point outside face");
-			++edges[{f.a, f.b}], ++edges[{f.b, f.c}], ++edges[{f.c, f.a}];
-			V -= volume(pt[0], pt[f.a], pt[f.b], pt[f.c]);
+			if (dblcmp(area(pt[f[0]], pt[f[1]], pt[f[2]])) == 0) return fail("degenerate face");
+			for (int i = 0; i < n; ++i) if (dblcmp(volume(pt[i], pt[f[0]], pt[f[1]], pt[f[2]])) > 0) return fail("point outside face");
+			++edges[{f[0], f[1]}], ++edges[{f[1], f[2]}], ++edges[{f[2], f[0]}];
+			V -= volume(pt[0], pt[f[0]], pt[f[1]], pt[f[2]]);
 		}
 		for (auto [e, k] : edges) if (k != 1 || edges[{e.second, e.first}] != 1) return fail("surface not closed");
 		if (it % 20 == 0) { // grid volume: inside iff on inner side of every supporting plane from O(n^3) triples

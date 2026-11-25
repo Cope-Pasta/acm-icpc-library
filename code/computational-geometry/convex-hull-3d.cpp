@@ -1,55 +1,30 @@
-struct face_t {
-	int a, b, c;
-	bool vis;
-};
-vector<point3_t> pt; // input; hull3d() reorders it, faces in fc index into pt
-vector<vector<int>> bf;
-vector<face_t> fc;
-
-bool remove(int p, int b, int a) {
-	int f = bf[b][a];
-	if (fc[f].vis) {
-		if (dblcmp(volume(pt[p], pt[fc[f].a], pt[fc[f].b], pt[fc[f].c])) >= 0) return true;
-		bf[a][b] = bf[b][p] = bf[p][a] = fc.size();
-		fc.push_back({a, b, p, true});
-	}
-	return false;
-}
-
-void dfs(int p, int f) {
-	fc[f].vis = false;
-	if (remove(p, fc[f].b, fc[f].a)) dfs(p, bf[fc[f].b][fc[f].a]);
-	if (remove(p, fc[f].c, fc[f].b)) dfs(p, bf[fc[f].c][fc[f].b]);
-	if (remove(p, fc[f].a, fc[f].c)) dfs(p, bf[fc[f].a][fc[f].c]);
-}
-
-void hull3d() { // n >= 4, not all coplanar
-	int n = pt.size();
-	for (int i = 1; i < n; ++i) {
-		if (dblcmp((pt[i] - pt[0]).length()) > 0) swap(pt[i], pt[1]);
-	}
-	for (int i = 2; i < n; ++i) {
-		if (dblcmp(fabs(area(pt[0], pt[1], pt[i]))) > 0) swap(pt[i], pt[2]);
-	}
-	for (int i = 3; i < n; ++i) {
-		if (dblcmp(fabs(volume(pt[0], pt[1], pt[2], pt[i]))) > 0) swap(pt[i], pt[3]);
-	}
-	fc.clear(), bf.assign(n, vector<int>(n));
+// 3D convex hull, O(n^2). n >= 4, not all coplanar; reorders p. Faces index into p, CCW seen from outside
+// (volume(q, face) <= 0 for all q). Points inside or on the surface are skipped; coplanar faces are triangulated.
+vector<array<int, 3>> hull3d(vector<point3_t> &p) {
+	int n = p.size();
+	for (int i = 1; i < n; ++i)
+		if (dblcmp(dist(p[0], p[i]))) swap(p[1], p[i]);
+	for (int i = 2; i < n; ++i)
+		if (dblcmp(area(p[0], p[1], p[i]))) swap(p[2], p[i]);
+	for (int i = 3; i < n; ++i)
+		if (dblcmp(volume(p[0], p[1], p[2], p[i]))) swap(p[3], p[i]);
+	auto vol = [&](int i, array<int, 3> t) { return dblcmp(volume(p[i], p[t[0]], p[t[1]], p[t[2]])); };
+	vector<array<int, 3>> f;
 	for (int i = 0; i < 4; ++i) {
-		face_t f = {(i + 1) % 4, (i + 2) % 4, (i + 3) % 4, true};
-		if (dblcmp(volume(pt[i], pt[f.a], pt[f.b], pt[f.c])) > 0) swap(f.a, f.b);
-		bf[f.a][f.b] = bf[f.b][f.c] = bf[f.c][f.a] = fc.size();
-		fc.push_back(f);
+		array<int, 3> t = {(i + 1) % 4, (i + 2) % 4, (i + 3) % 4};
+		if (vol(i, t) > 0) swap(t[0], t[1]);
+		f.push_back(t);
 	}
-	shuffle(pt.begin() + 4, pt.end(), mt19937(time(0)));
+	vector<vector<int>> vis(n, vector<int>(n)); // vis[a][b] == i: edge a->b is on a face visible from p[i]
 	for (int i = 4; i < n; ++i) {
-		for (int j = 0; j < int(fc.size()); ++j) {
-			if (!fc[j].vis) continue;
-			if (dblcmp(volume(pt[i], pt[fc[j].a], pt[fc[j].b], pt[fc[j].c])) >= 0) {
-				dfs(i, j);
-				break;
-			}
-		}
+		vector<array<int, 3>> g, h; // kept, visible
+		for (auto &t : f) (vol(i, t) > 0 ? h : g).push_back(t);
+		for (auto &t : h)
+			for (int k = 0; k < 3; ++k) vis[t[k]][t[(k + 1) % 3]] = i;
+		for (auto &t : h)
+			for (int k = 0; k < 3; ++k)
+				if (vis[t[(k + 1) % 3]][t[k]] != i) g.push_back({t[k], t[(k + 1) % 3], i}); // horizon edge
+		f = g;
 	}
-	fc.erase(remove_if(all(fc), [](const face_t &f) { return !f.vis; }), fc.end());
+	return f;
 }
