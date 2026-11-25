@@ -1,23 +1,20 @@
-// max{cx|Ax<=b,x>=0}, n: constraints, m: vars, a: n * m, b: n, c: m
+// Simplex (Bland's rule): max{cx | Ax <= b, x >= 0}, a: n x m, b: n, c: m. Needs eps.
+// Returns the optimum, maxdbl if unbounded, -maxdbl if infeasible.
 double simplex(const vector<vector<double>> &a, const vector<double> &b, const vector<double> &c) {
 	int n = b.size(), m = c.size() + 1, r = n, s = m - 1;
 	vector<vector<double>> d(n + 2, vector<double>(m + 1));
 	vector<int> ix(n + m);
-	for (int i = 0; i < n + m; ++i) ix[i] = i;
+	iota(all(ix), 0);
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m - 1; ++j) d[i][j] = -a[i][j];
-		d[i][m - 1] = 1;
-		d[i][m] = b[i];
+		d[i][m - 1] = 1, d[i][m] = b[i];
 		if (d[r][m] > d[i][m]) r = i;
 	}
 	for (int j = 0; j < m - 1; ++j) d[n][j] = c[j];
 	d[n + 1][m - 1] = -1;
 	for (double dd;;) {
 		if (r < n) {
-			int t = ix[s];
-			ix[s] = ix[r + m];
-			ix[r + m] = t;
-			d[r][s] = 1.0 / d[r][s];
+			swap(ix[s], ix[r + m]), d[r][s] = 1 / d[r][s];
 			for (int j = 0; j <= m; ++j)
 				if (j != s) d[r][j] *= -d[r][s];
 			for (int i = 0; i <= n + 1; ++i)
@@ -27,23 +24,17 @@ double simplex(const vector<vector<double>> &a, const vector<double> &b, const v
 					d[i][s] *= d[r][s];
 				}
 		}
-		r = -1;
-		s = -1;
+		r = s = -1;
 		for (int j = 0; j < m; ++j)
-			if (s < 0 || ix[s] > ix[j]) {
-				if (d[n + 1][j] > eps || (d[n + 1][j] > -eps && d[n][j] > eps)) s = j;
-			}
+			if ((s < 0 || ix[s] > ix[j]) && (d[n + 1][j] > eps || (d[n + 1][j] > -eps && d[n][j] > eps))) s = j;
 		if (s < 0) break;
 		for (int i = 0; i < n; ++i)
-			if (d[i][s] < -eps) {
-				if (r < 0 || (dd = d[r][m] / d[r][s] - d[i][m] / d[i][s]) < -eps || (dd < eps && ix[r + m] > ix[i + m])) r = i;
-			}
-		if (r < 0) return -1; // not bounded
+			if (d[i][s] < -eps && (r < 0 || (dd = d[r][m] / d[r][s] - d[i][m] / d[i][s]) < -eps || (dd < eps && ix[r + m] > ix[i + m]))) r = i;
+		if (r < 0) return maxdbl;
 	}
-	if (d[n + 1][m] < -eps) return -1; // not executable
+	if (d[n + 1][m] < -eps) return -maxdbl;
 	double ans = 0;
-	for (int i = m; i < n + m; ++i) { // the missing enumerated x[i] = 0
+	for (int i = m; i < n + m; ++i)
 		if (ix[i] < m - 1) ans += d[i - m][m] * c[ix[i]];
-	}
 	return ans;
 }
