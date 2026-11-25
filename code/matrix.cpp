@@ -1,3 +1,5 @@
+// n x n matrix, matrix_t(n, v) = v * I. determinant(): Euclid-style elimination with an exact zero test,
+// so only for integer or modular T (for double, pick the max pivot and compare with eps). O(n^3 log C).
 template <typename T>
 struct matrix_t {
 	int n;
@@ -7,19 +9,15 @@ struct matrix_t {
 	}
 	T determinant() const {
 		T r = 1;
-		vector<vector<T>> det = x;
+		auto a = x;
 		for (int i = 0; i < n; ++i) {
-			for (int j = i + 1; j < n; ++j) {
-				while (det[j][i] != 0) { // exact: only for integer/modular T; for doubles pick the max pivot and compare with eps
-					T ratio = det[i][i] / det[j][i];
-					for (int k = i; k < n; ++k) {
-						det[i][k] -= ratio * det[j][k];
-						swap(det[i][k], det[j][k]);
-					}
-					r = -r;
+			for (int j = i + 1; j < n; ++j)
+				while (a[j][i] != 0) {
+					T t = a[i][i] / a[j][i];
+					for (int k = i; k < n; ++k) a[i][k] -= t * a[j][k];
+					swap(a[i], a[j]), r = -r;
 				}
-			}
-			r = r * det[i][i];
+			r = r * a[i][i];
 		}
 		return r;
 	}
