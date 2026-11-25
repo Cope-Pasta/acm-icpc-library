@@ -15,7 +15,7 @@ void cut(point_t p1, point_t p2) {
 		double v1 = cross(p2 - p1, a - p1);
 		double v2 = cross(p2 - p1, b - p1);
 		if (dblcmp(v1) >= 0) tp.push_back(a); // <= if right side
-		if (dblcmp(v1) * dblcmp(v2) < 0) tp.push_back(isLL(p1, p2, a, b)[0]);
+		if (dblcmp(v1) * dblcmp(v2) < 0) tp.push_back(isLL(p1, p2, a, b));
 	}
 	p = tp;
 }
