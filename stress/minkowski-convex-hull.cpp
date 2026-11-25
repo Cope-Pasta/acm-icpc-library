@@ -9,7 +9,7 @@ int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
 vector<point_t> randHull(int R) {
 	vector<point_t> s(ri(3, 10));
 	for (auto &q : s) q = point_t(ri(-R, R), ri(-R, R));
-	return graham(s);
+	return convexHull(s);
 }
 
 int main() {
@@ -19,7 +19,7 @@ int main() {
 		if (a.size() < 3 || b.size() < 3) continue;
 		vector<point_t> sums;
 		for (auto &p : a) for (auto &q : b) sums.push_back(p + q);
-		vector<point_t> want = graham(sums), got = minkowski(a, b);
+		vector<point_t> want = convexHull(sums), got = minkowski(a, b);
 		bool ok = want.size() == got.size();
 		for (size_t i = 0; ok && i < got.size(); ++i) ok = !dblcmp(want[i].x - got[i].x) && !dblcmp(want[i].y - got[i].y);
 		if (!ok) {

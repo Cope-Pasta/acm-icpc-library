@@ -11,8 +11,8 @@ int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
 int unit() {
 	EXPECT(near(rotate_caliper({{1, 1}}), 0)); // single point
 	EXPECT(near(rotate_caliper({{0, 0}, {3, 4}}), 5)); // segment
-	EXPECT(near(rotate_caliper(graham({{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}})), sqrt(8.0)));
-	EXPECT(near(rotate_caliper(graham({{0, 0}, {1, 0}, {2, 0}, {10, 0}})), 10)); // collinear input
+	EXPECT(near(rotate_caliper(convexHull({{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}})), sqrt(8.0)));
+	EXPECT(near(rotate_caliper(convexHull({{0, 0}, {1, 0}, {2, 0}, {10, 0}})), 10)); // collinear input
 	return 0;
 }
 
@@ -22,7 +22,7 @@ int main() {
 		int n = ri(2, 15), R = ri(1, 20);
 		vector<point_t> s(n);
 		for (auto &q : s) q = point_t(ri(-R, R), ri(-R, R));
-		vector<point_t> h = graham(s);
+		vector<point_t> h = convexHull(s);
 		if (h.size() < 3) continue;
 		double best = 0;
 		for (auto &a : s) for (auto &b : s) best = max(best, dist(a, b));

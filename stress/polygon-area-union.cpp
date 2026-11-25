@@ -44,7 +44,7 @@ int main() {
 			if (!ps.empty() && rnd(0, 4) == 0) { ps.push_back(ps.back()); continue; } // identical polygons
 			vector<point_t> pts(rnd(3, 8));
 			for (auto &q : pts) q = frac ? point_t(rnd(-1000, 1000) / 97.0, rnd(-1000, 1000) / 89.0) : point_t(rnd(-10, 10), rnd(-10, 10));
-			auto h = graham(pts);
+			auto h = convexHull(pts);
 			if (h.size() >= 3) {
 				if (rnd(0, 1)) reverse(h.begin(), h.end()); // either orientation
 				ps.push_back(h);

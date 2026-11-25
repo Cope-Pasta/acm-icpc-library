@@ -21,5 +21,5 @@ vector<point_t> minkowski(const vector<point_t> &h1, vector<point_t> h2) { // h1
 			}
 		}
 	}
-	return graham(h);
+	return convexHull(h);
 }
