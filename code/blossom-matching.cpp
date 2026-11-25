@@ -1,10 +1,11 @@
-int n, match[maxn], pre[maxn], base[maxn]; // maximum matching on graphs
-vector<int> edge[maxn];
-bool inQ[maxn], inB[maxn], inP[maxn];
+int n; // maximum matching on graphs, vertices 0..n-1, match[u] = -1 if unmatched
+vector<int> match, pre, base;
+vector<vector<int>> edge; // edge.assign(n, {})
+vector<bool> inQ, inB, inP;
 queue<int> Q;
 
 int LCA(int u, int v) {
-	for (int i = 1; i <= n; ++i) inP[i] = false;
+	inP.assign(n, false);
 	while (true) {
 		u = base[u];
 		inP[u] = true;
@@ -30,11 +31,11 @@ void reset(int u, int a) {
 
 void contract(int u, int v) {
 	int a = LCA(u, v);
-	for (int i = 1; i <= n; ++i) inB[i] = false;
+	inB.assign(n, false);
 	reset(u, a), reset(v, a);
 	if (base[u] != a) pre[u] = v;
 	if (base[v] != a) pre[v] = u;
-	for (int i = 1; i <= n; ++i) {
+	for (int i = 0; i < n; ++i) {
 		if (!inB[base[i]]) continue;
 		base[i] = a;
 		if (!inQ[i]) Q.push(i), inQ[i] = true;
@@ -42,14 +43,14 @@ void contract(int u, int v) {
 }
 
 bool dfs(int s) {
-	for (int i = 1; i <= n; ++i) pre[i] = -1, inQ[i] = false, base[i] = i;
+	pre.assign(n, -1), inQ.assign(n, false), base.resize(n);
+	iota(base.begin(), base.end(), 0);
 	while (!Q.empty()) Q.pop();
 	Q.push(s), inQ[s] = true;
 	while (!Q.empty()) {
 		int u = Q.front();
 		Q.pop();
-		for (vector<int>::iterator it = edge[u].begin(); it != edge[u].end(); ++it) {
-			int v = *it;
+		for (int v : edge[u]) {
 			if (base[u] == base[v] || match[u] == v) continue;
 			if (v == s || (match[v] != -1 && pre[match[v]] != -1)) contract(u, v);
 			else if (pre[v] == -1) {
@@ -74,8 +75,8 @@ bool dfs(int s) {
 
 int blossom() {
 	int ans = 0;
-	for (int i = 1; i <= n; ++i) match[i] = -1;
-	for (int i = 1; i <= n; ++i) {
+	match.assign(n, -1);
+	for (int i = 0; i < n; ++i) {
 		if (match[i] == -1 && dfs(i)) ++ans;
 	}
 	return ans;

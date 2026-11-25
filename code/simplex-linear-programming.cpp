@@ -1,10 +1,8 @@
-double a[maxn][maxm], b[maxn], c[maxm], d[maxn][maxm];
-int ix[maxn + maxm]; // !!! array all indexed from 0
-// max{cx|Ax<=b,x>=0}, n: constraints, m: vars
-double simplex(double a[maxn][maxm], double b[maxn], double c[maxm], int n, int m) {
-	++m;
-	int r = n, s = m - 1;
-	memset(d, 0, sizeof(d));
+// max{cx|Ax<=b,x>=0}, n: constraints, m: vars, a: n * m, b: n, c: m
+double simplex(const vector<vector<double>> &a, const vector<double> &b, const vector<double> &c) {
+	int n = b.size(), m = c.size() + 1, r = n, s = m - 1;
+	vector<vector<double>> d(n + 2, vector<double>(m + 1));
+	vector<int> ix(n + m);
 	for (int i = 0; i < n + m; ++i) ix[i] = i;
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m - 1; ++j) d[i][j] = -a[i][j];

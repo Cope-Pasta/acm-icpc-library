@@ -1,14 +1,16 @@
 // scnt: the number of target points
 // sp: the point to search the closest target points
 const int DIM = 5;
-int n, d, scnt;
+int d, scnt;
 struct point_t {
 	int x[DIM];
-} points[maxn], sp;
+} sp;
+vector<point_t> points; // 0-indexed
 struct node_t {
 	int sd;
 	node_t *l, *r;
-} node[maxn], *root;
+};
+vector<node_t> node; node_t *root;
 struct cmp_t {
 	int dd;
 	bool operator()(const point_t &a, const point_t &b) {
@@ -33,7 +35,7 @@ priority_queue<point_t, vector<point_t>, cmp2_t> pq;
 
 node_t *build(int dd, int l, int r) {
 	if (l > r) return NULL;
-	sort(points + l, points + 1 + r, cmp[dd]);
+	sort(points.begin() + l, points.begin() + r + 1, cmp[dd]);
 	int mid = (l + r) / 2;
 	node[mid].l = build((dd + 1) % d, l, mid - 1);
 	node[mid].r = build((dd + 1) % d, mid + 1, r);
@@ -42,20 +44,21 @@ node_t *build(int dd, int l, int r) {
 }
 
 void search(node_t *nd) {
-	int sd = nd->sd, p = nd - node;
+	int sd = nd->sd, p = nd - node.data();
 	pq.push(points[p]);
-	while (pq.size() > scnt) pq.pop();
+	while ((int)pq.size() > scnt) pq.pop();
 	int d2 = (sp.x[sd] - points[p].x[sd]) * (sp.x[sd] - points[p].x[sd]);
 	if (sp.x[sd] < points[p].x[sd]) {
 		if (nd->l) search(nd->l);
-		if (nd->r && (pq.size() < scnt || dist2(sp, pq.top()) >= d2)) search(nd->r);
+		if (nd->r && ((int)pq.size() < scnt || dist2(sp, pq.top()) >= d2)) search(nd->r);
 	} else {
 		if (nd->r) search(nd->r);
-		if (nd->l && (pq.size() < scnt || dist2(sp, pq.top()) >= d2)) search(nd->l);
+		if (nd->l && ((int)pq.size() < scnt || dist2(sp, pq.top()) >= d2)) search(nd->l);
 	}
 }
 
 void init() {
 	for (int i = 0; i < DIM; ++i) cmp[i].dd = i;
-	root = build(0, 1, n);
+	node.assign(points.size(), {});
+	root = build(0, 0, points.size() - 1);
 }

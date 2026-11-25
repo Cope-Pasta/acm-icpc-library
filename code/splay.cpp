@@ -88,26 +88,26 @@ void remove(node_t *x) { // Remove the single node x
 	removeAll(s->ch[0]);
 }
 
-node_t *find(node_t *t, int k) {
+node_t *find(node_t *t, int k) { // k-th unit, 0-indexed
 	t->update();
-	if (t->ch[0]->size < k && t->ch[0]->size + t->cnt >= k) return t;
-	if (t->ch[0]->size >= k) return find(t->ch[0], k);
+	if (t->ch[0]->size <= k && k < t->ch[0]->size + t->cnt) return t;
+	if (k < t->ch[0]->size) return find(t->ch[0], k);
 	return find(t->ch[1], k - t->ch[0]->size - t->cnt);
 }
 
-node_t *findAndSplit(node_t *t, int k) {
+node_t *findAndSplit(node_t *t, int k) { // 0-indexed
 	t->update();
-	if (t->ch[0]->size < k && t->ch[0]->size + t->cnt >= k) {
+	if (t->ch[0]->size <= k && k < t->ch[0]->size + t->cnt) {
 		int cnt = t->cnt;
 		k -= t->ch[0]->size;
 		t->cnt = 1;
 		splay(t);
 		node_t *p = prev(t);
-		if (k - 1) insert(p, newNode(k - 1));
-		if (cnt - k) insert(t, newNode(cnt - k));
+		if (k) insert(p, newNode(k));
+		if (cnt - k - 1) insert(t, newNode(cnt - k - 1));
 		return t;
 	}
-	if (t->ch[0]->size >= k) return findAndSplit(t->ch[0], k);
+	if (k < t->ch[0]->size) return findAndSplit(t->ch[0], k);
 	return findAndSplit(t->ch[1], k - t->ch[0]->size - t->cnt);
 }
 

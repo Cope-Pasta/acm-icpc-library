@@ -1,6 +1,6 @@
 // number of ways to divide n to integers(unordered), O(n^(3/2))
 int partition(int n) {
-	int dp[n + 1];
+	vector<int> dp(n + 1);
 	dp[0] = 1;
 	for (int i = 1; i <= n; i++) {
 		dp[i] = 0;

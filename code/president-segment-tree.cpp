@@ -1,13 +1,14 @@
 struct Node {
 	int s, d;
 	Node *left, *right;
-} pool[maxm], *nil, *root[maxn];
-int pt, a[maxn];
+} *nil;
+deque<Node> pool; // deque: push_back keeps pointers valid
+vector<Node*> root; // root[i]: version i, positions 0..n-1
+vector<int> a;
 
 Node *newNode(int _d, int _s, Node *_left, Node *_right) {
-	++pt;
-	pool[pt].d = _d, pool[pt].s = _s, pool[pt].left = _left, pool[pt].right = _right;
-	return pool + pt;
+	pool.push_back({_s, _d, _left, _right});
+	return &pool.back();
 }
 
 Node *build(int l, int r) {
@@ -17,9 +18,9 @@ Node *build(int l, int r) {
 	return newNode(0, nl->s + nr->s, nl, nr);
 }
 
-void init(int n) {
-	pt = 0; nil = newNode(0, 0, NULL, NULL);
-	root[0] = build(1, n);
+void init() { // ask/add on [0, n - 1]
+	pool.clear(); nil = newNode(0, 0, NULL, NULL);
+	root = {build(0, a.size() - 1)};
 }
 
 void push(Node *node, int l, int r) {

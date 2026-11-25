@@ -14,14 +14,15 @@ struct hp_t {
 		if (dblcmp(a - r.a) == 0) return dblcmp(cross(r.p2 - r.p1, p2 - r.p1)) >= 0;
 		else return a < r.a;
 	}
-} hp[maxn];
+};
+vector<hp_t> hp;
 
 void addhp(point_t p1, point_t p2) {
-	hp[++cnt] = hp_t(p1, p2);
+	hp.push_back(hp_t(p1, p2));
 }
 
 void init() {
-	cnt = 0;
+	hp.clear();
 	addhp(point_t(-maxd, -maxd), point_t(maxd, -maxd));
 	addhp(point_t(maxd, -maxd), point_t(maxd, maxd));
 	addhp(point_t(maxd, maxd), point_t(-maxd, maxd));
@@ -34,12 +35,12 @@ bool checkhp(hp_t h1, hp_t h2, hp_t h3) {
 }
 
 vector<point_t> hp_inter() {
-	sort(hp + 1, hp + 1 + cnt);
-	cnt = unique(hp + 1, hp + 1 + cnt) - hp - 1;
+	sort(hp.begin(), hp.end());
+	hp.erase(unique(hp.begin(), hp.end()), hp.end());
 	deque<hp_t> DQ;
+	DQ.push_back(hp[0]);
 	DQ.push_back(hp[1]);
-	DQ.push_back(hp[2]);
-	for (int i = 3; i <= cnt; ++i) {
+	for (int i = 2; i < (int)hp.size(); ++i) {
 		while (DQ.size() > 1 && checkhp(*----DQ.end(), *--DQ.end(), hp[i])) DQ.pop_back();
 		while (DQ.size() > 1 && checkhp(*++DQ.begin(), *DQ.begin(), hp[i])) DQ.pop_front();
 		DQ.push_back(hp[i]);

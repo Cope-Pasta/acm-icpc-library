@@ -1,19 +1,14 @@
-// Complexity: Q*N^0.5 * O(add)
-int SQRTN = (int)sqrt((double)q);
-sort(Q + 1, Q + 1 + q, cmpL);
-for (int i = 1; i <= q; i += SQRTN) {
+// Complexity: Q*N^0.5 * O(add), Q: vector of queries [l, r], positions from 0
+int q = Q.size(), SQRTN = max(1, (int)sqrt((double)q));
+sort(Q.begin(), Q.end(), cmpL);
+for (int i = 0; i < q; i += SQRTN) {
 	clear();
-	int begin = i, end = i + SQRTN - 1;
-	if (end > q) end = q;
-	sort(Q + begin, Q + end + 1, cmpR);
-	Q[begin - 1].l = 1, Q[begin - 1].r = 0;
-	for (int j = begin; j <= end; ++j) {
-		for (int k = Q[j - 1].r + 1; k <= Q[j].r; ++k) add(k, 1);
-		if (Q[j].l > Q[j - 1].l) {
-			for (int k = Q[j - 1].l; k < Q[j].l; ++k) add(k, -1);
-		} else if (Q[j].l < Q[j - 1].l) {
-			for (int k = Q[j].l; k < Q[j - 1].l; ++k) add(k, 1);
-		}
+	int end = min(q, i + SQRTN), L = 0, R = -1;
+	sort(Q.begin() + i, Q.begin() + end, cmpR);
+	for (int j = i; j < end; ++j) {
+		while (R < Q[j].r) add(++R, 1);
+		while (L < Q[j].l) add(L++, -1);
+		while (L > Q[j].l) add(--L, 1);
 		ans[Q[j].ID] = res;
 	}
 }

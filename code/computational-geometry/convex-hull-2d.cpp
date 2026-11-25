@@ -2,19 +2,19 @@ bool cmp(const point_t p1, const point_t p2) {
 	return dblcmp(p1.y - p2.y) == 0 ? p1.x < p2.x : p1.y < p2.y;
 }
 
-int graham(vector<point_t>& p) { // Points co-lined are ignored.
-	int top = 1; static point_t sk[maxn];
-	sort(p, p + n, cmp);
-	sk[0] = p[0], sk[1] = p[1];
-	for (int i = 2; i < n; ++i) {
-		while (top >= 1 && dblcmp(cross(p[i] - sk[top - 1], sk[top] - sk[top - 1])) >= 0) --top;
-		sk[++top] = p[i];
+vector<point_t> graham(vector<point_t> p) { // CCW from lowest point, co-lined points ignored
+	int n = p.size();
+	sort(p.begin(), p.end(), cmp);
+	if (n < 3) return p;
+	vector<point_t> sk;
+	for (int i = 0; i < n; ++i) {
+		while (sk.size() >= 2 && dblcmp(cross(p[i] - sk[sk.size() - 2], sk.back() - sk[sk.size() - 2])) >= 0) sk.pop_back();
+		sk.push_back(p[i]);
 	}
-	int ttop = top;
-	for (int i = n - 2; i >= 0; --i) {
-		while (top > ttop && dblcmp(cross(p[i] - sk[top - 1], sk[top] - sk[top - 1])) >= 0) --top;
-		sk[++top] = p[i];
+	for (int i = n - 2, t = sk.size(); i >= 0; --i) {
+		while ((int)sk.size() > t && dblcmp(cross(p[i] - sk[sk.size() - 2], sk.back() - sk[sk.size() - 2])) >= 0) sk.pop_back();
+		sk.push_back(p[i]);
 	}
-	for (int i = 0; i < top; ++i) p[i] = sk[i];
-	return --top;
+	sk.pop_back();
+	return sk;
 }

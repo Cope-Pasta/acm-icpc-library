@@ -3,19 +3,15 @@ typedef complex<ftype> point;
 #define x real
 #define y imag
 
-ftype dot(point a, point b) {
-    return (conj(a) * b).x();
-}
-
 ftype f(point a,  ftype x) {
-    return dot(a, {x, 1});
+    return a.x() * x + a.y();
 }
 
 const int maxn = 2e5;
 
-point line[4 * maxn];
+vector<point> line(4 * maxn, point(0, LLONG_MAX)); // root 0, children 2v+1, 2v+2
 
-void add_line(point nw, int v = 1, int l = 0, int r = maxn) {
+void add_line(point nw, int v = 0, int l = 0, int r = maxn) {
     int m = (l + r) / 2;
     bool lef = f(nw, l) < f(line[v], l);
     bool mid = f(nw, m) < f(line[v], m);
@@ -25,19 +21,19 @@ void add_line(point nw, int v = 1, int l = 0, int r = maxn) {
     if(r - l == 1) {
         return;
     } else if(lef != mid) {
-        add_line(nw, 2 * v, l, m);
+        add_line(nw, 2 * v + 1, l, m);
     } else {
-        add_line(nw, 2 * v + 1, m, r);
+        add_line(nw, 2 * v + 2, m, r);
     }
 }
 
-ftype get(int x, int v = 1, int l = 0, int r = maxn) {
+ftype get(int x, int v = 0, int l = 0, int r = maxn) {
     int m = (l + r) / 2;
     if(r - l == 1) {
         return f(line[v], x);
     } else if(x < m) {
-        return min(f(line[v], x), get(x, 2 * v, l, m));
+        return min(f(line[v], x), get(x, 2 * v + 1, l, m));
     } else {
-        return min(f(line[v], x), get(x, 2 * v + 1, m, r));
+        return min(f(line[v], x), get(x, 2 * v + 2, m, r));
     }
 }

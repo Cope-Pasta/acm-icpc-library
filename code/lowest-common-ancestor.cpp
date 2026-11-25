@@ -1,10 +1,12 @@
-const int logn = 20;
-int parent[maxn], lca[logn][maxn], depth[maxn];
+const int logn = 20; // vertices 0..n-1, parent[root] = root
+vector<int> parent, depth;
+vector<vector<int>> lca;
 
-void initLCA() {
-	for (int i = 1; i <= n; ++i) lca[0][i] = parent[i];
+void initLCA(int n) {
+	lca.assign(logn, vector<int>(n));
+	lca[0] = parent;
 	for (int j = 1; j < logn; ++j) {
-		for (int i = 1; i <= n; ++i) {
+		for (int i = 0; i < n; ++i) {
 			lca[j][i] = lca[j - 1][lca[j - 1][i]];
 		}
 	}
