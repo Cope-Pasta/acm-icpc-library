@@ -1,14 +1,10 @@
-// Assume d <= r1 + r2 && d >= |r1 - r2|
+// Assume |r1 - r2| <= d <= r1 + r2, d > 0; first is right of c1 -> c2, second is left
 pair<point_t, point_t> isCC(point_t c1, point_t c2, double r1, double r2) {
-	if (r1 < r2) swap(c1, c2), swap(r1, r2);
-	double d = dist(c1, c2);
-	double x1 = c1.x, x2 = c2.x, y1 = c1.y, y2 = c2.y;
-	double mid = atan2(y2 - y1, x2 - x1);
-	double a = r1, c = r2;
-	double t = acos(max(0.0, a * a + d * d - c * c) / (2 * a * d));
-	point_t p1 = point_t(cos(mid - t) * r1, sin(mid - t) * r1) + c1;
-	point_t p2 = point_t(cos(mid + t) * r1, sin(mid + t) * r1) + c1;
-	return make_pair(p1, p2);
+	point_t v = c2 - c1;
+	double d2 = dot(v, v), a = (d2 + r1 * r1 - r2 * r2) / (2 * d2);
+	double h = sqrt(max(0.0, r1 * r1 / d2 - a * a));
+	point_t m = c1 + v * a, w = v.rot90() * h;
+	return make_pair(m - w, m + w);
 }
 
 int testCC(point_t c1, point_t c2, double r1, double r2) {
