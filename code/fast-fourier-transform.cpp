@@ -1,70 +1,36 @@
-#define ld long double
-#define ve vector
-
-using namespace std;
-typedef ve<complex<ld>> vc;
-
-const ld pi = acosl(-1);
-
-const int LG = 22;
-ve<complex<ld>> w[LG];
-
-void fft(vc &a, int clg) {
-	int n = a.size();
-	ve<int> dp(n, 0);
-	for (int i = 1; i < n; i++)
-		dp[i] = dp[i / 2] / 2 + (((i & 1) << (clg - 1)));
+// FFT: multiply(a, b) = convolution of integer vectors in O(n log n).
+// long double; exact while result coefficients stay below ~1e15.
+typedef complex<long double> C;
+void fft(vector<C> &a) {
+	int n = a.size(), L = 31 - __builtin_clz(n);
+	static vector<C> rt(2, 1);
+	for (static int k = 2; k < n; k *= 2) {
+		rt.resize(n);
+		C x = polar(1.0L, acosl(-1) / k);
+		for (int i = k; i < 2 * k; i++) rt[i] = i & 1 ? rt[i / 2] * x : rt[i / 2];
+	}
+	vector<int> rev(n);
+	for (int i = 0; i < n; i++) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
 	for (int i = 0; i < n; i++)
-		if (i < dp[i])
-			swap(a[i], a[dp[i]]);
-	for (int i = 1; i <= clg; i++) {
-		int m = 1 << i;
-		for (int j = 0; j < n; j += m)
-			for (int k = 0; k < m / 2; k++) {
-				auto x = a[j + k], y = a[j + k + m / 2];
-				a[j + k] = x + w[i][k] * y;
-				a[j + k + m / 2] = x - w[i][k] * y;
+		if (i < rev[i]) swap(a[i], a[rev[i]]);
+	for (int k = 1; k < n; k *= 2)
+		for (int i = 0; i < n; i += 2 * k)
+			for (int j = 0; j < k; j++) {
+				C z = rt[j + k] * a[i + j + k];
+				a[i + j + k] = a[i + j] - z, a[i + j] += z;
 			}
-	}
 }
-
-void ifft(vc &a, int clg) {
-	fft(a, clg);
-	reverse(a.begin() + 1, a.end());
-	for (auto &i : a)
-		i /= a.size();
-}
-
-ve<ll> multiply(ve<int> a, ve<int> b) {
-	int n = 1, clg = 0;
-	int m = a.size() + b.size() - 1;
-	while (n < m) {
-		n *= 2;
-		clg++;
-	}
-	vc ca(n, 0);
-	copy(all(a), ca.begin());
-	for (int i = 0; i < b.size(); i++)
-		ca[i] += complex<ld>(b[i]) * 1il;
-	fft(ca, clg);
-	for (int i = 0; i < n; i++)
-		ca[i] *= ca[i];
-	ifft(ca, clg);
-	ve<ll> res(m);
-
-	for (int i = 0; i < m; i++)
-		res[i] = round(ca[i].imag() / 2);
+vector<ll> multiply(const vector<int> &a, const vector<int> &b) {
+	if (a.empty() || b.empty()) return {};
+	vector<ll> res(a.size() + b.size() - 1);
+	int n = 1 << (32 - __builtin_clz(res.size()));
+	vector<C> in(n), out(n);
+	copy(all(a), in.begin());
+	for (int i = 0; i < b.size(); i++) in[i].imag(b[i]);
+	fft(in);
+	for (C &x : in) x *= x;
+	for (int i = 0; i < n; i++) out[i] = in[-i & (n - 1)] - conj(in[i]);
+	fft(out);
+	for (int i = 0; i < res.size(); i++) res[i] = llround(imag(out[i]) / (4 * n));
 	return res;
-}
-
-void preprocess() {
-	w[0] = {1};
-	for (int i = 1; i < LG; i++) {
-		complex<ld> cw(cos(pi * 2 / (1 << i)), sin(pi * 2 / (1 << i)));
-		w[i].resize(1 << i);
-		for (int j = 0; j < (1 << (i - 1)); j++) {
-			w[i][j * 2] = w[i - 1][j];
-			w[i][j * 2 + 1] = w[i - 1][j] * cw;
-		}
-	}
 }
