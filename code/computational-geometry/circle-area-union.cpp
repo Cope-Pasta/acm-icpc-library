@@ -1,6 +1,4 @@
-/* O(n^2logn), please remove coincided circles first. */
-point_t center[maxn];
-double radius[maxn], cntarea[maxn];
+/* O(n^2logn), please remove coincided circles first. cntarea[k]: area covered by exactly k circles. */
 
 pair<double, double> isCC(point_t c1, point_t c2, double r1, double r2) {
 	double d = dist(c1, c2);
@@ -43,11 +41,13 @@ double calc(point_t c, double r, double a1, double a2) {
 	return cross(p1, p2) / 2 + aa;
 }
 
-void circle_union() {
-	for (int c = 1; c <= n; ++c) {
+vector<double> circle_union(const vector<point_t> &center, const vector<double> &radius) {
+	int n = center.size();
+	vector<double> cntarea(n + 1);
+	for (int c = 0; c < n; ++c) {
 		int cvrcnt = 0;
 		e.clear();
-		for (int i = 1; i <= n; ++i) {
+		for (int i = 0; i < n; ++i) {
 			if (i != c) {
 				int r = testCC(center[c], center[i], radius[c], radius[i]);
 				if (r == 2) ++cvrcnt;
@@ -73,4 +73,5 @@ void circle_union() {
 			}
 		}
 	}
-}
+	return cntarea;
+}

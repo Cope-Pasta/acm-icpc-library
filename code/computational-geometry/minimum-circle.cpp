@@ -22,18 +22,19 @@ bool in_circle(point_t &p, double &r, point_t x) {
 	return dblcmp(dist(x, p) - r) <= 0;
 }
 
-pair<point_t, double> minimum_circle(int n, point_t *p) {
+pair<point_t, double> minimum_circle(vector<point_t> p) {
 	point_t c = point_t(0, 0);
 	double r = 0;
-	random_shuffle(p + 1, p + 1 + n);
-	set_circle(c, r, p[1], p[2]);
-	for (int i = 3; i <= n; ++i) {
+	int n = p.size();
+	shuffle(p.begin(), p.end(), mt19937(time(0)));
+	set_circle(c, r, p[0], p[n > 1]);
+	for (int i = 2; i < n; ++i) {
 		if (in_circle(c, r, p[i])) continue;
-		set_circle(c, r, p[i], p[1]);
-		for (int j = 2; j < i; ++j) {
+		set_circle(c, r, p[i], p[0]);
+		for (int j = 1; j < i; ++j) {
 			if (in_circle(c, r, p[j])) continue;
 			set_circle(c, r, p[i], p[j]);
-			for (int k = 1; k < j; ++k) {
+			for (int k = 0; k < j; ++k) {
 				if (in_circle(c, r, p[k])) continue;
 				set_circle(c, r, p[i], p[j], p[k]);
 			}
