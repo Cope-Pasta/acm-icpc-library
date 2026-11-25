@@ -1,59 +1,38 @@
-// sa[i]: i-th smallest suffix, r[i]: rank of suffix i, h[i] = lcp(sa[i - 1], sa[i]); all 0-indexed
-int n;
-vector<int> sa, r, h;
-vector<vector<int>> mv;
-void construct(const vector<int /* Type */> &s) {
-	n = s.size(), sa.assign(n, 0), r.assign(n + n, 0), h.assign(n, 0); // r is `doubled`
-	vector<pair<int /* Type */, int>> ord(n);
-	for (int i = 0; i < n; ++i) ord[i] = make_pair(s[i], i);
-	sort(all(ord));
-	for (int i = 0; i < n; ++i) {
-		sa[i] = ord[i].second;
-		r[sa[i]] = (i == 0 ? 1 : r[sa[i - 1]] + (ord[i - 1].first != ord[i].first));
-	}
-	vector<int> tr(n), tsa(n), c(n + 1);
-	for (int l = 1; l < n; l <<= 1) {
-		int cnt = 0;
-		for (int i = 0; i < n; ++i)
-			if (sa[i] + l >= n) tsa[cnt++] = sa[i];
-		for (int i = 0; i < n; ++i)
-			if (sa[i] >= l) tsa[cnt++] = sa[i] - l;
-		fill(all(c), 0);
-		for (int i = 0; i < n; ++i) ++c[r[i]];
-		for (int i = 1; i <= n; ++i) c[i] += c[i - 1];
-		for (int i = n - 1; i >= 0; --i) sa[--c[r[tsa[i]]]] = tsa[i];
-		tr[sa[0]] = 1;
-		for (int i = 1; i < n; ++i) {
-			tr[sa[i]] = tr[sa[i - 1]] + (r[sa[i]] != r[sa[i - 1]] || r[sa[i] + l] != r[sa[i - 1] + l]);
+// Suffix array of s (any ints), O(n log n). sa[i]: i-th smallest suffix, r[i]: rank of suffix i,
+// h[i] = lcp(sa[i - 1], sa[i]), h[0] = 0; lcp(i, j) of suffixes i and j in O(1) (sparse table).
+struct SA {
+	int n;
+	vector<int> sa, r, h;
+	vector<vector<int>> t;
+	SA(const vector<int> &s) : n(s.size()) {
+		int N = n + 1, k = 0, a, b, lim = N;
+		vector<int> c(all(s)), x(N), y(N), ws(N);
+		sort(all(c));
+		for (int i = 0; i < n; i++) x[i] = lower_bound(all(c), s[i]) - c.begin() + 1;
+		c = x, sa = h = y, iota(all(sa), 0);
+		for (int j = 0, p = 0; p < N; j = max(1, j * 2), lim = p) {
+			p = j, iota(all(y), N - j);
+			for (int i = 0; i < N; i++)
+				if (sa[i] >= j) y[p++] = sa[i] - j;
+			fill(all(ws), 0);
+			for (int i = 0; i < N; i++) ws[x[i]]++;
+			for (int i = 1; i < lim; i++) ws[i] += ws[i - 1];
+			for (int i = N; i--;) sa[--ws[x[y[i]]]] = y[i];
+			swap(x, y), p = 1, x[sa[0]] = 0;
+			for (int i = 1; i < N; i++) a = sa[i - 1], b = sa[i], x[b] = y[a] == y[b] && y[a + j] == y[b + j] ? p - 1 : p++;
 		}
-		for (int i = 0; i < n; ++i) r[i] = tr[i];
-		if (r[sa[n - 1]] == n) break;
+		for (int i = 0, j; i < n; h[x[i++]] = k)
+			for (k -= k > 0, j = sa[x[i] - 1]; c[i + k] == c[j + k]; k++);
+		sa.erase(sa.begin()), h.erase(h.begin()), x.pop_back(), r = x;
+		for (int &v : r) v--;
+		t.assign(__lg(N) + 1, h);
+		for (int k = 1; k < t.size(); k++)
+			for (int i = 0; i + (1 << k) <= n; i++) t[k][i] = min(t[k - 1][i], t[k - 1][i + (1 << (k - 1))]);
 	}
-	r.resize(n);
-	for (int &x : r) --x;
-	for (int i = 0, k = 0; i < n; ++i) { /* Height && RMQ */
-		if (k > 0) --k;
-		if (r[i] == 0) {
-			k = 0;
-			continue;
-		}
-		for (int j = sa[r[i] - 1]; max(i, j) + k < n && s[i + k] == s[j + k]; ++k);
-		h[r[i]] = k;
+	int lcp(int i, int j) {
+		if (i == j) return n - i;
+		tie(i, j) = minmax(r[i], r[j]);
+		int k = __lg(j - i);
+		return min(t[k][i + 1], t[k][j - (1 << k) + 1]);
 	}
-	mv.assign(__lg(max(n, 1)) + 1, h);
-	for (int k = 1; k < (int)mv.size(); ++k) {
-		for (int i = 0; i + (1 << k) <= n; ++i) mv[k][i] = min(mv[k - 1][i], mv[k - 1][i + (1 << (k - 1))]);
-	}
-}
-
-int askRMQ(int l, int r) { // min of h[l...r]
-	int k = __lg(r - l + 1);
-	return min(mv[k][l], mv[k][r - (1 << k) + 1]);
-}
-
-int LCP(int i, int j) { // suffixes i and j
-	if (i == j) return n - i;
-	i = r[i], j = r[j];
-	if (i > j) swap(i, j);
-	return askRMQ(i + 1, j);
-}
+};
