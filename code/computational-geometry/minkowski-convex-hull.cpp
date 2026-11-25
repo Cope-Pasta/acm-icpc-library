@@ -1,25 +1,13 @@
-vector<point_t> minkowski(const vector<point_t> &h1, vector<point_t> h2) { // h1, h2 CCW hulls
-	int n = h1.size(), m = h2.size();
-	point_t c = accumulate(all(h2), point_t(0, 0)) / m;
-	for (auto &q : h2) q = q - c;
-	int cur = -1;
-	for (int i = 0; i < m; ++i) {
-		if (dblcmp(cross(h2[i], h1[0] - h1[n - 1])) >= 0) {
-			if (cur == -1 || cross(h2[i], h1[0] - h1[n - 1]) > cross(h2[cur], h1[0] - h1[n - 1])) cur = i;
-		}
-	}
+// Minkowski sum of hulls as convexHull returns them (CCW from the lowest, then leftmost point; size >= 1), O(n + m)
+vector<point_t> minkowski(vector<point_t> a, vector<point_t> b) {
+	int n = a.size(), m = b.size(), i = 0, j = 0;
+	a.push_back(a[0]), a.push_back(a[1 % n]), b.push_back(b[0]), b.push_back(b[1 % m]);
 	vector<point_t> h;
-	for (int i = 0; i < n; ++i) {
-		point_t e = h1[(i + 1) % n] - h1[i];
-		while (true) {
-			h.push_back(h1[i] + h2[cur] + c);
-			int next = (cur + 1) % m;
-			if (dblcmp(cross(h2[cur], e)) < 0) cur = next;
-			else {
-				if (cross(h2[next], e) > cross(h2[cur], e)) cur = next;
-				else break;
-			}
-		}
+	while (i < n || j < m) {
+		h.push_back(a[i] + b[j]);
+		int c = dblcmp(cross(a[i + 1] - a[i], b[j + 1] - b[j]));
+		if (c >= 0 && i < n) ++i;
+		if (c <= 0 && j < m) ++j;
 	}
-	return convexHull(h);
+	return h;
 }
