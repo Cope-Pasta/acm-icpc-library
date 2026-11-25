@@ -1,57 +1,20 @@
-mt19937 rng{583427}; // any seed, crucial when testing on windows
-struct item {
-	int key, prior, cnt;
-	item *l, *r;
-	item() {}
-	item(int key) : key(key), prior(rng()), cnt(1), l(nullptr), r(nullptr) {}
-	item(int key, int prior) : key(key), prior(prior), cnt(1), l(nullptr), r(nullptr) {}
+// Implicit treap (sequence indexed by position), O(log n) expected per op.
+// split(t, k, l, r): l = first k elements, r = rest. Lazy tags: push(t) at the top of split and merge.
+mt19937 rng(583427);
+struct Node {
+	Node *l = 0, *r = 0;
+	int val, y = rng(), c = 1;
+	Node(int val) : val(val) {}
 };
-typedef item *pitem;
-
-int cnt(pitem t) {
-	return t ? t->cnt : 0;
+int cnt(Node *t) { return t ? t->c : 0; }
+void pull(Node *t) { t->c = cnt(t->l) + cnt(t->r) + 1; }
+void split(Node *t, int k, Node *&l, Node *&r) {
+	if (!t) l = r = 0;
+	else if (cnt(t->l) >= k) split(t->l, k, l, t->l), r = t, pull(t);
+	else split(t->r, k - cnt(t->l) - 1, t->r, r), l = t, pull(t);
 }
-
-void push(pitem p) {} // just in case
-
-void pull(pitem t) {
-	if (t)
-		t->cnt = 1 + cnt(t->l) + cnt(t->r);
-}
-
-void split(pitem t, pitem &l, pitem &r, int key) {
-	if (!t)
-		return void(l = r = 0);
-	push(t);
-	int lsize = cnt(t->l); //implicit key
-	if (key <= lsize)
-		split(t->l, l, t->l, key), r = t;
-	else
-		split(t->r, t->r, r, key - 1 - lsize), l = t;
-	pull(t);
-}
-
-void merge(pitem &t, pitem l, pitem r) {
-	push(l);
-	push(r);
-	if (!l || !r)
-		t = l ? l : r;
-	else if (l->prior > r->prior)
-		merge(l->r, l->r, r), t = l;
-	else
-		merge(r->l, l, r->l), t = r;
-	pull(t);
-}
-
-pitem unite(pitem l, pitem r) {
+Node *merge(Node *l, Node *r) {
 	if (!l || !r) return l ? l : r;
-	push(l);
-	push(r);
-	if (l->prior < r->prior) swap(l, r);
-	pitem lt, rt;
-	split(r, lt, rt, l->key);
-	l->l = unite(l->l, lt);
-	l->r = unite(l->r, rt);
-	pull(l);
-	return l;
+	if (l->y > r->y) return l->r = merge(l->r, r), pull(l), l;
+	return r->l = merge(l, r->l), pull(r), r;
 }
