@@ -1,24 +1,21 @@
-const int maxm = 325, maxk = 5001; 
-// maxk = number of 1 + number of columns, be carefully when memset
-int pt, L[maxk], R[maxk], U[maxk], D[maxk], C[maxk], A[maxk], O[maxm], S[maxm], res[maxk]; 
+// node 0: header, node c + 1: column c (columns 0-indexed), res: rows of the found cover
+vector<int> L, R, U, D, C, A, S, O, res;
 
-void init(int m) { // m: number of columns, #define ms memset
-	ms(L), ms(R), ms(U), ms(D), ms(C), ms(A), ms(O), ms(S), pt = m;
+void init(int m) { // m: number of columns
+	for (auto *v : {&L, &R, &U, &D, &C, &A}) v->assign(m + 1, 0);
+	S.assign(m + 1, 0), O.clear(), res.clear();
 	for (int i = 0; i <= m; ++i) L[i] = i - 1, R[i] = i + 1, C[i] = D[i] = U[i] = i;
 	L[0] = m, R[m] = 0;
 }
 
-void insert(int row, int *t, int total) { // t: positions of 1
-	for (int i = 1; i <= total; ++i) {
-		int col = t[i];
-		++S[col], ++pt;
-		C[pt] = col, A[pt] = row, U[pt] = col, D[pt] = D[col];
+void insert(int row, const vector<int> &t) { // t: columns of 1
+	int first = L.size();
+	for (int col : t) {
+		int pt = L.size(); ++col, ++S[col];
+		C.push_back(col), A.push_back(row), U.push_back(col), D.push_back(D[col]);
 		U[D[col]] = pt, D[col] = pt;
-		if (i != 1) {
-			L[pt] = pt - 1, R[pt] = pt - i + 1, R[pt - 1] = L[pt - i + 1] = pt;
-		} else {
-			L[pt] = R[pt] = pt;
-		}
+		L.push_back(pt), R.push_back(pt);
+		if (pt != first) L[pt] = pt - 1, R[pt] = first, R[pt - 1] = L[first] = pt;
 	}
 }
 
@@ -40,25 +37,25 @@ void resume(int x) {
 	L[R[x]] = x, R[L[x]] = x;
 }
 
-bool dlx(int k) {
+bool dlx() {
 	if (R[0] == 0) {
-		for (int i = 0; i < k; ++i) res[i] = O[i];
+		res = O;
 		return true;
 	} else {
-		int val = maxint, col = 0;
+		int val = INT_MAX, col = 0;
 		for (int i = R[0]; i != 0; i = R[i]) {
 			if (S[i] <= val) col = i, val = S[i];
 		}
 		if (val == 0) return false;
 		remove(col);
 		for (int i = D[col]; i != col; i = D[i]) {
-			O[k] = A[i];
+			O.push_back(A[i]);
 			for (int j = R[i]; j != i; j = R[j]) remove(C[j]);
-			if (dlx(k + 1)) return true;
+			if (dlx()) return true;
 			for (int j = L[i]; j != i; j = L[j]) resume(C[j]);
+			O.pop_back();
 		}
 		resume(col);
 		return false;
 	}
 }
-// call dlx(0)
