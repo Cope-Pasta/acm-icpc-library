@@ -19,7 +19,7 @@ int testCC(point_t c1, point_t c2, double r1, double r2) {
 	return 0; // intersected
 }
 
-point_t isCL(point_t a, point_t b, point_t o, double r) {
+point_t isCL(point_t a, point_t b, point_t o, double r) { // first hit of ray a->b, point_t() if none
 	double x0 = o.x, y0 = o.y;
 	double x1 = a.x, y1 = a.y;
 	double x2 = b.x, y2 = b.y;

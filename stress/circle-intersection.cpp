@@ -1,12 +1,37 @@
 #include "check/prelude.h"
 #include "check/common/geo2d.h"
 #include "code/computational-geometry/circle-intersection.cpp"
+#include "stress/test.h"
 const unsigned SEED = 8;
 mt19937 rng(SEED);
 int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
 int fail(int it, const char *what) { printf("seed %u iter %d: %s\n", SEED, it, what); return 1; }
 
+
+int unit() {
+	point_t q = isCL({-5, 1}, {5, 1}, {0, 0}, 1); EXPECT(near(q.x, 0) && near(q.y, 1)); // tangent ray
+	q = isCL({1, 0}, {2, 0}, {0, 0}, 1); EXPECT(near(q.x, 1) && near(q.y, 0)); // starts on the circle, pointing out
+	q = isCL({0, 0}, {0, 3}, {0, 0}, 2); EXPECT(near(q.x, 0) && near(q.y, 2)); // starts inside: exit point
+	q = isCL({-3, 0}, {-2, 0}, {0, 0}, 1); EXPECT(near(q.x, -1) && near(q.y, 0)); // first of two hits
+	q = isCL({3, 0}, {4, 0}, {0, 0}, 1); EXPECT(q.x == 0 && q.y == 0); // pointing away: point_t()
+	q = isCL({-5, 1 + 1e-9}, {5, 1 + 1e-9}, {0, 0}, 1); EXPECT(q.x == 0 && q.y == 0); // misses by 1e-9
+	EXPECT(testCC({0, 0}, {2, 0}, 1, 1) == 1); // externally touching
+	EXPECT(testCC({0, 0}, {5, 0}, 1, 1) == 1); // apart
+	EXPECT(testCC({0, 0}, {1, 0}, 1, 2) == 2); // C1 touches C2 from inside
+	EXPECT(testCC({0, 0}, {1, 0}, 2, 1) == 3);
+	EXPECT(testCC({0, 0}, {0, 0}, 1, 3) == 2); // concentric
+	EXPECT(testCC({0, 0}, {1, 0}, 1, 1) == 0);
+	pair<point_t, point_t> p = isCC({0, 0}, {2, 0}, 1, 1); // externally touching at (1, 0)
+	EXPECT(near(p.first.x, 1) && near(p.first.y, 0) && near(p.second.x, 1) && near(p.second.y, 0));
+	p = isCC({0, 0}, {1, 0}, 2, 1); // internally touching at (2, 0)
+	EXPECT(near(p.first.x, 2) && near(p.first.y, 0) && near(p.second.x, 2) && near(p.second.y, 0));
+	p = isCC({0, 0}, {0.3, 0}, 0.1, 0.2); // touching at (0.1, 0), non-integer
+	EXPECT(near(p.first.x, 0.1, 1e-4) && near(p.first.y, 0, 1e-4) && near(p.second.x, 0.1, 1e-4) && near(p.second.y, 0, 1e-4));
+	return 0;
+}
+
 int main() {
+	if (unit()) return 1;
 	for (int it = 0; it < 50000; ++it) {
 		int R = ri(1, 10);
 		point_t c1(ri(-R, R), ri(-R, R)), c2(ri(-R, R), ri(-R, R));
