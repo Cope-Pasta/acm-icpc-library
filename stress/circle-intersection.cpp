@@ -9,12 +9,14 @@ int fail(int it, const char *what) { printf("seed %u iter %d: %s\n", SEED, it, w
 
 
 int unit() {
-	point_t q = isCL({-5, 1}, {5, 1}, {0, 0}, 1); EXPECT(near(q.x, 0) && near(q.y, 1)); // tangent ray
-	q = isCL({1, 0}, {2, 0}, {0, 0}, 1); EXPECT(near(q.x, 1) && near(q.y, 0)); // starts on the circle, pointing out
-	q = isCL({0, 0}, {0, 3}, {0, 0}, 2); EXPECT(near(q.x, 0) && near(q.y, 2)); // starts inside: exit point
-	q = isCL({-3, 0}, {-2, 0}, {0, 0}, 1); EXPECT(near(q.x, -1) && near(q.y, 0)); // first of two hits
-	q = isCL({3, 0}, {4, 0}, {0, 0}, 1); EXPECT(q.x == 0 && q.y == 0); // pointing away: point_t()
-	q = isCL({-5, 1 + 1e-9}, {5, 1 + 1e-9}, {0, 0}, 1); EXPECT(q.x == 0 && q.y == 0); // misses by 1e-9
+	auto hit = [](vector<point_t> q, double x, double y) { return q.size() == 1 && near(q[0].x, x) && near(q[0].y, y); };
+	EXPECT(hit(isCL({-5, 1}, {5, 1}, {0, 0}, 1), 0, 1)); // tangent ray
+	EXPECT(hit(isCL({1, 0}, {2, 0}, {0, 0}, 1), 1, 0)); // starts on the circle, pointing out
+	EXPECT(hit(isCL({0, 0}, {0, 3}, {0, 0}, 2), 0, 2)); // starts inside: exit point
+	EXPECT(hit(isCL({-3, 0}, {-2, 0}, {0, 0}, 1), -1, 0)); // first of two hits
+	EXPECT(hit(isCL({-2, 0}, {-1, 0}, {1, 0}, 1), 0, 0)); // hit at the origin is a real hit
+	EXPECT(isCL({3, 0}, {4, 0}, {0, 0}, 1).empty()); // pointing away
+	EXPECT(isCL({-5, 1 + 1e-9}, {5, 1 + 1e-9}, {0, 0}, 1).empty()); // misses by 1e-9
 	EXPECT(testCC({0, 0}, {2, 0}, 1, 1) == 1); // externally touching
 	EXPECT(testCC({0, 0}, {5, 0}, 1, 1) == 1); // apart
 	EXPECT(testCC({0, 0}, {1, 0}, 1, 2) == 2); // C1 touches C2 from inside
@@ -51,10 +53,11 @@ int main() {
 		point_t u = (b - a) / dist(a, b);
 		double tc = dot(c1 - a, u), h = fabs(cross(u, c1 - a));
 		bool inside = dist(a, c1) <= r1, hits = inside || (h <= r1 + 1e-9 && tc >= 0);
-		if (!hits || fabs(h - r1) < 1e-6 || fabs(dist(a, c1) - r1) < 1e-6) continue; // skip grazing / boundary cases
+		if (fabs(h - r1) < 1e-6 || fabs(dist(a, c1) - r1) < 1e-6) continue; // skip grazing / boundary cases
+		if (!hits) { if (!isCL(a, b, c1, r1).empty()) return fail(it, "isCL miss"); continue; }
 		double want_t = inside ? tc + sqrt(r1 * r1 - h * h) : tc - sqrt(r1 * r1 - h * h); // first hit along the ray
-		point_t p = isCL(a, b, c1, r1);
-		if (dist(p, a + u * want_t) > 1e-6) return fail(it, "isCL");
+		vector<point_t> p = isCL(a, b, c1, r1);
+		if (p.size() != 1 || dist(p[0], a + u * want_t) > 1e-6) return fail(it, "isCL");
 	}
 	puts("OK circle-intersection");
 }
