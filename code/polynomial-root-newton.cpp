@@ -1,85 +1,36 @@
-// Accuracy is not guaranteed.
-double cal(const vector<double> &coef, double x) {
-	double e = 1, s = 0;
-	for (int i = 0; i < coef.size(); ++i) s += coef[i] * e, e *= x;
+// Real roots of c[0] + c[1]x + ... + c[n]x^n, n >= 1, like polynomial-root but each bracket is
+// refined by Newton steps (bisection when a step leaves it): fewer evaluations. Needs eps, dblcmp.
+double val(const vector<double> &c, double x) {
+	double s = 0;
+	for (int i = c.size(); i--;) s = s * x + c[i];
 	return s;
 }
-
-double newton(const vector<double> &coef, const vector<double> &dcoef, double l, double r, int sl, int sr) {
-	double x = (l + r) / 2;
-	for (int i = 0; i < 7; ++i) {
-		double y = x - cal(coef, x) / cal(dcoef, x) / coef.size();
-		if (dblcmp(cal(coef, y)) == 0 || dblcmp(x - y) == 0) return y;
-		x = y;
-	}
-	if (dblcmp(cal(coef, x)) == 0) return x;
-	for (int it = 0; it < 32 && dblcmp(r - l) != 0; ++it) {
-		double mid = (l + r) / 2;
-		int smid = dblcmp(cal(coef, mid));
-		if (smid == 0) return mid;
-		else if (sl * smid < 0) r = mid;
-		else l = mid;
-	}
-	return (l + r) / 2;
-}
-
-void rec(const vector<double> &coef, vector<vector<double>> &roots, int n) {
-	vector<double> ret, dcoef(n);
-	for (int i = 0; i < n; ++i) dcoef[i] = coef[i + 1] * (i + 1) / n;
-	if (n == 1) {
-		ret.push_back(-coef[0]);
-	} else if (n == 2) {
-		rec(dcoef, roots, 1);
-		double b = coef[1], c = coef[0];
-		double d = b * b - 4 * c;
-		if (d >= 0) {
-			d = sqrt(d);
-			ret.push_back((-b - d) / 2);
-			ret.push_back((-b + d) / 2);
-		}
-	} else {
-		rec(dcoef, roots, n - 1);
-		vector<double> droot = roots[n - 1], ddroot = roots[n - 2];
-		double b = 1;
-		for (int i = 0; i <= n; ++i) b = max(b, pow(fabs(coef[i]), 1.0 / (n - i)));
-		b *= 2;
-		droot.insert(droot.begin(), -b);
-		droot.push_back(b);
-		int p = 0;
-		for (int i = 0; i + 1 < droot.size(); ++i) {
-			double l = droot[i], r = droot[i + 1];
-			int sl = dblcmp(cal(coef, l)), sr = dblcmp(cal(coef, r));
-			if (sl * sr > 0) continue;
-			else if (sl == 0) ret.push_back(l);
-			else if (sr == 0) ret.push_back(r);
-			else {
-				while (p < ddroot.size() && ddroot[p] < l) ++p;
-				while (p < ddroot.size() && ddroot[p] <= r) {
-					int s = dblcmp(cal(coef, ddroot[p]));
-					if (s == 0) {
-						l = r = ddroot[p];
-						break;
-					} else if (s * sl > 0) {
-						l = ddroot[p];
-					} else {
-						r = ddroot[p];
-						break;
-					}
-					++p;
-				}
-				if (dblcmp(r - l) == 0) ret.push_back(l);
-				else ret.push_back(newton(coef, dcoef, l, r, sl, sr));
+vector<double> solve(vector<double> c) {
+	while (c.back() == 0) c.pop_back();
+	int n = c.size() - 1;
+	double b = 2, t = c[n]; // b: bound on |root|
+	for (double &x : c) x /= t;
+	if (n == 1) return {-c[0]};
+	vector<double> d(n), r;
+	for (int i = 0; i < n; i++) d[i] = c[i + 1] * (i + 1), b = max(b, 2 * pow(fabs(c[i]), 1.0 / (n - i)));
+	auto dr = solve(d);
+	dr.insert(dr.begin(), -b), dr.push_back(b);
+	for (int i = 0; i + 1 < dr.size(); i++) {
+		double l = dr[i], h = dr[i + 1], x = (l + h) / 2;
+		int sl = dblcmp(val(c, l)), sh = dblcmp(val(c, h));
+		if (sl * sh > 0) continue;
+		if (!sl || !sh) x = sl ? h : l;
+		else
+			for (int it = 0; it < 100; it++) {
+				double f = val(c, x), y = x - f / val(d, x);
+				int s = dblcmp(f);
+				if (!s) break;
+				(s == sl ? l : h) = x;
+				if (!(l < y && y < h)) y = (l + h) / 2;
+				swap(x, y);
+				if (fabs(x - y) < eps) break;
 			}
-		}
+		r.push_back(x);
 	}
-	roots[n] = ret;
-}
-
-vector<double> solve(vector<double> coef) {
-	int n = coef.size() - 1;
-	while (coef.back() == 0) coef.pop_back(), --n;
-	for (int i = 0; i <= n; ++i) coef[i] /= coef[n];
-	vector<vector<double>> roots(n + 1);
-	rec(coef, roots, n);
-	return roots[n];
+	return r;
 }
