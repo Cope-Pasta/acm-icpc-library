@@ -13,11 +13,11 @@ Run all of these before committing, and fix anything that fails:
 ```sh
 make format-check   # clang-format 19.1.7 (pip install clang-format==19.1.7); fix with `make format`
 make check          # every code/*.cpp compiles; missing outside definitions go in check/stubs/<path>.h
-make stress         # all stress tests; `./stress/run.sh <name> ...` runs specific ones
+make stress         # all stress tests in parallel (JOBS=n to limit); `./stress/run.sh <name> ...` runs specific ones
 make                # main.pdf builds (xelatex)
 ```
 
-Enable the pre-commit hook once with `git config core.hooksPath .githooks`. It runs format-check, check and the PDF build, and stages `main.pdf`.
+Enable the git hooks once with `git config core.hooksPath .githooks`. The pre-commit hook runs format-check, check and the PDF build, and stages `main.pdf`; the pre-push hook runs `make stress`. CI runs format-check, check, stress and the PDF build.
 
 ## Stress tests
 

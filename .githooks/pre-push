@@ -1,0 +1,6 @@
+#!/bin/sh
+# Run all stress tests before pushing.
+set -e
+
+cd "$(git rev-parse --show-toplevel)"
+make stress || { echo 'pre-push: stress tests failed (see above). Fix them, or push with --no-verify to skip.' >&2; exit 1; }
