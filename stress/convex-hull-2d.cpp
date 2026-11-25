@@ -1,6 +1,7 @@
 #include "check/prelude.h"
 #include "check/common/geo2d.h"
 #include "code/computational-geometry/convex-hull-2d.cpp"
+#include "stress/test.h"
 const unsigned SEED = 1;
 mt19937 rng(SEED);
 int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
@@ -15,7 +16,21 @@ bool extreme(const vector<point_t> &s, point_t q) { // q is a strict hull vertex
 	return gap > pi + 1e-9;
 }
 
+
+int unit() {
+	EXPECT(graham({}).empty());
+	EXPECT(graham({{2, 3}}).size() == 1);
+	EXPECT(graham({{1, 1}, {1, 1}}).size() == 1); // duplicates
+	EXPECT(graham({{1, 1}, {1, 1}, {1, 1}, {1, 1}}).size() == 1);
+	vector<point_t> h = graham({{0, 0}, {3, 3}, {1, 1}, {2, 2}, {3, 3}, {0, 0}}); // collinear with duplicates
+	EXPECT(h.size() == 2 && near(h[0].x, 0) && near(h[1].x, 3) && near(h[1].y, 3));
+	h = graham({{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}, {1, 0}, {2, 2}, {0, 0}}); // CCW from the lowest point, no edge midpoints
+	EXPECT(h.size() == 4 && near(h[0].x, 0) && near(h[0].y, 0) && near(h[1].x, 2) && near(h[1].y, 0) && near(h[2].x, 2) && near(h[2].y, 2));
+	return 0;
+}
+
 int main() {
+	if (unit()) return 1;
 	for (int it = 0; it < 20000; ++it) {
 		int n = ri(1, 12), R = ri(1, 15);
 		vector<point_t> s(n);
