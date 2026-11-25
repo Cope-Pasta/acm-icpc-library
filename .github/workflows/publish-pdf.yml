@@ -15,7 +15,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile all snippets
+        run: make check
+
   build:
+    needs: compile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
