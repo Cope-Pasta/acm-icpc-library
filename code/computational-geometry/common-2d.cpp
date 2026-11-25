@@ -59,13 +59,17 @@ point_t perpendicular_bisector(point_t p1, point_t p2) {
 point_t circumcenter(point_t p0, point_t p1, point_t p2) {
 	point_t v1 = perpendicular_bisector(p0, p1);
 	point_t v2 = perpendicular_bisector(p1, p2);
-	return isLL((p0 + p1) / 2, v1, (p1 + p2) / 2, v2)[0];
+	vector<point_t> r = isLL((p0 + p1) / 2, v1, (p1 + p2) / 2, v2);
+	assert(!r.empty()); // collinear or coincident points have no circumcenter
+	return r[0];
 }
 
 point_t incenter(point_t p0, point_t p1, point_t p2) {
 	point_t v1 = angle_bisector(p0, p1, p2);
 	point_t v2 = angle_bisector(p1, p2, p0);
-	return isLL(p0, v1, p1, v2)[0];
+	vector<point_t> r = isLL(p0, v1, p1, v2);
+	assert(!r.empty()); // degenerate triangle
+	return r[0];
 }
 
 point_t orthocenter(point_t p0, point_t p1, point_t p2) {
@@ -91,6 +95,7 @@ bool insidePoly(const vector<point_t> &p, point_t t) {
 
 bool insideConvex(const vector<point_t> &convex, point_t t) { // O(logN), convex polygen, cross(p[1] - p[0], p[2] - p[0]) > 0
 	int n = convex.size();
+	if (n == 1) return dblcmp(dist(t, convex[0])) == 0;
 	if (n == 2) return onSeg(t, convex[0], convex[1]);
 	int l = 1, r = n - 1;
 	while (l < r) {

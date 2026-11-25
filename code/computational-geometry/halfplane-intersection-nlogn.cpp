@@ -43,10 +43,12 @@ vector<point_t> hp_inter() {
 	for (int i = 2; i < (int)hp.size(); ++i) {
 		while (DQ.size() > 1 && checkhp(*----DQ.end(), *--DQ.end(), hp[i])) DQ.pop_back();
 		while (DQ.size() > 1 && checkhp(*++DQ.begin(), *DQ.begin(), hp[i])) DQ.pop_front();
+		if (dblcmp(cross(DQ.back().p2 - DQ.back().p1, hp[i].p2 - hp[i].p1)) == 0) return {}; // opposite half-planes met: empty
 		DQ.push_back(hp[i]);
 	}
 	while (DQ.size() > 1 && checkhp(*----DQ.end(), *--DQ.end(), DQ.front())) DQ.pop_back();
 	while (DQ.size() > 1 && checkhp(*++DQ.begin(), *DQ.begin(), DQ.back())) DQ.pop_front();
+	if (DQ.size() < 3) return {};
 	DQ.push_front(DQ.back());
 	vector<point_t> res;
 	while (DQ.size() > 1) {
