@@ -5,3 +5,4 @@
 *.toc
 *.swp
 .check-build/
+.stress-build/

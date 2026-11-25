@@ -5,8 +5,11 @@ all: main.tex
 check:
 	./check/compile.sh
 
+stress:
+	./stress/run.sh
+
 clean:
 	rm -f *.log *.aux *.out *.pdf *.toc
-	rm -rf .check-build
+	rm -rf .check-build .stress-build
 
-.PHONY: check clean
+.PHONY: check stress clean
