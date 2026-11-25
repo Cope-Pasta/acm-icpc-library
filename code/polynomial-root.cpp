@@ -5,7 +5,6 @@ double cal(const vector<double> &coef, double x) {
 }
 
 double find(const vector<double> &coef, double l, double r, int sl, int sr) {
-	int sl = dblcmp(cal(coef, l)), sr = dblcmp(cal(coef, r));
 	if (sl == 0) return l;
 	if (sr == 0) return r;
 	for (int tt = 0; tt < 100 && r - l > eps; ++tt) {
