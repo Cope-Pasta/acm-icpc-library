@@ -3,11 +3,29 @@
 const double maxd = 1e5;
 point_t isLL(point_t a, point_t b, point_t c, point_t d) { point_t u = b - a, v = d - c; return a + u * (cross(c - a, v) / cross(u, v)); }
 #include "code/computational-geometry/halfplane-intersection-nlogn.cpp"
+#include "stress/test.h"
 const unsigned SEED = 7;
 mt19937 rng(SEED);
 int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
 
+
+double area(const vector<point_t> &p) { double s = 0; for (int i = 0; i < (int)p.size(); ++i) s += cross(p[i], p[(i + 1) % p.size()]); return s / 2; }
+vector<point_t> run(vector<pair<point_t, point_t>> hs) { init(); for (auto &h : hs) addhp(h.first, h.second); return hp_inter(); }
+int unit() {
+	EXPECT(run({{{1, 1}, {1, 0}}, {{-1, 0}, {-1, 1}}}).empty()); // x >= 1 and x <= -1
+	EXPECT(run({{{0, 0}, {1, 0}}, {{1, 0}, {0, 1}}, {{0, 1}, {0, 0}}, {{1, 2}, {2, 2}}}).empty()); // triangle and y >= 2
+	vector<point_t> p = run({{{0, 0}, {1, 0}}, {{1, 0}, {1, 1}}, {{1, 1}, {0, 1}}, {{0, 1}, {0, 0}}});
+	EXPECT(p.size() == 4 && near(area(p), 1)); // unit square
+	p = run({{{0, 0}, {1, 0}}, {{5, -1}, {6, -1}}, {{0, 0}, {1, 0}}, {{1, 0}, {1, 1}}, {{1, 1}, {0, 1}}, {{0, 1}, {0, 0}}});
+	EXPECT(near(area(p), 1)); // duplicate and redundant half-planes
+	p = run({{{0, 0}, {1, 0}}, {{1, 0}, {0, 1}}, {{0, 1}, {0, 0}}}); EXPECT(p.size() == 3 && near(area(p), 0.5));
+	p = run({{{0, 0}, {0, 1}}, {{0, 1}, {0, 0}}}); EXPECT(near(area(p), 0)); // x = 0: degenerate
+	p = run({}); EXPECT(near(area(p), 4 * maxd * maxd)); // just the bounding box
+	return 0;
+}
+
 int main() {
+	if (unit()) return 1;
 	for (int it = 0; it < 5000; ++it) {
 		int m = ri(1, 12), R = ri(2, 20);
 		point_t q(ri(-R, R) + 0.37, ri(-R, R) + 0.61); // every half-plane contains q strictly
