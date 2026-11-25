@@ -13,7 +13,7 @@ ftype cross(point a, point b) {
 
 vector<point> hull, vecs;
 
-void add_line(ftype k, ftype b) { // k increasing, get() = min k*x+b
+void add_line(ftype k, ftype b) { // k strictly increasing, get() = min k*x+b
     point nw = {k, b};
     while(!vecs.empty() && dot(vecs.back(), nw - hull.back()) < 0) {
         hull.pop_back();
