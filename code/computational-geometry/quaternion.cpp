@@ -16,7 +16,7 @@ struct quater_t {
 	}
 };
 
-void rotate(point3_t axis, point3_t p, double angle) {
+point3_t rotate(point3_t axis, point3_t p, double angle) {
 	quater_t q = quater_t(cos(angle / 2), axis * sin(angle / 2));
 	return (q * quater_t(0, p) * q.conjugate()).vector();
 }
