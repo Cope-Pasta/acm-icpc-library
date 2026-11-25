@@ -1,60 +1,29 @@
-// O(NlogN) sol, Left is valid half plane. Note that the edge of hull may degenerate to a point.
+// O(n log n) half-plane intersection of the left sides of a->b, inside the box |x|, |y| <= maxd.
+// Returns the CCW polygon (an edge may degenerate to a point), {} if empty. isLL: common-2d
+const double maxd = 1e5;
 struct hp_t {
-	point_t p1, p2;
-	double a;
-	hp_t() {}
-	hp_t(point_t tp1, point_t tp2) : p1(tp1), p2(tp2) {
-		tp2 = tp2 - tp1;
-		a = atan2(tp2.y, tp2.x);
-	}
-	bool operator==(const hp_t &r) const {
-		return dblcmp(a - r.a) == 0;
-	}
-	bool operator<(const hp_t &r) const {
-		if (dblcmp(a - r.a) == 0) return dblcmp(cross(r.p2 - r.p1, p2 - r.p1)) >= 0;
-		else return a < r.a;
-	}
+	point_t a, b;
+	double ang() const { return atan2(b.y - a.y, b.x - a.x); }
 };
-vector<hp_t> hp;
-
-void addhp(point_t p1, point_t p2) {
-	hp.push_back(hp_t(p1, p2));
-}
-
-void init() {
-	hp.clear();
-	addhp(point_t(-maxd, -maxd), point_t(maxd, -maxd));
-	addhp(point_t(maxd, -maxd), point_t(maxd, maxd));
-	addhp(point_t(maxd, maxd), point_t(-maxd, maxd));
-	addhp(point_t(-maxd, maxd), point_t(-maxd, -maxd));
-}
-
-bool checkhp(hp_t h1, hp_t h2, hp_t h3) {
-	point_t p = isLL(h1.p1, h1.p2, h2.p1, h2.p2);
-	return dblcmp(cross(p - h3.p1, h3.p2 - h3.p1)) > 0;
-}
-
-vector<point_t> hp_inter() {
-	sort(all(hp));
-	hp.erase(unique(all(hp)), hp.end());
-	deque<hp_t> DQ;
-	DQ.push_back(hp[0]);
-	DQ.push_back(hp[1]);
-	for (int i = 2; i < (int)hp.size(); ++i) {
-		while (DQ.size() > 1 && checkhp(*-- --DQ.end(), *--DQ.end(), hp[i])) DQ.pop_back();
-		while (DQ.size() > 1 && checkhp(*++DQ.begin(), *DQ.begin(), hp[i])) DQ.pop_front();
-		if (dblcmp(cross(DQ.back().p2 - DQ.back().p1, hp[i].p2 - hp[i].p1)) == 0) return {}; // opposite half-planes met: empty
-		DQ.push_back(hp[i]);
+bool out(hp_t h, point_t p) { return dblcmp(cross(h.b - h.a, p - h.a)) < 0; }
+point_t isLL(hp_t g, hp_t h) { return isLL(g.a, g.b, h.a, h.b); }
+vector<point_t> hpInter(vector<hp_t> h) {
+	point_t c(maxd, -maxd);
+	for (int k = 0; k < 4; ++k, c = c.rot90()) h.push_back({c, c.rot90()});
+	sort(all(h), [](hp_t g, hp_t h) { return dblcmp(g.ang() - h.ang()) ? g.ang() < h.ang() : out(g, h.a); });
+	vector<hp_t> q(h.size());
+	int f = 0, e = 0; // deque q[f, e)
+	for (int i = 0; i < (int)h.size(); ++i) {
+		if (i && !dblcmp(h[i].ang() - h[i - 1].ang())) continue; // keep the innermost of parallel ones
+		while (e - f > 1 && out(h[i], isLL(q[e - 2], q[e - 1]))) --e;
+		while (e - f > 1 && out(h[i], isLL(q[f], q[f + 1]))) ++f;
+		if (e - f && !dblcmp(cross(q[e - 1].b - q[e - 1].a, h[i].b - h[i].a))) return {}; // opposite ones met
+		q[e++] = h[i];
 	}
-	while (DQ.size() > 1 && checkhp(*-- --DQ.end(), *--DQ.end(), DQ.front())) DQ.pop_back();
-	while (DQ.size() > 1 && checkhp(*++DQ.begin(), *DQ.begin(), DQ.back())) DQ.pop_front();
-	if (DQ.size() < 3) return {};
-	DQ.push_front(DQ.back());
-	vector<point_t> res;
-	while (DQ.size() > 1) {
-		hp_t tmp = DQ.front();
-		DQ.pop_front();
-		res.push_back(isLL(tmp.p1, tmp.p2, DQ.front().p1, DQ.front().p2));
-	}
-	return res;
+	while (e - f > 2 && out(q[f], isLL(q[e - 2], q[e - 1]))) --e;
+	while (e - f > 2 && out(q[e - 1], isLL(q[f], q[f + 1]))) ++f;
+	if (e - f < 3) return {};
+	vector<point_t> r;
+	for (int i = f; i < e; ++i) r.push_back(isLL(q[i], q[i + 1 < e ? i + 1 : f]));
+	return r;
 }
