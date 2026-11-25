@@ -1,100 +1,59 @@
-int exgcd(int x, int y, int &a, int &b) { // extended gcd, ax + by = g.
-	int a0 = 1, a1 = 0, b0 = 0, b1 = 1;
-	while (y != 0) {
-		a0 -= x / y * a1;
-		swap(a0, a1);
-		b0 -= x / y * b1;
-		swap(b0, b1);
-		x %= y;
-		swap(x, y);
-	}
-	if (x < 0) a0 = -a0, b0 = -b0, x = -x;
-	a = a0, b = b0;
-	return x;
+// Number theory for 64-bit moduli (products via __int128).
+ll mult(ll a, ll b, ll m) { return (__int128)a * b % m; }
+ll fpow(ll a, ll e, ll m) {
+	ll r = 1 % m;
+	for (a %= m; e; e >>= 1, a = mult(a, a, m))
+		if (e & 1) r = mult(r, a, m);
+	return r;
 }
-
-ll CRT(const vector<int> &p, const vector<int> &b) { // chinese remainder theorem
-	ll N = accumulate(all(p), 1LL, multiplies<ll>()), ans = 0;
-	int k = p.size();
-	for (int i = 0; i < k; ++i) {
-		ll mult = (inverse(N / p[i], p[i]) * (N / p[i])) % N;
-		mult = (mult * b[i]) % N;
-		ans += mult;
-		ans %= N;
-	}
-	if (ans < 0) ans += N;
-	return ans;
+// returns g = gcd(x, y) >= 0 and sets a, b with a*x + b*y = g
+ll exgcd(ll x, ll y, ll &a, ll &b) {
+	if (!y) return a = x < 0 ? -1 : 1, b = 0, abs(x);
+	ll g = exgcd(y, x % y, b, a);
+	return b -= x / y * a, g;
 }
-
-bool miller_rabin(ll n, ll b) { // miller-rabin prime test
-	ll m = n - 1, cnt = 0;
-	while (m % 2 == 0) m >>= 1, ++cnt;
-	ll ret = fpow(b, m, n);
-	if (ret == 1 || ret == n - 1) return true;
-	--cnt;
-	while (cnt >= 0) {
-		ret = mult(ret, ret, n);
-		if (ret == n - 1) return true;
-		--cnt;
-	}
-	return false;
+// x in [0, prod p) with x = b[i] mod p[i]; p pairwise coprime, product fits in ll
+ll CRT(const vector<int> &p, const vector<int> &b) {
+	ll N = 1, r = 0, x, y;
+	for (ll q : p) N *= q;
+	for (int i = 0; i < p.size(); i++) exgcd(N / p[i], p[i], x, y), r = (r + (x % p[i] + p[i]) * b[i] % p[i] * (N / p[i])) % N;
+	return (r + N) % N;
 }
-
-bool prime_test(ll n) {
-	if (n < 2) return false;
-	if (n < 4) return true;
-	if (n == 3215031751LL) return false;
-	const int BASIC[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
-	for (int i = 0; i < 12 && BASIC[i] < n; ++i) {
-		if (!miller_rabin(n, BASIC[i])) return false;
+// deterministic Miller-Rabin for all n < 2^64
+bool isPrime(ll n) {
+	if (n < 2 || n % 6 % 4 != 1) return (n | 1) == 3;
+	ll s = __builtin_ctzll(n - 1), d = n >> s;
+	for (ll a : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
+		ll p = fpow(a, d, n), i = s;
+		while (p != 1 && p != n - 1 && a % n && i--) p = mult(p, p, n);
+		if (p != n - 1 && i != s) return 0;
 	}
-	return true;
+	return 1;
 }
-
-ll pollard_rho(ll n, ll seed) { // pollard-rho divisors factorization
-	ll x, y;
-	x = y = rand() % (n - 1) + 1;
-	ll head = 1, tail = 2;
-	while (true) {
-		x = mult(x, x, n);
-		x = (x + seed) % n;
-		if (x == y) return n;
-		ll d = gcd(max(x - y, y - x), n);
-		if (1 < d && d < n) return d;
-		if (++head == tail) y = x, tail <<= 1;
+// Pollard rho: some nontrivial divisor of composite n, ~O(n^(1/4))
+ll pollard(ll n) {
+	ll x = 0, y = 0, t = 30, prd = 2, i = 1, q;
+	auto f = [&](ll x) { return mult(x, x, n) + i; };
+	while (t++ % 40 || __gcd(prd, n) == 1) {
+		if (x == y) x = ++i, y = f(x);
+		if ((q = mult(prd, max(x, y) - min(x, y), n))) prd = q;
+		x = f(x), y = f(f(y));
 	}
+	return __gcd(prd, n);
 }
-
-void factorize(ll n, vector<ll> &divisor) {
+// appends the prime factors of n (with multiplicity, unsorted) to d
+void factorize(ll n, vector<ll> &d) {
 	if (n == 1) return;
-	if (prime_test(n)) divisor.push_back(n);
+	if (isPrime(n)) d.push_back(n);
 	else {
-		ll d = n;
-		while (d >= n) d = pollard_rho(n, rand() % (n - 1) + 1);
-		factorize(n / d, divisor);
-		factorize(d, divisor);
+		ll x = pollard(n);
+		factorize(x, d), factorize(n / x, d);
 	}
 }
-
-// primtive root, finding the number with order p-1
-int primtive_root(int p) {
-	vector<int> factor;
-	int tmp = p - 1;
-	for (int i = 2; i * i <= tmp; ++i) {
-		if (tmp % i == 0) {
-			factor.push_back(i);
-			while (tmp % i == 0) tmp /= i;
-		}
-	}
-	if (tmp != 1) factor.push_back(tmp);
-	for (int root = 1;; ++root) {
-		bool flag = true;
-		for (int i = 0; i < factor.size(); ++i) {
-			if (fpow(root, (p - 1) / factor[i], p) == 1) {
-				flag = false;
-				break;
-			}
-		}
-		if (flag) return root;
-	}
+// smallest primitive root (element of order p - 1) of prime p
+ll primitiveRoot(ll p) {
+	vector<ll> f;
+	factorize(p - 1, f);
+	for (ll g = 1;; g++)
+		if (all_of(all(f), [&](ll q) { return fpow(g, (p - 1) / q, p) != 1; })) return g;
 }
