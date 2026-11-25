@@ -6,6 +6,7 @@ struct node_t {
 	node_t *p, *ch[2];
 	int size, cnt; // maintain tag from top to bottom (via find).
 } s[maxn], *nil = s, *root;
+int pt; // last used node in s
 node_t::node_t() { p = ch[0] = ch[1] = nil; }
 
 void node_t::update() {
