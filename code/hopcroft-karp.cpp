@@ -1,45 +1,33 @@
-int n, m; // Left: 0..n-1, Right: 0..m-1
-vector<int> vis, level, pr, pr2;
-vector<vector<int>> edge; // for Left, edge.assign(n, {})
-
-bool dfs(int u) {
-	vis[u] = true;
-	for (int w : edge[u]) {
-		int v = pr2[w];
-		if (v == -1 || (!vis[v] && level[u] < level[v] && dfs(v))) {
-			pr[u] = w, pr2[w] = u;
-			return true;
-		}
+// Hopcroft-Karp bipartite matching, O(E sqrt V). Left 0..n-1, right 0..m-1, g[u]: right neighbours of u.
+// run() returns the matching size; l[u] / r[v]: partner of left u / right v, or -1.
+struct HK {
+	int n, m;
+	vector<vector<int>> g;
+	vector<int> l, r, lv;
+	HK(int n, int m) : n(n), m(m), g(n) {}
+	bool dfs(int u) {
+		int d = lv[u];
+		lv[u] = -1;
+		for (int w : g[u])
+			if (r[w] < 0 || (lv[r[w]] == d + 1 && dfs(r[w]))) return l[u] = w, r[w] = u, 1;
+		return 0;
 	}
-	return false;
-}
-
-int hopcroftKarp() {
-	pr.assign(n, -1), pr2.assign(m, -1), level.assign(n, 0);
-	for (int match = 0;;) {
-		queue<int> Q;
-		for (int i = 0; i < n; ++i) {
-			if (pr[i] == -1) {
-				level[i] = 0;
-				Q.push(i);
-			} else level[i] = -1;
-		}
-		while (!Q.empty()) {
-			int u = Q.front();
-			Q.pop();
-			for (int w : edge[u]) {
-				int v = pr2[w];
-				if (v != -1 && level[v] < 0) {
-					level[v] = level[u] + 1;
-					Q.push(v);
-				}
+	int run() {
+		l.assign(n, -1), r.assign(m, -1);
+		for (int res = 0, d;; res += d) {
+			lv.assign(n, -1);
+			queue<int> q;
+			for (int i = 0; i < n; ++i)
+				if (l[i] < 0) lv[i] = 0, q.push(i);
+			while (!q.empty()) {
+				int u = q.front();
+				q.pop();
+				for (int w : g[u])
+					if (r[w] >= 0 && lv[r[w]] < 0) lv[r[w]] = lv[u] + 1, q.push(r[w]);
 			}
+			d = 0;
+			for (int i = 0; i < n; ++i) d += l[i] < 0 && dfs(i);
+			if (!d) return res;
 		}
-		vis.assign(n, false);
-		int d = 0;
-		for (int i = 0; i < n; ++i)
-			if (pr[i] == -1 && dfs(i)) ++d;
-		if (d == 0) return match;
-		match += d;
 	}
-}
+};
