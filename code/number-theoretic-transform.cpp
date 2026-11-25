@@ -1,39 +1,31 @@
+// NTT mod 998244353 = 119*2^23+1 (primitive root 3), in place, O(n log n).
+// a.size() must be a power of 2 (<= 2^23); inv = true computes the inverse (includes 1/n).
 const int mod = 998244353;
-const int root = 15311432;
-const int root_1 = 469870224;
-const int root_pw = 1 << 23;
-void fft(vector<int> &a, bool invert) {
+ll pw(ll b, ll e) {
+	ll r = 1;
+	for (; e; e >>= 1, b = b * b % mod)
+		if (e & 1) r = r * b % mod;
+	return r;
+}
+void ntt(vector<int> &a, bool inv) {
 	int n = a.size();
-
 	for (int i = 1, j = 0; i < n; i++) {
 		int bit = n >> 1;
-		for (; j & bit; bit >>= 1)
-			j ^= bit;
-		j ^= bit;
-
-		if (i < j)
-			swap(a[i], a[j]);
+		for (; j & bit; bit >>= 1) j ^= bit;
+		if (i < (j ^= bit)) swap(a[i], a[j]);
 	}
-
-	for (int len = 2; len <= n; len <<= 1) {
-		int wlen = invert ? root_1 : root;
-		for (int i = len; i < root_pw; i <<= 1)
-			wlen = (int)(1LL * wlen * wlen % mod);
-
-		for (int i = 0; i < n; i += len) {
-			int w = 1;
-			for (int j = 0; j < len / 2; j++) {
-				int u = a[i + j], v = (int)(1LL * a[i + j + len / 2] * w % mod);
-				a[i + j] = u + v < mod ? u + v : u + v - mod;
-				a[i + j + len / 2] = u - v >= 0 ? u - v : u - v + mod;
-				w = (int)(1LL * w * wlen % mod);
+	for (int k = 1; k < n; k *= 2) {
+		ll w = pw(3, (mod - 1) / 2 / k * (inv ? 2 * k - 1 : 1));
+		for (int i = 0; i < n; i += 2 * k) {
+			ll x = 1;
+			for (int j = i; j < i + k; j++, x = x * w % mod) {
+				int u = a[j], v = a[j + k] * x % mod;
+				a[j] = (u + v) % mod, a[j + k] = (u - v + mod) % mod;
 			}
 		}
 	}
-
-	if (invert) {
-		int n_1 = inverse(n, mod);
-		for (int &x : a)
-			x = (int)(1LL * x * n_1 % mod);
+	if (inv) {
+		ll ni = pw(n, mod - 2);
+		for (int &x : a) x = x * ni % mod;
 	}
 }
