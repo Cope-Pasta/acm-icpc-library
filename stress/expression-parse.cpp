@@ -21,7 +21,7 @@ int main() {
 		auto e = gen(4);
 		if (parse(e.first) != e.second) { printf("mismatch: %s got %d want %d\n", e.first.c_str(), parse(e.first), e.second); return 1; }
 	}
-	vector<pair<string, int>> fixed = {{"2*(3+4)-10/2", 9}, {"-(2+3)*2", -10}, {"1-2-3", -4}, {"100/10/5", 2}, {"2+3*4", 14}, {"7", 7}, {"-7", -7}, {"-2-3", -5}, {"(-11)-(-19)", 8}, {"2*3-4*5", -14}};
+	vector<pair<string, int>> fixed = {{"2*(3+4)-10/2", 9}, {"-(2+3)*2", -10}, {"1-2-3", -4}, {"100/10/5", 2}, {"2+3*4", 14}, {"7", 7}, {"-7", -7}, {"-2-3", -5}, {"(-11)-(-19)", 8}, {"2*3-4*5", -14}, {" 1 + 2 * ( 3 - -1 ) ", 9}};
 	for (auto &[s, v] : fixed) if (parse(s) != v) { printf("mismatch: %s got %d want %d\n", s.c_str(), parse(s), v); return 1; }
 	puts("OK expression-parse");
 }
