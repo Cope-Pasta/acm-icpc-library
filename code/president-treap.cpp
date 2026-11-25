@@ -41,12 +41,12 @@ struct PresidentTreap {
 		if (a->key > b->key) return newNode(a->v, a->c[0], merge(a->c[1], b), a->key);
 		return newNode(b->v, merge(a, b->c[0]), b->c[1], b->key);
 	}
-	node_t *insert(string v, int p) { // insert after p
+	node_t *insert(string v, int p) { // insert before position p (0-indexed)
 		int l = root->size;
 		return merge(merge(splitL(root, p), newNode(v, nil, nil)), splitR(root, l - p));
 	}
-	node_t *remove(int x, int y) { // remove [x, y]
+	node_t *remove(int x, int y) { // remove [x, y], 0-indexed
 		int l = root->size;
-		return merge(splitL(root, x - 1), splitR(root, l - y));
+		return merge(splitL(root, x), splitR(root, l - y - 1));
 	}
 };
