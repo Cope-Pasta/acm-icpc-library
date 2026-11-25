@@ -2,6 +2,8 @@
 #include "check/common/geo2d.h"
 #include "code/computational-geometry/common-2d.cpp"
 #include "stress/test.h"
+#include <sys/wait.h>
+#include <unistd.h>
 const unsigned SEED = 5;
 mt19937 rng(SEED);
 int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
@@ -45,6 +47,14 @@ int unit() {
 	for (point_t t : vector<point_t>{{3, 1}, {-1e-3, 1}, {1, 2.001}, {3, 3}, {-1, -1}}) EXPECT(!insideConvex(sq, t) && !insidePoly(sq, t));
 	EXPECT(insideConvex({{1, 1}}, {1, 1}) && !insideConvex({{1, 1}}, {1, 2})); // single point
 	EXPECT(insideConvex({{0, 0}, {2, 2}}, {1, 1}) && !insideConvex({{0, 0}, {2, 2}}, {3, 3}) && !insideConvex({{0, 0}, {2, 2}}, {1, 0})); // segment
+	auto aborts = [](function<void()> f) { // f() hits an assert
+		pid_t pid = fork();
+		if (pid == 0) { freopen("/dev/null", "w", stderr); f(); _exit(0); }
+		int st; waitpid(pid, &st, 0); return WIFSIGNALED(st);
+	};
+	EXPECT(aborts([] { circumcenter({0, 0}, {1, 1}, {2, 2}); }) && aborts([] { circumcenter({0, 0}, {0, 0}, {1, 0}); }));
+	EXPECT(aborts([] { incenter({0, 0}, {1, 1}, {2, 2}); }));
+	EXPECT(!aborts([] { circumcenter({0, 0}, {1, 0}, {0, 1}); incenter({0, 0}, {1, 0}, {0, 1}); }));
 	vector<point_t> u = {{0, 0}, {3, 0}, {3, 3}, {2, 3}, {2, 1}, {1, 1}, {1, 3}, {0, 3}}; // U shape
 	EXPECT(insidePoly(u, {0.5, 2}) && !insidePoly(u, {1.5, 2}) && insidePoly(u, {1.5, 1}) && insidePoly(u, {1.5, 0.5}) && insidePoly(u, {2, 2}));
 	return 0;
