@@ -1,69 +1,30 @@
-struct node_t {
-	node_t();
-	node_t *ch[2], *p;
-	int size, root;
-	int dir() { return this == p->ch[1]; }
-	void setc(node_t *c, int d) { ch[d] = c, c->p = this; }
-	void update() { size = ch[0]->size + ch[1]->size + 1; }
-} nilv, *nil = &nilv;
-vector<node_t> s; // nodes s[0..n-1]
-
-node_t::node_t() {
-	size = 1, root = true;
-	ch[0] = ch[1] = p = nil;
-}
-
-void rotate(node_t *t) {
-	node_t *p = t->p;
-	int d = t->dir();
-	if (!p->root) {
-		p->p->setc(t, p->dir());
-	} else {
-		p->root = false, t->root = true;
-		t->p = p->p; // Path Parent
+// Link-cut tree on a rooted forest of nodes 0..n-1 (n is nil), amortized O(log n) per op.
+// link(x, y): hang root y under x. cut(x): cut x from its parent.
+// access(x): x's splay tree becomes the root..x path, x on top, so sz[x] = depth(x) + 1.
+// access(u) then access(v) returns lca(u, v) (same tree).
+struct LCT {
+	int n;
+	vector<int> p, sz;
+	vector<array<int, 2>> ch;
+	LCT(int n) : n(n), p(n + 1, n), sz(n + 1, 1), ch(n + 1, {n, n}) { sz[n] = 0; }
+	bool nr(int x) { return ch[p[x]][0] == x || ch[p[x]][1] == x; } // not a splay root
+	void pull(int x) { sz[x] = sz[ch[x][0]] + sz[ch[x][1]] + 1; }
+	void rot(int x) {
+		int y = p[x], z = p[y], d = ch[y][1] == x, b = ch[x][!d];
+		if (nr(y)) ch[z][ch[z][1] == y] = x;
+		p[x] = z, ch[y][d] = b, p[b] = y, ch[x][!d] = y, p[y] = x;
+		pull(y), pull(x);
 	}
-	p->setc(t->ch[!d], d);
-	t->setc(p, !d);
-	p->update(), t->update();
-}
-
-void splay(node_t *t) {
-	// t->update(); // tag!
-	while (!t->root) {
-		// if (!t->p->root) t->p->p->update(); t->p->update(), t->update(); // !
-		if (!t->p->root) rotate(t->dir() == t->p->dir() ? t->p : t);
-		rotate(t);
+	void splay(int x) {
+		for (int y; nr(x); rot(x))
+			if (y = p[x], nr(y)) rot((ch[y][1] == x) == (ch[p[y]][1] == y) ? y : x);
 	}
-}
-
-void access(node_t *x) { // Ask u, v: access(u), access(v, true), x = LCA
-	node_t *y = nil;
-	while (x != nil) {
+	int access(int x) {
+		int l = x;
+		for (int y = n, z = x; z != n; y = z, z = p[z]) splay(l = z), ch[z][1] = y, pull(z);
 		splay(x);
-		// if (x->p == nil) at second call, x->ch[1](rev) + (x)_single + y
-		x->ch[1]->root = true;
-		x->ch[1] = y, y->root = false;
-		x->update();
-		y = x, x = x->p;
+		return l;
 	}
-}
-
-void cut(node_t *x) {
-	access(x);
-	splay(x);
-	x->ch[0]->root = true;
-	x->ch[0]->p = nil;
-	x->ch[0] = nil;
-}
-
-void link(node_t *x, node_t *y) {
-	access(y);
-	splay(y);
-	y->p = x;
-	access(y);
-}
-
-void init(int n) {
-	nil->size = 0;
-	s.assign(n, node_t());
-}
+	void link(int x, int y) { access(y), p[y] = x; }
+	void cut(int x) { access(x), p[ch[x][0]] = n, ch[x][0] = n, pull(x); }
+};
