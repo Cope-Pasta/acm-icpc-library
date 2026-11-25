@@ -1,50 +1,29 @@
-// Kuhn-Munkras's algorithm, n: Left Size <= m: Right Size, g: n*m, 0-indexed.
-int n, m;
-vector<vector<int>> g;
-vector<int> lx, ly, slack, match; // match[y]: left vertex matched to y
-vector<bool> vx, vy;
-
-bool find(int x) {
-	vx[x] = true;
-	for (int y = 0; y < m; ++y) {
-		if (!vy[y]) {
-			int delta = lx[x] + ly[y] - g[x][y];
-			if (delta == 0) {
-				vy[y] = true;
-				if (match[y] == -1 || find(match[y])) {
-					match[y] = x;
-					return true;
+// Hungarian (Kuhn-Munkres): max-weight assignment of rows of n x m matrix g to distinct columns, n <= m. O(n^2 m).
+// Returns {weight, p}, p[i] = column of row i. For min cost, negate g. (u, v, p, pre are 1-indexed; 0 is a sentinel.)
+pair<int, vector<int>> km(const vector<vector<int>> &g) {
+	int n = g.size(), m = g[0].size();
+	vector<int> u(n + 1), v(m + 1), p(m + 1), pre(m + 1), res(n);
+	for (int i = 1; i <= n; ++i) {
+		int j0 = 0;
+		p[0] = i;
+		vector<int> d(m + 1, INT_MAX), done(m + 1);
+		do {
+			int i0 = p[j0], j1 = 0, delta = INT_MAX;
+			done[j0] = 1;
+			for (int j = 1; j <= m; ++j)
+				if (!done[j]) {
+					int c = -g[i0 - 1][j - 1] - u[i0] - v[j];
+					if (c < d[j]) d[j] = c, pre[j] = j0;
+					if (d[j] < delta) delta = d[j], j1 = j;
 				}
-			} else slack[y] = min(slack[y], delta);
-		}
+			for (int j = 0; j <= m; ++j)
+				if (done[j]) u[p[j]] += delta, v[j] -= delta;
+				else d[j] -= delta;
+			j0 = j1;
+		} while (p[j0]);
+		for (int j1; j0; j0 = j1) p[j0] = p[j1 = pre[j0]];
 	}
-	return false;
-}
-
-int km() { // maximum weight, if minimum, negate all g then restore at the end.
-	lx.assign(n, INT_MIN), ly.assign(m, 0), match.assign(m, -1);
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < m; ++j) lx[i] = max(lx[i], g[i][j]);
-	}
-	for (int k = 0; k < n; ++k) {
-		slack.assign(m, maxint);
-		while (true) {
-			vx.assign(n, false), vy.assign(m, false);
-			if (find(k)) break;
-			else {
-				int delta = maxint;
-				for (int i = 0; i < m; ++i) {
-					if (!vy[i]) delta = min(delta, slack[i]);
-				}
-				for (int i = 0; i < n; ++i) {
-					if (vx[i]) lx[i] -= delta;
-				}
-				for (int i = 0; i < m; ++i) {
-					if (vy[i]) ly[i] += delta;
-					if (!vy[i]) slack[i] -= delta;
-				}
-			}
-		}
-	}
-	return accumulate(all(lx), 0) + accumulate(all(ly), 0);
+	for (int j = 1; j <= m; ++j)
+		if (p[j]) res[p[j] - 1] = j - 1;
+	return {v[0], res};
 }
