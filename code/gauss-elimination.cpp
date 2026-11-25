@@ -1,24 +1,15 @@
-void gauss(vector<vector<double>> &g) { // input: n * (n + 1) matrix, x[i] = g[i][n]
+// Gauss-Jordan with partial pivoting, O(n^3). g: n x (n + 1) augmented [A | b], A nonsingular; then x[i] = g[i][n].
+void gauss(vector<vector<double>> &g) {
 	int n = g.size();
 	for (int i = 0; i < n; ++i) {
-		double temp = 0;
-		int pos = -1;
-		for (int j = i; j < n; ++j) {
-			if (fabs(g[j][i]) > temp) temp = fabs(g[j][i]), pos = j;
-		}
-		if (pos == -1) continue;
-		swap(g[pos], g[i]);
-		temp = g[i][i];
-		for (int k = 0; k <= n; ++k) g[i][k] /= temp;
-		for (int j = i + 1; j < n; ++j) {
-			temp = g[j][i];
-			for (int k = 0; k <= n; ++k) g[j][k] -= temp * g[i][k];
-		}
-	}
-	for (int i = n - 1; i >= 0; --i) {
-		for (int j = 0; j < i; ++j) {
-			g[j][n] -= g[i][n] * g[j][i];
-			g[j][i] = 0;
-		}
+		int p = i;
+		for (int j = i; j < n; ++j)
+			if (fabs(g[j][i]) > fabs(g[p][i])) p = j;
+		swap(g[p], g[i]);
+		if (g[i][i] == 0) continue;
+		for (int k = n; k >= i; --k) g[i][k] /= g[i][i];
+		for (int j = 0; j < n; ++j)
+			if (j != i)
+				for (int k = n; k >= i; --k) g[j][k] -= g[j][i] * g[i][k];
 	}
 }
