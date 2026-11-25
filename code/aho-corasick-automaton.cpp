@@ -1,35 +1,26 @@
-struct trie_t {
-	bool flag;
-	trie_t *child[C], *fail;
-} trie[maxn], *root;
-trie_t *new_trie() { return &trie[++pt]; }
-
-void add(char *str) {
-	int l = strlen(str);
-	trie_t *p = root;
-	for (int i = 0; i < l; ++i) {
-		int ch = str[i]; // fixed to [0, C - 1], C = |SIGMA|
-		if (!p->child[ch]) p->child[ch] = new_trie();
-		p = p->child[ch];
+struct trie_t { // node 0 is the root
+	vector<array<int, C>> ch; vector<int> fail; vector<bool> flag;
+	trie_t() : ch(1), fail(1), flag(1) {}
+	void add(const string &str) {
+		int p = 0;
+		for (char c : str) {
+			int x = c - 'a'; // fixed to [0, C - 1], C = |SIGMA|
+			if (!ch[p][x]) ch[p][x] = ch.size(), ch.emplace_back(), fail.push_back(0), flag.push_back(false);
+			p = ch[p][x];
+		}
+		flag[p] = true;
 	}
-	p->flag = true;
-}
-
-void build() {
-	queue<trie_t *> q;
-	q.push(root);
-	while (!q.empty()) {
-		trie_t *p = q.front(), *t;
-		q.pop();
-		for (int i = 0; i < C; ++i) {
-			t = p->fail;
-			while (t && !t->child[i]) t = t->child[i];
-			t = !t ? root : t->child[i];
-			if (p->child[i]) {
-				p->child[i]->fail = t;
-				p->child[i]->flag |= t->flag;
-				q.push(p->child[i]);
-			} else p->child[i] = t;
+	void build() {
+		queue<int> q;
+		for (int i = 0; i < C; ++i) if (ch[0][i]) q.push(ch[0][i]);
+		while (!q.empty()) {
+			int p = q.front(); q.pop();
+			flag[p] = flag[p] || flag[fail[p]];
+			for (int i = 0; i < C; ++i) {
+				int &v = ch[p][i];
+				if (v) fail[v] = ch[fail[p]][i], q.push(v);
+				else v = ch[fail[p]][i];
+			}
 		}
 	}
-}
+};
