@@ -1,26 +1,27 @@
 // please note that all strings are indexed from 0
-void kmp(const char *s, int *next) {
-	--s, --next;
-	next[1] = 0;
-	int j = 0, n = strlen(s + 1);
-	for (int i = 2; i <= n; ++i) {
-		while (j > 0 && s[j + 1] != s[i]) j = next[j];
-		if (s[j + 1] == s[i]) j = j + 1;
+// next[i]: length of the longest proper border of s[0...i]
+vector<int> kmp(const string &s) {
+	int n = s.size();
+	vector<int> next(n);
+	for (int i = 1, j = 0; i < n; ++i) {
+		while (j > 0 && s[j] != s[i]) j = next[j - 1];
+		if (s[j] == s[i]) ++j;
 		next[i] = j;
 	}
+	return next;
 }
 
 // s: text, t: text being searched, ex[i]: maximum l satisfying s[i...i+l-1] = t[0...l-1]
-void exkmp(const char *s, const char *t, int *next, int *ex) {
-	int n = strlen(t), m = strlen(s), k, c;
+void exkmp(const string &s, const string &t, vector<int> &next, vector<int> &ex) {
+	int n = t.size(), m = s.size(), k, c;
+	next.assign(n + 2, 0), ex.assign(m + 1, 0);
 	next[0] = n;
 	k = 0, c = 1;
 	while (k + 1 < n && t[k] == t[k + 1]) ++k;
 	next[1] = k;
 	for (int i = 2; i < n; ++i) {
 		int p = next[c] + c - 1;
-		int l = next[i - c];
-		if (i + l < p + 1) next[i] = l;
+		if (i < p + 1 && i + next[i - c] < p + 1) next[i] = next[i - c];
 		else {
 			k = max(0, p - i + 1);
 			while (i + k < n && t[i + k] == t[k]) ++k;
@@ -33,8 +34,7 @@ void exkmp(const char *s, const char *t, int *next, int *ex) {
 	ex[0] = k;
 	for (int i = 1; i < m; ++i) {
 		int p = ex[c] + c - 1;
-		int l = next[i - c];
-		if (l + i < p + 1) ex[i] = next[i - c];
+		if (i < p + 1 && i + next[i - c] < p + 1) ex[i] = next[i - c];
 		else {
 			k = max(0, p - i + 1);
 			while (i + k < m && k < n && s[i + k] == t[k]) ++k;
@@ -61,9 +61,10 @@ int minimum_representation(string s) {
 	return min(i, j);
 }
 
-// l[i], the length of palindrome at the centre of i
-int manacher(const char *s, int *l) {
-	int n = strlen(s);
+// l[i]: length of the longest palindrome centred at i / 2, i in [0, 2n)
+int manacher(const string &s, vector<int> &l) {
+	int n = s.size();
+	l.assign(n * 2, 0);
 	for (int i = 0, j = 0, k; i < n * 2; i += k, j = max(j - k, 0)) {
 		while (i >= j && i + j + 1 < n * 2 && s[(i - j) / 2] == s[(i + j + 1) / 2]) ++j;
 		l[i] = j;
@@ -71,10 +72,10 @@ int manacher(const char *s, int *l) {
 			l[i + k] = min(l[i - k], j - k);
 		}
 	}
-	return *max_element(l, l + n + n);
+	return n ? *max_element(l.begin(), l.end()) : 0;
 }
 
-vector<int> z_function(string s) {
+vector<int> z_function(const string &s) {
     int n = s.size();
     vector<int> z(n);
     int l = 0, r = 0;
