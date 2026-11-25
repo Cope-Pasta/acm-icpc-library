@@ -35,7 +35,7 @@ int main() {
 		for (auto &q : t) q = point_t(g(-R, R), g(-R, R));
 		double s = cross(t[1] - t[0], t[2] - t[0]);
 		if (fabs(s) < 1e-3) continue;
-		double got = areaTC(ct, r, t[0], t[1], t[2]);
+		double got = areaTC(ct, r, t[0], t[1]) + areaTC(ct, r, t[1], t[2]) + areaTC(ct, r, t[2], t[0]);
 		if (s < 0) swap(t[1], t[2]);
 		double want = brute(ct, r, t) * (s < 0 ? -1 : 1);
 		if (fabs(got - want) > 1e-5 * r * r + 1e-9 || std::isnan(got)) {
