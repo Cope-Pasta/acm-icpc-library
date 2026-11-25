@@ -9,7 +9,6 @@ struct point_t {
 	point_t operator*(double k) const { return point_t(x * k, y * k); }
 	point_t operator/(double k) const { return point_t(x / k, y / k); }
 	point_t rot90() const { return point_t(-y, x); }
-	double l() const { return sqrt(x * x + y * y); }
 };
 double cross(point_t a, point_t b) { return a.x * b.y - a.y * b.x; }
 double dot(point_t a, point_t b) { return a.x * b.x + a.y * b.y; }
