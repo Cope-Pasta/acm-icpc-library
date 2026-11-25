@@ -91,6 +91,7 @@ bool insidePoly(const vector<point_t> &p, point_t t) {
 
 bool insideConvex(const vector<point_t> &convex, point_t t) { // O(logN), convex polygen, cross(p[1] - p[0], p[2] - p[0]) > 0
 	int n = convex.size();
+	if (n == 1) return dblcmp(dist(t, convex[0])) == 0;
 	if (n == 2) return onSeg(t, convex[0], convex[1]);
 	int l = 1, r = n - 1;
 	while (l < r) {

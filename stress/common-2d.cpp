@@ -1,6 +1,7 @@
 #include "check/prelude.h"
 #include "check/common/geo2d.h"
 #include "code/computational-geometry/common-2d.cpp"
+#include "stress/test.h"
 const unsigned SEED = 5;
 mt19937 rng(SEED);
 int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
@@ -28,7 +29,29 @@ bool insideB(const vector<point_t> &p, point_t t) { // boundary counts as inside
 }
 double lineDist(point_t p, point_t a, point_t b) { return fabs(cross(b - a, p - a)) / dist(a, b); }
 
+
+int unit() {
+	EXPECT(isLL({0, 0}, {1, 0}, {0, 1}, {1, 1}).empty()); // parallel
+	EXPECT(isLL({0, 0}, {1, 0}, {2, 0}, {3, 0}).empty()); // same line
+	vector<point_t> x = isLL({0, 0}, {2, 2}, {0, 2}, {2, 0}); EXPECT(x.size() == 1 && near(x[0].x, 1) && near(x[0].y, 1));
+	EXPECT(testSS({0, 0}, {2, 2}, {0, 2}, {2, 0}) == 1);
+	EXPECT(testSS({0, 0}, {2, 0}, {1, 0}, {3, 0}) == -1); // collinear overlap
+	EXPECT(testSS({0, 0}, {1, 0}, {1, 0}, {2, 0}) == -1); // shared endpoint
+	EXPECT(testSS({0, 0}, {2, 0}, {1, 0}, {1, 5}) == -1); // T-junction
+	EXPECT(testSS({0, 0}, {1, 0}, {2, 0}, {3, 0}) == 0); // collinear, disjoint
+	EXPECT(testSS({0, 0}, {1, 1}, {3, 0}, {2, 1}) == 0);
+	vector<point_t> sq = {{0, 0}, {2, 0}, {2, 2}, {0, 2}};
+	for (point_t t : vector<point_t>{{0, 0}, {2, 2}, {1, 0}, {0, 1}, {1, 1}}) EXPECT(insideConvex(sq, t) && insidePoly(sq, t)); // vertices, edges, interior
+	for (point_t t : vector<point_t>{{3, 1}, {-1e-3, 1}, {1, 2.001}, {3, 3}, {-1, -1}}) EXPECT(!insideConvex(sq, t) && !insidePoly(sq, t));
+	EXPECT(insideConvex({{1, 1}}, {1, 1}) && !insideConvex({{1, 1}}, {1, 2})); // single point
+	EXPECT(insideConvex({{0, 0}, {2, 2}}, {1, 1}) && !insideConvex({{0, 0}, {2, 2}}, {3, 3}) && !insideConvex({{0, 0}, {2, 2}}, {1, 0})); // segment
+	vector<point_t> u = {{0, 0}, {3, 0}, {3, 3}, {2, 3}, {2, 1}, {1, 1}, {1, 3}, {0, 3}}; // U shape
+	EXPECT(insidePoly(u, {0.5, 2}) && !insidePoly(u, {1.5, 2}) && insidePoly(u, {1.5, 1}) && insidePoly(u, {1.5, 0.5}) && insidePoly(u, {2, 2}));
+	return 0;
+}
+
 int main() {
+	if (unit()) return 1;
 	for (int it = 0; it < 20000; ++it) {
 		int R = ri(1, 10);
 		point_t a = rp(R), b = rp(R), c = rp(R), d = rp(R);
