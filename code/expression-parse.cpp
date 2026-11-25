@@ -9,14 +9,14 @@ void deal(stack<int> &num, stack<char> &oper) {
 	}
 }
 
-int parse(char *s) {
+int parse(const string &s) {
 	static int priv[256];
 	stack<int> num;
 	stack<char> oper;
 	priv['+'] = priv['-'] = 3;
 	priv['*'] = priv['/'] = 2;
 	priv['('] = 10;
-	int len = strlen(s);
+	int len = s.size();
 	char last = 0;
 	for (int i = 0; i < len; ++i)  {
 		if (isdigit(s[i])) {
