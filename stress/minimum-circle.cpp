@@ -10,7 +10,7 @@ int main() {
 		int n = rnd(1, 12), R = rnd(0, 20);
 		vector<point_t> p(n);
 		for (auto &q : p) q = point_t(rnd(-R, R), rnd(-R, R));
-		auto [c, r] = minimum_circle(p);
+		auto [c, r] = minCircle(p);
 		double best = n == 1 ? 0 : 1e18; // O(n^4): every circle through 2 or 3 points
 		auto chk = [&](point_t cc, double rr) { for (auto &q : p) if (dist(q, cc) > rr + 1e-7) return; best = min(best, rr); };
 		for (int i = 0; i < n; ++i) for (int j = i + 1; j < n; ++j) {
