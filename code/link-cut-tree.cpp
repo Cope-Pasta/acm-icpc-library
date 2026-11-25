@@ -5,7 +5,8 @@ struct node_t {
 	int dir() { return this == p->ch[1]; }
 	void setc(node_t *c, int d) { ch[d] = c, c->p = this; }
 	void update() { size = ch[0]->size + ch[1]->size + 1; }
-} s[maxn], *nil = s;
+} nilv, *nil = &nilv;
+vector<node_t> s; // nodes s[0..n-1]
 
 node_t::node_t() {
 	size = 1, root = true;
@@ -62,4 +63,4 @@ void link(node_t *x, node_t *y) {
 	access(y);
 }
 
-void init() { nil->size = 0; }
+void init(int n) { nil->size = 0; s.assign(n, node_t()); }
