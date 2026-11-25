@@ -2,6 +2,10 @@
 
 ACM-ICPC reference library: C++ snippets in `code/`, typeset into `main.pdf` by `main.tex`.
 
+## Code style
+
+Strongly prefer 0-indexing, `std::vector` over fixed-size global arrays, and wrapping algorithms and their state in structs over loose globals.
+
 ## Checks
 
 Run all of these before committing, and fix anything that fails:
