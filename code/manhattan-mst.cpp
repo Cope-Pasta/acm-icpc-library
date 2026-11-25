@@ -1,45 +1,23 @@
-struct point {
-	int x, y, index;
-	bool operator<(const point &p) const { return x == p.x ? y < p.y : x < p.x; }
-};
-struct node {
-	int value, p;
-};
-vector<node> T; // Fenwick tree, 1-indexed
-
-int query(int x) {
-	int r = maxint, p = -1;
-	for (; x < int(T.size()); x += (x & -x))
-		if (T[x].value < r) r = T[x].value, p = T[x].p;
-	return p;
-}
-
-void modify(int x, int w, int p) {
-	for (; x > 0; x -= (x & -x))
-		if (T[x].value > w) T[x].value = w, T[x].p = p;
-}
-
-int manhattan(vector<point> p) { // add(u, v, w) gets 0-indexed point ids
-	int n = p.size();
-	for (int i = 0; i < n; ++i) p[i].index = i;
-	for (int dir = 0; dir < 4; ++dir) {
-		if (dir == 1 || dir == 3) {
-			for (auto &q : p) swap(q.x, q.y);
-		} else if (dir == 2) {
-			for (auto &q : p) q.x = -q.x;
+// Manhattan MST, O(n log n): returns <= 4n candidate edges {w, i, j} (point ids, 0-indexed) that contain
+// an MST of the points p (x, y) under |dx| + |dy|; run Kruskal on them.
+vector<array<int, 3>> manhattan(vector<pair<int, int>> p) {
+	vector<int> id(p.size());
+	iota(all(id), 0);
+	vector<array<int, 3>> e;
+	for (int k = 0; k < 4; k++) {
+		sort(all(id), [&](int i, int j) { return p[i].first - p[j].first < p[j].second - p[i].second; });
+		map<int, int> sw;
+		for (int i : id) {
+			for (auto it = sw.lower_bound(-p[i].second); it != sw.end(); sw.erase(it++)) {
+				int j = it->second, dx = p[i].first - p[j].first, dy = p[i].second - p[j].second;
+				if (dy > dx) break;
+				e.push_back({dx + dy, i, j});
+			}
+			sw[-p[i].second] = i;
 		}
-		sort(all(p));
-		vector<int> v, a(n);
-		for (int i = 0; i < n; ++i) a[i] = p[i].y - p[i].x, v.push_back(a[i]);
-		sort(all(v));
-		v.erase(unique(all(v)), v.end());
-		for (int i = 0; i < n; ++i) a[i] = lower_bound(all(v), a[i]) - v.begin() + 1;
-		T.assign(n + 1, {maxint, -1});
-		for (int i = n - 1; i >= 0; --i) {
-			int pos = query(a[i]);
-			if (pos != -1) add(p[i].index, p[pos].index, dist(p[i], p[pos]));
-			modify(a[i], p[i].x + p[i].y, i);
-		}
+		for (auto &[x, y] : p)
+			if (k & 1) x = -x;
+			else swap(x, y);
 	}
-	return kruskal();
+	return e;
 }
