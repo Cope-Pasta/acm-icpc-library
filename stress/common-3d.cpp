@@ -40,8 +40,12 @@ int main() {
 		point3_t u = rp(), v = it % 3 == 0 ? u * (rnd(1, 4) / 2.0) : rp();
 		if (u.length() < 0.1 || v.length() < 0.1) continue;
 		point3_t n = cross(u, v); double exp;
-		if (n.length() < 1e-9) exp = cross(c - a, u).length() / u.length();
-		else exp = fabs(dot(c - a, n)) / n.length();
+		if (n.length() < 1e-9) { point3_t h = c - a; exp = (h - u * (dot(h, u) / dot(u, u))).length(); } // drop the u component
+		else { // closest points a + s*u, c + t*v: (a + s*u - c - t*v) orthogonal to u and v
+			point3_t w = a - c; double uu = dot(u, u), uv = dot(u, v), vv = dot(v, v), D = uu * vv - uv * uv;
+			double s = (uv * dot(v, w) - vv * dot(u, w)) / D, t = (uu * dot(v, w) - uv * dot(u, w)) / D;
+			exp = (a + u * s - c - v * t).length();
+		}
 		if (n.length() > 1e-9 && n.length() < 1e-2) continue; // nearly parallel: ill-conditioned
 		if (fabs(distLL(a, u, c, v) - exp) > 1e-6 * max(1.0, exp)) return fail("distLL", distLL(a, u, c, v), exp);
 	}
