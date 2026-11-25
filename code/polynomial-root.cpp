@@ -1,46 +1,33 @@
-double cal(const vector<double> &coef, double x) {
-	double e = 1, s = 0;
-	for (int i = 0; i < coef.size(); ++i) s += coef[i] * e, e *= x;
+// Real roots (sorted) of c[0] + c[1]x + ... + c[n]x^n, n >= 1. Brackets roots between the
+// roots of the derivative (recursively) and bisects, O(100 n^3). Needs eps, dblcmp.
+double val(const vector<double> &c, double x) {
+	double s = 0;
+	for (int i = c.size(); i--;) s = s * x + c[i];
 	return s;
 }
-
-double find(const vector<double> &coef, double l, double r, int sl, int sr) {
-	if (sl == 0) return l;
-	if (sr == 0) return r;
-	for (int tt = 0; tt < 100 && r - l > eps; ++tt) {
-		double mid = (l + r) / 2;
-		int smid = dblcmp(cal(coef, mid));
-		if (smid == 0) return mid;
-		if (sl * smid < 0) r = mid;
-		else l = mid;
+vector<double> solve(vector<double> c) {
+	while (c.back() == 0) c.pop_back();
+	int n = c.size() - 1;
+	double b = 2, t = c[n]; // b: bound on |root|
+	for (double &x : c) x /= t;
+	if (n == 1) return {-c[0]};
+	vector<double> d(n), r;
+	for (int i = 0; i < n; i++) d[i] = c[i + 1] * (i + 1), b = max(b, 2 * pow(fabs(c[i]), 1.0 / (n - i)));
+	auto dr = solve(d);
+	dr.insert(dr.begin(), -b), dr.push_back(b);
+	for (int i = 0; i + 1 < dr.size(); i++) {
+		double l = dr[i], h = dr[i + 1];
+		int sl = dblcmp(val(c, l)), sh = dblcmp(val(c, h));
+		if (sl * sh > 0) continue;
+		if (!sl) h = l;
+		else if (!sh) l = h;
+		for (int it = 0; it < 100 && h - l > eps; it++) {
+			double m = (l + h) / 2;
+			int s = dblcmp(val(c, m));
+			if (!s) l = h = m;
+			else (s == sl ? l : h) = m;
+		}
+		r.push_back((l + h) / 2);
 	}
-	return (l + r) / 2;
-}
-
-vector<double> rec(const vector<double> &coef, int n) {
-	vector<double> ret; // c[0]+c[1]*x+c[2]*x^2+...+c[n]*x^n, c[n]==1
-	if (n == 1) {
-		ret.push_back(-coef[0]);
-		return ret;
-	}
-	vector<double> dcoef(n);
-	for (int i = 0; i < n; ++i) dcoef[i] = coef[i + 1] * (i + 1) / n;
-	double b = 2; // fujiwara bound
-	for (int i = 0; i <= n; ++i) b = max(b, 2 * pow(fabs(coef[i]), 1.0 / (n - i)));
-	vector<double> droot = rec(dcoef, n - 1);
-	droot.insert(droot.begin(), -b);
-	droot.push_back(b);
-	for (int i = 0; i + 1 < droot.size(); ++i) {
-		int sl = dblcmp(cal(coef, droot[i])), sr = dblcmp(cal(coef, droot[i + 1]));
-		if (sl * sr > 0) continue;
-		ret.push_back(find(coef, droot[i], droot[i + 1], sl, sr));
-	}
-	return ret;
-}
-
-vector<double> solve(vector<double> coef) {
-	int n = coef.size() - 1;
-	while (coef.back() == 0) coef.pop_back(), --n;
-	for (int i = 0; i <= n; ++i) coef[i] /= coef[n];
-	return rec(coef, n);
+	return r;
 }
