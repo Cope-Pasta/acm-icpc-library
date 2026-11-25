@@ -1,28 +1,27 @@
-int minkowski(point_t *h, point_t *h1, point_t *h2, int n, int m) {
+vector<point_t> minkowski(const vector<point_t> &h1, vector<point_t> h2) { // h1, h2 CCW hulls
+	int n = h1.size(), m = h2.size();
 	point_t c = point_t(0, 0);
-	for (int i = 1; i <= m; ++i) c = c + h2[i];
+	for (int i = 0; i < m; ++i) c = c + h2[i];
 	c = c / m;
-	for (int i = 1; i <= m; ++i) h2[i] = h2[i] - c;
+	for (int i = 0; i < m; ++i) h2[i] = h2[i] - c;
 	int cur = -1;
-	for (int i = 1; i <= m; ++i) {
-		if (dblcmp(cross(h2[i], h1[1] - h1[n])) >= 0) {
-			if (cur == -1 || cross(h2[i], h1[1] - h1[n]) > cross(h2[cur], h1[1] - h1[n])) cur = i;
+	for (int i = 0; i < m; ++i) {
+		if (dblcmp(cross(h2[i], h1[0] - h1[n - 1])) >= 0) {
+			if (cur == -1 || cross(h2[i], h1[0] - h1[n - 1]) > cross(h2[cur], h1[0] - h1[n - 1])) cur = i;
 		}
 	}
-	int cnt = 0;
-	h1[n + 1] = h1[1];
-	for (int i = 1; i <= n; ++i) {
+	vector<point_t> h;
+	for (int i = 0; i < n; ++i) {
+		point_t e = h1[(i + 1) % n] - h1[i];
 		while (true) {
-			h[++cnt] = h1[i] + h2[cur];
-			int next = (cur == m ? 1 : cur + 1);
-			if (dblcmp(cross(h2[cur], h1[i + 1] - h1[i])) < 0) cur = next;
+			h.push_back(h1[i] + h2[cur] + c);
+			int next = (cur + 1) % m;
+			if (dblcmp(cross(h2[cur], e)) < 0) cur = next;
 			else {
-				if (cross(h2[next], h1[i + 1] - h1[i]) > cross(h2[cur], h1[i + 1] - h1[i])) cur = next;
+				if (cross(h2[next], e) > cross(h2[cur], e)) cur = next;
 				else break;
 			}
 		}
 	}
-	for (int i = 1; i <= cnt; ++i) h[i] = h[i] + c;
-	for (int i = 1; i <= m; ++i) h2[i] = h2[i] + c;
-	return graham(h, cnt);
+	return graham(h);
 }
