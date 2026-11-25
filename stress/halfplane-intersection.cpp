@@ -2,11 +2,26 @@
 #include "check/common/geo2d.h"
 #include "code/computational-geometry/common-2d.cpp"
 #include "code/computational-geometry/halfplane-intersection.cpp"
+#include "stress/test.h"
 const unsigned SEED = 6;
 mt19937 rng(SEED);
 int ri(int a, int b) { return uniform_int_distribution<int>(a, b)(rng); }
 
+
+double area(const vector<point_t> &p) { double s = 0; for (int i = 0; i < (int)p.size(); ++i) s += cross(p[i], p[(i + 1) % p.size()]); return s / 2; }
+int unit() {
+	init(); cut({1, 1}, {1, 0}); cut({-1, 0}, {-1, 1}); EXPECT(p.empty()); // x >= 1 and x <= -1
+	init(); cut({0, 0}, {1, 0}); cut({1, 0}, {0, 1}); cut({0, 1}, {0, 0}); cut({1, 2}, {2, 2}); EXPECT(p.empty()); // triangle and y >= 2
+	init(); cut({0, 0}, {1, 0}); cut({1, 0}, {1, 1}); cut({1, 1}, {0, 1}); cut({0, 1}, {0, 0}); EXPECT(p.size() == 4 && near(area(p), 1)); // unit square
+	init(); cut({0, 0}, {1, 0}); cut({0, 0}, {1, 0}); cut({5, -1}, {6, -1}); cut({1, 0}, {1, 1}); cut({1, 1}, {0, 1}); cut({0, 1}, {0, 0});
+	EXPECT(near(area(p), 1)); // duplicate and redundant half-planes
+	init(); cut({0, 0}, {0, 1}); cut({0, 1}, {0, 0}); EXPECT(near(area(p), 0)); // x = 0: degenerate
+	init(); EXPECT(near(area(p), 4 * maxd * maxd)); // just the bounding box
+	return 0;
+}
+
 int main() {
+	if (unit()) return 1;
 	for (int it = 0; it < 5000; ++it) {
 		int m = ri(1, 12), R = ri(2, 20);
 		point_t q(ri(-R, R) + 0.37, ri(-R, R) + 0.61); // every half-plane contains q strictly
