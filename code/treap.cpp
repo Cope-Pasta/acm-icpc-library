@@ -1,10 +1,10 @@
 mt19937 rng{583427}; // any seed, crucial when testing on windows
 struct item {
-    int key, prior;
+    int key, prior, cnt;
     item *l, *r;
     item () {}
-    item (int key) : key(key), prior(rng()), l(nullptr), r(nullptr) { }
-    item (int key, int prior) : key(key), prior(prior), l(nullptr), r(nullptr) { }
+    item (int key) : key(key), prior(rng()), cnt(1), l(nullptr), r(nullptr) { }
+    item (int key, int prior) : key(key), prior(prior), cnt(1), l(nullptr), r(nullptr) { }
 };
 typedef item* pitem;
 
@@ -49,7 +49,7 @@ pitem unite (pitem l, pitem r) {
     push(r);
     if (l->prior < r->prior) swap(l, r);
     pitem lt, rt;
-    split(r, l->key, lt, rt);
+    split(r, lt, rt, l->key);
     l->l = unite(l->l, lt);
     l->r = unite(l->r, rt);
 	pull(l);
