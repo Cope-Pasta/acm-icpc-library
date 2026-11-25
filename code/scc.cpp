@@ -1,57 +1,22 @@
-vector<bool> visited; // keeps track of which vertices are already visited
-
-void dfs(int v, vector<vector<int>> const &adj, vector<int> &output) {
-	visited[v] = true;
-	for (auto u : adj[v])
-		if (!visited[u])
-			dfs(u, adj, output);
-	output.push_back(v);
-}
-
-// input: adj -- adjacency list of G
-// output: components -- the strongy connected components in G
-// output: adj_cond -- adjacency list of G^SCC (by root vertices)
-void strongly_connected_components(vector<vector<int>> const &adj,
-    vector<vector<int>> &components,
-    vector<vector<int>> &adj_cond) {
-	int n = adj.size();
-	components.clear(), adj_cond.clear();
-
-	vector<int> order; // will be a sorted list of G's vertices by exit time
-
-	visited.assign(n, false);
-
-	// first series of depth first searches
-	for (int i = 0; i < n; i++)
-		if (!visited[i])
-			dfs(i, adj, order);
-
-	// create adjacency list of G^T
-	vector<vector<int>> adj_rev(n);
-	for (int v = 0; v < n; v++)
-		for (int u : adj[v])
-			adj_rev[u].push_back(v);
-
-	visited.assign(n, false);
-	reverse(all(order));
-
-	vector<int> roots(n, 0); // gives the root vertex of a vertex's SCC
-
-	// second series of depth first searches
-	for (auto v : order)
-		if (!visited[v]) {
-			std::vector<int> component;
-			dfs(v, adj_rev, component);
-			components.push_back(component);
-			int root = *min_element(begin(component), end(component));
-			for (auto u : component)
-				roots[u] = root;
+// Tarjan SCC, O(n+m). g: adjacency list, vertices 0..n-1. comp[v] = SCC id in 0..cnt-1;
+// ids are reverse topological (edge u->v => comp[u] >= comp[v]); condensation: comp[u]->comp[v].
+struct SCC {
+	vector<int> val, comp, z;
+	int t = 0, cnt = 0;
+	SCC(const vector<vector<int>> &g) : val(g.size()), comp(g.size(), -1) {
+		for (int i = 0; i < (int)g.size(); i++)
+			if (comp[i] < 0) dfs(i, g);
+	}
+	int dfs(int u, const vector<vector<int>> &g) {
+		int low = val[u] = ++t, x;
+		z.push_back(u);
+		for (int v : g[u])
+			if (comp[v] < 0) low = min(low, val[v] ? val[v] : dfs(v, g));
+		if (low == val[u]) {
+			do x = z.back(), z.pop_back(), comp[x] = cnt;
+			while (x != u);
+			cnt++;
 		}
-
-	// add edges to condensation graph
-	adj_cond.assign(n, {});
-	for (int v = 0; v < n; v++)
-		for (auto u : adj[v])
-			if (roots[v] != roots[u])
-				adj_cond[roots[v]].push_back(roots[u]);
-}
+		return val[u] = low;
+	}
+};
