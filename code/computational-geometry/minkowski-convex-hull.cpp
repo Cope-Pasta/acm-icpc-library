@@ -1,9 +1,7 @@
 vector<point_t> minkowski(const vector<point_t> &h1, vector<point_t> h2) { // h1, h2 CCW hulls
 	int n = h1.size(), m = h2.size();
-	point_t c = point_t(0, 0);
-	for (int i = 0; i < m; ++i) c = c + h2[i];
-	c = c / m;
-	for (int i = 0; i < m; ++i) h2[i] = h2[i] - c;
+	point_t c = accumulate(h2.begin(), h2.end(), point_t(0, 0)) / m;
+	for (auto &q : h2) q = q - c;
 	int cur = -1;
 	for (int i = 0; i < m; ++i) {
 		if (dblcmp(cross(h2[i], h1[0] - h1[n - 1])) >= 0) {
