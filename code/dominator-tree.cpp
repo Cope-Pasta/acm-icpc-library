@@ -1,5 +1,5 @@
-// Lengauer-Tarjan dominator tree, O(m log n). g: directed adjacency list, 0-indexed.
-// dom[v] = immediate dominator of v, dom[root] = root, -1 if v is unreachable from root.
+// Lengauer-Tarjan dominator tree, O(m log n). g: directed adjacency, 0-indexed.
+// dom[v] = immediate dominator of v, dom[root] = root, -1 if unreachable.
 struct Dominator {
 	vector<int> dom, semi, anc, best; // semi/anc/best indexed by dfs number
 	int eval(int v) {

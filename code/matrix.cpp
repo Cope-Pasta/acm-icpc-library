@@ -1,7 +1,7 @@
-// n x n matrix, matrix_t(n, v) = v * I. determinant(): Euclid-style elimination with an exact zero test,
-// so only for integer or modular T (for double, pick the max pivot and compare with eps). O(n^3 log C).
-template <typename T>
-struct matrix_t {
+// n x n matrix, matrix_t(n, v) = v * I.
+// determinant(): Euclid-style elimination with an exact zero test, O(n^3 log C).
+// Only for integer or modular T (for double: max pivot, compare with eps).
+template <typename T> struct matrix_t {
 	int n;
 	vector<vector<T>> x;
 	matrix_t(int n, T v = 0) : n(n), x(n, vector<T>(n)) {

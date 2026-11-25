@@ -1,5 +1,6 @@
-// Aho-Corasick over 'a'..'a'+C-1, node 0 = root, O(C * total length). After build(): ch[p][c] is the
-// full transition function, flag[p] = some pattern is a suffix of the string read to reach p.
+// Aho-Corasick over 'a'..'a'+C-1, node 0 = root, O(C * total length).
+// After build(): ch[p][c] is the full transition function,
+// flag[p] = some pattern is a suffix of the string read to reach p.
 struct AC {
 	vector<array<int, C>> ch{{}};
 	vector<int> fail{0};
@@ -7,7 +8,10 @@ struct AC {
 	void add(const string &s) {
 		int p = 0;
 		for (char c : s) {
-			if (!ch[p][c - 'a']) ch[p][c - 'a'] = ch.size(), ch.emplace_back(), fail.push_back(0), flag.push_back(0);
+			if (!ch[p][c - 'a']) {
+				ch[p][c - 'a'] = ch.size();
+				ch.emplace_back(), fail.push_back(0), flag.push_back(0);
+			}
 			p = ch[p][c - 'a'];
 		}
 		flag[p] = 1;

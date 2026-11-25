@@ -1,4 +1,5 @@
-// ISAP max flow (gap + current arc), vertices 0..n-1. add(u, v, cap); sap(s, t) returns max flow. O(V^2 E).
+// ISAP max flow (gap + current arc), O(V^2 E). Vertices 0..n-1.
+// add(u, v, cap); sap(s, t) returns the max flow.
 struct SAP {
 	struct E {
 		int v, r;
@@ -28,7 +29,8 @@ struct SAP {
 		return res;
 	}
 	int sap(int s_, int t_) {
-		s = s_, t = t_, d.assign(n, 0), vd.assign(n + 1, 0), cur.assign(n, 0), vd[0] = n;
+		s = s_, t = t_, d.assign(n, 0), cur.assign(n, 0);
+		vd.assign(n + 1, 0), vd[0] = n;
 		int f = 0;
 		while (d[s] < n) f += aug(s, maxint);
 		return f;

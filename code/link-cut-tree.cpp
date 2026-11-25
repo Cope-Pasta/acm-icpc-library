@@ -1,13 +1,14 @@
-// Link-cut tree on a rooted forest of nodes 0..n-1 (n is nil), amortized O(log n) per op.
+// Link-cut tree on a rooted forest, nodes 0..n-1 (n is nil), amortized O(log n).
 // link(x, y): hang root y under x. cut(x): cut x from its parent.
-// access(x): x's splay tree becomes the root..x path, x on top, so sz[x] = depth(x) + 1.
+// access(x): x's splay tree becomes the root..x path, x on top, sz[x] = depth+1.
 // access(u) then access(v) returns lca(u, v) (same tree).
 struct LCT {
 	int n;
 	vector<int> p, sz;
 	vector<array<int, 2>> ch;
 	LCT(int n) : n(n), p(n + 1, n), sz(n + 1, 1), ch(n + 1, {n, n}) { sz[n] = 0; }
-	bool nr(int x) { return ch[p[x]][0] == x || ch[p[x]][1] == x; } // not a splay root
+	// not a splay root
+	bool nr(int x) { return ch[p[x]][0] == x || ch[p[x]][1] == x; }
 	void pull(int x) { sz[x] = sz[ch[x][0]] + sz[ch[x][1]] + 1; }
 	void rot(int x) {
 		int y = p[x], z = p[y], d = ch[y][1] == x, b = ch[x][!d];
@@ -21,7 +22,8 @@ struct LCT {
 	}
 	int access(int x) {
 		int l = x;
-		for (int y = n, z = x; z != n; y = z, z = p[z]) splay(l = z), ch[z][1] = y, pull(z);
+		for (int y = n, z = x; z != n; y = z, z = p[z])
+			splay(l = z), ch[z][1] = y, pull(z);
 		splay(x);
 		return l;
 	}

@@ -1,5 +1,6 @@
-// Centroid decomposition, O(n log n) + work in f. g: tree adjacency list, 0-indexed. solve(u, f) calls f(c) for the
-// centroid c of u's component (c already removed: walk from c over !rem vertices), then recurses into the parts.
+// Centroid decomposition, O(n log n) + work in f. g: tree adjacency, 0-indexed.
+// solve(u, f) calls f(c) for the centroid c of u's component, then recurses.
+// c is already removed in f: walk from c over !rem vertices.
 struct Centroid {
 	vector<vector<int>> g;
 	vector<int> sz;
@@ -16,8 +17,7 @@ struct Centroid {
 			if (v != p && !rem[v] && 2 * sz[v] > tot) return find(v, u, tot);
 		return u;
 	}
-	template <class F>
-	void solve(int u, F f) {
+	template <class F> void solve(int u, F f) {
 		int c = find(u, -1, calc(u, -1));
 		rem[c] = true, f(c);
 		for (int v : g[c])

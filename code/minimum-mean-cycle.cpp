@@ -1,4 +1,5 @@
-// Karp minimum mean cycle (negative weights ok), O(nm). Vertices 0..n-1; maxdbl if there is no cycle.
+// Karp minimum mean cycle (negative weights ok), O(nm). Vertices 0..n-1.
+// maxdbl if there is no cycle.
 struct edge_t {
 	int u, v, w;
 };
@@ -11,7 +12,8 @@ double mmc(int n, const vector<edge_t> &e) {
 	double res = maxdbl;
 	for (int v = 0; v < n; v++) {
 		double x = -maxdbl;
-		for (int k = 0; k < n; k++) x = max(x, (double(d[n][v]) - d[k][v]) / (n - k));
+		for (int k = 0; k < n; k++)
+			x = max(x, (double(d[n][v]) - d[k][v]) / (n - k));
 		if (d[n][v] != maxint) res = min(res, x);
 	}
 	return res;

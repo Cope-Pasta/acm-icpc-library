@@ -1,5 +1,6 @@
-// Number of Hamiltonian cycles on an n x m grid mod `mod`, huge n via transfer matrix (matrix_t with * and power).
-// Plug states: m + 1 base-3 digits (0 none, 1 "(", 2 ")"), plus -1 = cycle closed on the last cell. m <= 7 or so.
+// Hamiltonian cycles on an n x m grid mod `mod`, huge n via transfer matrix
+// (matrix_t with * and power). m <= 7 or so. Plug states: m + 1 base-3 digits
+// (0 none, 1 "(", 2 ")"), plus -1 = cycle closed on the last cell.
 int plugDP(ll n, int m) {
 	vector<int> p3(m + 2, 1);
 	for (int i = 1; i <= m + 1; ++i) p3[i] = p3[i - 1] * 3;
@@ -15,11 +16,13 @@ int plugDP(ll n, int m) {
 			map<int, int> h;
 			for (auto [k, v] : f) {
 				auto add = [&](int s) { h[s] = (h[s] + v) % mod; };
-				int x = get(k, j), y = get(k, j + 1), t = put(put(k, j, 0), j + 1, 0);
+				int x = get(k, j), y = get(k, j + 1),
+				    t = put(put(k, j, 0), j + 1, 0);
 				if (!x && !y) add(put(put(t, j, 1), j + 1, 2));
 				else if (!x || !y) add(k), add(put(put(t, j, y), j + 1, x));
 				else if (x == 1 && y == 2) {
-					if (j == m - 1 && !t) add(-1); // close the only loop on the last cell of a row
+					if (j == m - 1 && !t)
+						add(-1); // close the only loop on the last cell of a row
 				} else if (x == 2 && y == 1) add(t);
 				else if (x == 1) add(put(t, mate(k, j + 1), 1));
 				else add(put(t, mate(k, j), 2));

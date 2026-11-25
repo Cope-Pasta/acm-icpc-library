@@ -1,4 +1,5 @@
-// Non-negative big integer, base 1e9 limbs (b[0] lowest): +, - (needs a >= b), *, / by ll (< 9e9), <<.
+// Non-negative big integer, base 1e9 limbs (b[0] lowest).
+// +, - (needs a >= b), *, / by ll (< 9e9), <<.
 const int B = 1e9;
 struct Big {
 	vector<ll> b;
@@ -7,7 +8,8 @@ struct Big {
 		while (n);
 	}
 	Big(const string &s) {
-		for (int i = s.size(), j; i > 0; i = j) j = max(0, i - 9), b.push_back(stoll(s.substr(j, i - j)));
+		for (int i = s.size(), j; i > 0; i = j)
+			j = max(0, i - 9), b.push_back(stoll(s.substr(j, i - j)));
 		trim();
 	}
 	Big &trim() {
@@ -35,7 +37,10 @@ struct Big {
 		Big f;
 		f.b.assign(b.size() + r.b.size(), 0);
 		for (int i = 0; i < b.size(); i++)
-			for (ll j = 0, c = 0; j < r.b.size() || c; j++) c += f.b[i + j] + (j < r.b.size() ? b[i] * r.b[j] : 0), f.b[i + j] = c % B, c /= B;
+			for (ll j = 0, c = 0; j < r.b.size() || c; j++) {
+				c += f.b[i + j] + (j < r.b.size() ? b[i] * r.b[j] : 0);
+				f.b[i + j] = c % B, c /= B;
+			}
 		return f.trim();
 	}
 	Big operator/(ll r) const {

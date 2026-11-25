@@ -16,7 +16,10 @@ ll exgcd(ll x, ll y, ll &a, ll &b) {
 ll CRT(const vector<int> &p, const vector<int> &b) {
 	ll N = 1, r = 0, x, y;
 	for (ll q : p) N *= q;
-	for (int i = 0; i < p.size(); i++) exgcd(N / p[i], p[i], x, y), r = (r + (x % p[i] + p[i]) * b[i] % p[i] * (N / p[i])) % N;
+	for (int i = 0; i < p.size(); i++) {
+		exgcd(N / p[i], p[i], x, y);
+		r = (r + (x % p[i] + p[i]) * b[i] % p[i] * (N / p[i])) % N;
+	}
 	return (r + N) % N;
 }
 // deterministic Miller-Rabin for all n < 2^64
@@ -55,5 +58,6 @@ ll primitiveRoot(ll p) {
 	vector<ll> f;
 	factorize(p - 1, f);
 	for (ll g = 1;; g++)
-		if (all_of(all(f), [&](ll q) { return fpow(g, (p - 1) / q, p) != 1; })) return g;
+		if (all_of(all(f), [&](ll q) { return fpow(g, (p - 1) / q, p) != 1; }))
+			return g;
 }

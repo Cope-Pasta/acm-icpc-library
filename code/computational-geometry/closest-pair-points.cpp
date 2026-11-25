@@ -5,7 +5,9 @@ double closestPair(vector<point_t> p) {
 	double d = maxdbl;
 	for (int i = 0, j = 0; i < (int)p.size(); s.insert({p[i].y, p[i].x}), ++i) {
 		for (; p[i].x - p[j].x > d; ++j) s.erase({p[j].y, p[j].x});
-		for (auto it = s.lower_bound({p[i].y - d, -maxdbl}); it != s.end() && it->first <= p[i].y + d; ++it) d = min(d, dist(p[i], point_t(it->second, it->first)));
+		for (auto it = s.lower_bound({p[i].y - d, -maxdbl});
+		    it != s.end() && it->first <= p[i].y + d; ++it)
+			d = min(d, dist(p[i], point_t(it->second, it->first)));
 	}
 	return d;
 }

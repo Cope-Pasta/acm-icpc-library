@@ -1,5 +1,7 @@
-// Hungarian (Kuhn-Munkres): max-weight assignment of rows of n x m matrix g to distinct columns, n <= m. O(n^2 m).
-// Returns {weight, p}, p[i] = column of row i. For min cost, negate g. (u, v, p, pre are 1-indexed; 0 is a sentinel.)
+// Hungarian (Kuhn-Munkres), O(n^2 m): max-weight assignment of the rows of
+// n x m matrix g to distinct columns, n <= m. For min cost, negate g.
+// Returns {weight, p}, p[i] = column of row i.
+// (u, v, p, pre are 1-indexed; 0 is a sentinel.)
 pair<int, vector<int>> km(const vector<vector<int>> &g) {
 	int n = g.size(), m = g[0].size();
 	vector<int> u(n + 1), v(m + 1), p(m + 1), pre(m + 1), res(n);

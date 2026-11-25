@@ -1,8 +1,11 @@
-// Splay tree over a sequence of nodes; node x holds cnt[x] units. Node 0 is nil. Amortized O(log n).
-// Keep a sentinel node at each end. add(c): new node (root = add(c) for the first one).
-// ins(y, x, d): put x right after (d=1) / before (d=0) y. nb(x, d): next/previous node.
-// find(k): node holding unit k (0-indexed). split(k): make unit k its own node, return it.
-// expose(x, y): subtree holding exactly nodes x..y. cut(x, y): remove nodes x..y.
+// Splay tree over a sequence; node x holds cnt[x] units. Amortized O(log n).
+// Node 0 is nil. Keep a sentinel node at each end.
+// add(c): new node (root = add(c) for the first one).
+// ins(y, x, d): put x right after (d=1) / before (d=0) y.
+// nb(x, d): next (d=1) / previous (d=0) node.
+// find(k): node holding unit k (0-indexed).
+// split(k): make unit k its own node, return it.
+// expose(x, y): subtree holding exactly nodes x..y. cut(x, y): remove x..y.
 struct Splay {
 	vector<int> p, sz, cnt;
 	vector<array<int, 2>> ch;

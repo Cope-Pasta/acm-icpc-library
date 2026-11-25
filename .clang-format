@@ -4,7 +4,7 @@ Standard: Latest
 IndentWidth: 4
 TabWidth: 4
 UseTab: ForIndentation
-ColumnLimit: 0
+ColumnLimit: 84
 BreakBeforeBraces: Attach
 AllowShortBlocksOnASingleLine: Always
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
@@ -17,7 +17,7 @@ IndentCaseLabels: true
 AccessModifierOffset: -4
 PointerAlignment: Right
 SortIncludes: Never
-ReflowComments: false
+ReflowComments: true
 SpacesBeforeTrailingComments: 1
 FixNamespaceComments: false
 AlignTrailingComments: false

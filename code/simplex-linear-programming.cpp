@@ -1,6 +1,7 @@
-// Simplex (Bland's rule): max{cx | Ax <= b, x >= 0}, a: n x m, b: n, c: m. Needs eps.
-// Returns the optimum, maxdbl if unbounded, -maxdbl if infeasible.
-double simplex(const vector<vector<double>> &a, const vector<double> &b, const vector<double> &c) {
+// Simplex (Bland's rule): max{cx | Ax <= b, x >= 0}, a: n x m, b: n, c: m.
+// Returns the optimum, maxdbl if unbounded, -maxdbl if infeasible. Needs eps.
+double simplex(const vector<vector<double>> &a, const vector<double> &b,
+    const vector<double> &c) {
 	int n = b.size(), m = c.size() + 1, r = n, s = m - 1;
 	vector<vector<double>> d(n + 2, vector<double>(m + 1));
 	vector<int> ix(n + m);
@@ -26,10 +27,15 @@ double simplex(const vector<vector<double>> &a, const vector<double> &b, const v
 		}
 		r = s = -1;
 		for (int j = 0; j < m; ++j)
-			if ((s < 0 || ix[s] > ix[j]) && (d[n + 1][j] > eps || (d[n + 1][j] > -eps && d[n][j] > eps))) s = j;
+			if ((s < 0 || ix[s] > ix[j]) &&
+			    (d[n + 1][j] > eps || (d[n + 1][j] > -eps && d[n][j] > eps)))
+				s = j;
 		if (s < 0) break;
 		for (int i = 0; i < n; ++i)
-			if (d[i][s] < -eps && (r < 0 || (dd = d[r][m] / d[r][s] - d[i][m] / d[i][s]) < -eps || (dd < eps && ix[r + m] > ix[i + m]))) r = i;
+			if (d[i][s] < -eps &&
+			    (r < 0 || (dd = d[r][m] / d[r][s] - d[i][m] / d[i][s]) < -eps ||
+			        (dd < eps && ix[r + m] > ix[i + m])))
+				r = i;
 		if (r < 0) return maxdbl;
 	}
 	if (d[n + 1][m] < -eps) return -maxdbl;

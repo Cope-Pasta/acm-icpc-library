@@ -33,7 +33,8 @@ struct Blossom {
 				if (!st[v]) {
 					pre[v] = u, st[v] = 2;
 					if (mt[v] < 0) {
-						for (int x = v, y; x >= 0; x = y) y = mt[pre[x]], mt[x] = pre[x], mt[pre[x]] = x;
+						for (int x = v, y; x >= 0; x = y)
+							y = mt[pre[x]], mt[x] = pre[x], mt[pre[x]] = x;
 						return 1;
 					}
 					st[mt[v]] = 1, q.push(mt[v]);

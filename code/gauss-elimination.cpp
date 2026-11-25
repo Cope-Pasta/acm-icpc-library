@@ -1,4 +1,5 @@
-// Gauss-Jordan with partial pivoting, O(n^3). g: n x (n + 1) augmented [A | b], A nonsingular; then x[i] = g[i][n].
+// Gauss-Jordan with partial pivoting, O(n^3). A nonsingular.
+// g: n x (n + 1) augmented [A | b]; afterwards x[i] = g[i][n].
 void gauss(vector<vector<double>> &g) {
 	int n = g.size();
 	for (int i = 0; i < n; ++i) {

@@ -1,5 +1,5 @@
-// Pi: prime counts pi(v) for every v in a = {n/1, n/2, ..., 1} (distinct, descending), O(n^(3/4)).
-// Map r(n): r.at(v) is lo[v] for v <= s = sqrt(n), else hi[n / v].
+// Pi: prime counts pi(v) for all v in a = {n/1, n/2, ..., 1} (distinct, desc).
+// O(n^(3/4)). Map r(n): r.at(v) is lo[v] for v <= s = sqrt(n), else hi[n / v].
 Map Pi(ll n, const vector<ll> &a) {
 	Map r(n);
 	for (ll v : a) r.at(v) = v - 1;
@@ -12,8 +12,9 @@ Map Pi(ll n, const vector<ll> &a) {
 		}
 	return r;
 }
-// get(n, 0) = sum of multiplicative g(m), m <= n, where g(p^c) = pre[c] for every prime p.
-// pr: primes <= sqrt(n) plus one larger sentinel, upto[p] = pi(p), cnt = Pi(n, a).
+// get(n, 0) = sum of multiplicative g(m), m <= n, where g(p^c) = pre[c].
+// pr: primes <= sqrt(n) plus one larger sentinel, upto[p] = pi(p),
+// cnt = Pi(n, a).
 ll get(ll n, int i) {
 	ll p = pr[i];
 	if (p > n) return 1;

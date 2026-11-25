@@ -1,5 +1,6 @@
-// Recursive descent, O(n): non-negative integers, + - * / (left assoc.), unary -, parentheses,
-// spaces. cal(x, y, op) applies a binary op (user-defined, e.g. modular). parse("2*(3+4)-10/2") = 9
+// Recursive descent, O(n): non-negative ints, + - * / (left assoc.), unary -,
+// parentheses, spaces. cal(x, y, op) applies a binary op (e.g. modular).
+// parse("2*(3+4)-10/2") = 9
 struct Expr {
 	string s;
 	int i = 0;
@@ -12,8 +13,11 @@ struct Expr {
 			return v;
 		}
 		int v = get(lv + 1);
-		for (char o; (o = s[i]) && strchr(lv ? "*/" : "+-", o);) i++, v = cal(v, get(lv + 1), o);
+		for (char o; (o = s[i]) && strchr(lv ? "*/" : "+-", o);)
+			i++, v = cal(v, get(lv + 1), o);
 		return v;
 	}
 };
-int parse(string s) { return s.erase(remove(all(s), ' '), s.end()), Expr{s}.get(0); }
+int parse(string s) {
+	return s.erase(remove(all(s), ' '), s.end()), Expr{s}.get(0);
+}

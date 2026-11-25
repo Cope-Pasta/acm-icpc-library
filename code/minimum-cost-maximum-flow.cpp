@@ -1,5 +1,5 @@
-// Min-cost max-flow by SPFA shortest augmenting paths; vertices 0..n-1, no negative cycles.
-// add(u, v, cap, cost); cost_flow(s, t) returns {flow, cost}. O(flow * VE) worst case.
+// Min-cost max-flow, SPFA augmenting paths, O(flow * VE). Vertices 0..n-1.
+// No negative cycles. add(u, v, cap, cost); cost_flow(s, t) = {flow, cost}.
 struct MCMF {
 	struct E {
 		int v, r, w;
@@ -32,7 +32,8 @@ struct MCMF {
 			if (d[t] == maxint) return {flow, cost};
 			int f = maxint;
 			for (int v = t; v != s; v = e[p[v] ^ 1].v) f = min(f, e[p[v]].r);
-			for (int v = t; v != s; v = e[p[v] ^ 1].v) e[p[v]].r -= f, e[p[v] ^ 1].r += f;
+			for (int v = t; v != s; v = e[p[v] ^ 1].v)
+				e[p[v]].r -= f, e[p[v] ^ 1].r += f;
 			flow += f, cost += f * d[t];
 		}
 	}

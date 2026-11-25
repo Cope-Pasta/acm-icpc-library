@@ -1,5 +1,6 @@
-// Tarjan SCC, O(n+m). g: adjacency list, vertices 0..n-1. comp[v] = SCC id in 0..cnt-1;
-// ids are reverse topological (edge u->v => comp[u] >= comp[v]); condensation: comp[u]->comp[v].
+// Tarjan SCC, O(n+m). g: adjacency list, vertices 0..n-1.
+// comp[v] = SCC id in 0..cnt-1, reverse topological: u->v => comp[u] >= comp[v].
+// Condensation edges: comp[u]->comp[v].
 struct SCC {
 	vector<int> val, comp, z;
 	int t = 0, cnt = 0;

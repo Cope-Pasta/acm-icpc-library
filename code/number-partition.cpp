@@ -1,4 +1,5 @@
-// p(n): number of partitions of n into unordered positive parts (pentagonal number theorem), O(n sqrt n).
+// p(n): partitions of n into unordered positive parts, O(n sqrt n).
+// Uses the pentagonal number theorem.
 int partition(int n) {
 	vector<int> dp(n + 1);
 	dp[0] = 1;

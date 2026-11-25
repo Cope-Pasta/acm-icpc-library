@@ -1,5 +1,6 @@
-// cut CCW convex polygon p by the half-plane left of a->b, O(n). O(n^2) half-plane intersection:
-// start from a big CCW box {(-M,-M), (M,-M), (M,M), (-M,M)} and cut by each half-plane
+// Cut CCW convex polygon p by the half-plane left of a->b, O(n).
+// O(n^2) half-plane intersection: start from a big CCW box
+// {(-M,-M), (M,-M), (M,M), (-M,M)} and cut by each half-plane.
 vector<point_t> cut(const vector<point_t> &p, point_t a, point_t b) {
 	vector<point_t> r;
 	for (int i = 0, n = p.size(); i < n; ++i) {

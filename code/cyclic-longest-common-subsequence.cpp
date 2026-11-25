@@ -1,11 +1,15 @@
-// Cyclic LCS: max over rotations r of a of LCS(r, b), O(|a| |b|). LCS table of (a + a, b), rerooted row by row.
+// Cyclic LCS: max over rotations r of a of LCS(r, b), O(|a| |b|).
+// LCS table of (a + a, b), rerooted row by row.
 int clcs(const string &a, const string &b) {
 	int m = a.size(), n = b.size(), ans = 0;
-	vector<vector<int>> d(2 * m + 1, vector<int>(n + 1)), p = d; // p: 1 left, 2 diagonal, 3 (or 0) up
+	// p: 1 left, 2 diagonal, 3 (or 0) up
+	vector<vector<int>> d(2 * m + 1, vector<int>(n + 1)), p = d;
 	for (int i = 0; i <= 2 * m; ++i)
 		for (int j = 0; j <= n; ++j) {
 			if (j) d[i][j] = d[i][j - 1], p[i][j] = 1;
-			if (i && j && a[(i - 1) % m] == b[j - 1] && d[i - 1][j - 1] + 1 > d[i][j]) d[i][j] = d[i - 1][j - 1] + 1, p[i][j] = 2;
+			if (i && j && a[(i - 1) % m] == b[j - 1] &&
+			    d[i - 1][j - 1] + 1 > d[i][j])
+				d[i][j] = d[i - 1][j - 1] + 1, p[i][j] = 2;
 			if (i && d[i - 1][j] > d[i][j]) d[i][j] = d[i - 1][j], p[i][j] = 3;
 		}
 	for (int r = 0; r < m; ++r) {

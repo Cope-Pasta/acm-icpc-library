@@ -1,5 +1,6 @@
 // Implicit treap (sequence indexed by position), O(log n) expected per op.
-// split(t, k, l, r): l = first k elements, r = rest. Lazy tags: push(t) at the top of split and merge.
+// split(t, k, l, r): l = first k elements, r = rest.
+// Lazy tags: push(t) at the top of split and merge.
 mt19937 rng(583427);
 struct Node {
 	Node *l = 0, *r = 0;

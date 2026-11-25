@@ -1,4 +1,5 @@
-// Stoer-Wagner global min cut, O(n^3). g: n*n symmetric weight matrix, 0-indexed; self-loops are ignored.
+// Stoer-Wagner global min cut, O(n^3). 0-indexed.
+// g: n*n symmetric weight matrix; self-loops are ignored.
 int stoer_wagner(vector<vector<int>> g) {
 	int n = g.size(), best = INT_MAX;
 	for (int ph = 1; ph < n; ph++) {

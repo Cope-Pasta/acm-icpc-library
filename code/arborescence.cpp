@@ -1,4 +1,5 @@
-// Chu-Liu/Edmonds: min-cost arborescence (all vertices reachable from root), O(nm). 0-indexed, -1 if none.
+// Chu-Liu/Edmonds min-cost arborescence, O(nm). 0-indexed.
+// Returns -1 if some vertex is unreachable from root.
 struct edge_t {
 	int u, v, w;
 };

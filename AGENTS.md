@@ -6,6 +6,8 @@ ACM-ICPC reference library: C++ snippets in `code/`, typeset into `main.pdf` by 
 
 Strongly prefer 0-indexing, `std::vector` over fixed-size global arrays, and wrapping algorithms and their state in structs over loose globals.
 
+Keep lines within 84 columns (tabs count as 4): wider lines wrap in the two-column PDF. `.clang-format` enforces this; write header comments as short lines, one fact each, rather than relying on comment reflow.
+
 ## Checks
 
 Run all of these before committing, and fix anything that fails:

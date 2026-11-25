@@ -1,5 +1,6 @@
-// Real roots (sorted) of c[0] + c[1]x + ... + c[n]x^n, n >= 1. Brackets roots between the
-// roots of the derivative (recursively) and bisects, O(100 n^3). Needs eps, dblcmp.
+// Real roots (sorted) of c[0] + c[1]x + ... + c[n]x^n, n >= 1, O(100 n^3).
+// Brackets roots between the roots of the derivative (recursively), bisects.
+// Needs eps, dblcmp.
 double val(const vector<double> &c, double x) {
 	double s = 0;
 	for (int i = c.size(); i--;) s = s * x + c[i];
@@ -12,7 +13,8 @@ vector<double> solve(vector<double> c) {
 	for (double &x : c) x /= t;
 	if (n == 1) return {-c[0]};
 	vector<double> d(n), r;
-	for (int i = 0; i < n; i++) d[i] = c[i + 1] * (i + 1), b = max(b, 2 * pow(fabs(c[i]), 1.0 / (n - i)));
+	for (int i = 0; i < n; i++)
+		d[i] = c[i + 1] * (i + 1), b = max(b, 2 * pow(fabs(c[i]), 1.0 / (n - i)));
 	auto dr = solve(d);
 	dr.insert(dr.begin(), -b), dr.push_back(b);
 	for (int i = 0; i + 1 < dr.size(); i++) {

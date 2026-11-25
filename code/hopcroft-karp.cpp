@@ -1,5 +1,6 @@
-// Hopcroft-Karp bipartite matching, O(E sqrt V). Left 0..n-1, right 0..m-1, g[u]: right neighbours of u.
-// run() returns the matching size; l[u] / r[v]: partner of left u / right v, or -1.
+// Hopcroft-Karp bipartite matching, O(E sqrt V). Left 0..n-1, right 0..m-1.
+// g[u]: right neighbours of u. run() returns the matching size.
+// l[u] / r[v]: partner of left u / right v, or -1.
 struct HK {
 	int n, m;
 	vector<vector<int>> g;
@@ -9,7 +10,8 @@ struct HK {
 		int d = lv[u];
 		lv[u] = -1;
 		for (int w : g[u])
-			if (r[w] < 0 || (lv[r[w]] == d + 1 && dfs(r[w]))) return l[u] = w, r[w] = u, 1;
+			if (r[w] < 0 || (lv[r[w]] == d + 1 && dfs(r[w])))
+				return l[u] = w, r[w] = u, 1;
 		return 0;
 	}
 	int run() {
@@ -23,7 +25,8 @@ struct HK {
 				int u = q.front();
 				q.pop();
 				for (int w : g[u])
-					if (r[w] >= 0 && lv[r[w]] < 0) lv[r[w]] = lv[u] + 1, q.push(r[w]);
+					if (r[w] >= 0 && lv[r[w]] < 0)
+						lv[r[w]] = lv[u] + 1, q.push(r[w]);
 			}
 			d = 0;
 			for (int i = 0; i < n; ++i) d += l[i] < 0 && dfs(i);

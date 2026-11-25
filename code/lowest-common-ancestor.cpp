@@ -1,4 +1,5 @@
-// Binary lifting LCA: O(n log n) build, O(log n) query. p[v]: parent (p[root] = root), d[v]: depth, 0-indexed.
+// Binary lifting LCA: O(n log n) build, O(log n) query. 0-indexed.
+// p[v]: parent (p[root] = root), d[v]: depth.
 struct LCA {
 	vector<vector<int>> up;
 	vector<int> d;

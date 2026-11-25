@@ -38,14 +38,16 @@ int minRotation(string s) {
 		}
 	return min(i, j);
 }
-// l[i]: length of the longest palindrome centred at i / 2, i in [0, 2n); returns max l[i]
+// Manacher: l[i] = length of the longest palindrome centred at i / 2,
+// i in [0, 2n). Returns max l[i].
 int manacher(const string &s, vector<int> &l) {
 	int n = s.size() * 2;
 	l.assign(n, 0);
 	for (int i = 0, j = 0, k; i < n; i += k, j = max(j - k, 0)) {
 		while (i >= j && i + j + 1 < n && s[(i - j) / 2] == s[(i + j + 1) / 2]) j++;
 		l[i] = j;
-		for (k = 1; i >= k && j >= k && l[i - k] != j - k; k++) l[i + k] = min(l[i - k], j - k);
+		for (k = 1; i >= k && j >= k && l[i - k] != j - k; k++)
+			l[i + k] = min(l[i - k], j - k);
 	}
 	return n ? *max_element(all(l)) : 0;
 }

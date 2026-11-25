@@ -1,5 +1,6 @@
 // NTT mod 998244353 = 119*2^23+1 (primitive root 3), in place, O(n log n).
-// a.size() must be a power of 2 (<= 2^23); inv = true computes the inverse (includes 1/n).
+// a.size() must be a power of 2 (<= 2^23).
+// inv = true computes the inverse (includes 1/n).
 const int mod = 998244353;
 ll pw(ll b, ll e) {
 	ll r = 1;
